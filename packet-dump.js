@@ -3,6 +3,7 @@
 const { networkInterfaces } = require('os');
 const net = require('net');
 const nets = networkInterfaces();
+const port = 12345;
 
 // console.log(JSON.stringify(nets, null, 4));
 
@@ -21,17 +22,25 @@ for (const name of Object.keys(nets)) {
     }
 }
 
-const start = Date.now();
+var start = Date.now();
+var last = start;
 
 console.log("#");
 console.log("# Start listening on port 12345");
-var server = net.createServer(function(socket) {
+// see https://nodejs.org/api/net.html#netcreateserveroptions-connectionlistener
+var server = net.createServer({ noDelay : true}, function(socket) {
+  start = Date.now();
+  last = start;
+
   console.log("# connected");
+  console.log();
 
   socket.on("data", d => {
     const now = Date.now();
     console.log("# dt " + (now - start));
+    console.log("# since last " + (now - last));
     console.log("" + d);
+    last = now;
   });
 
   socket.on("close", () => {
@@ -39,6 +48,6 @@ var server = net.createServer(function(socket) {
   });
 });
 
-server.listen(12345, () => {
-  console.log('# TCP server bound. Waiting for connection.');
+server.listen(port, () => {
+  console.log('# TCP server bound on port ' + port + '. Waiting for connection.');
 });
