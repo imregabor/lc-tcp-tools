@@ -10,9 +10,13 @@ Contents
   - `packet-dump.js`: node.js tool to capture TCP traffic from effects computer with timestamps
   - `data/capture-ppp.txt.gz`: direct timestamped capture of TCP traffic from the effects computer
     from https://www.youtube.com/watch?v=JbspWYbuxgE ("Pixel Peeker Polka - faster" by Kevin MacLeod)
+  - `data/ppp.pcapng.gz`: Wireshark capture of communication between the effects computer and
+    TCP/EPP bridge during playback of above song ("Pixel Peeker Polka"). Note that this capture
+    created during a run different from above.
   - `data/capture-rfd.txt.gz`: direct timestamped capture of TCP traffic from the effects computer
     from https://www.youtube.com/watch?v=WV8AcJU-_yU ("RetroFuture Dirty" by Kevin MacLeod). Note that
     the song played multiple times.
+
 
 
 TODO
