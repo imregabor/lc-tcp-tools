@@ -8,6 +8,8 @@ Contents
 --------
 
   - `packet-dump.js`: node.js tool to capture TCP traffic from effects computer with timestamps
+  - `replay-packet-dump.js`: node.js to replay captured TCP traffic from `stdin` over a TCP/IP
+    connection using timing timestamps
   - `data/capture-ppp.txt.gz`: direct timestamped capture of TCP traffic from the effects computer
     from https://www.youtube.com/watch?v=JbspWYbuxgE ("Pixel Peeker Polka - faster" by Kevin MacLeod)
   - `data/ppp.pcapng.gz`: Wireshark capture of communication between the effects computer and
