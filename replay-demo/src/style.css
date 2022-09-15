@@ -1,0 +1,12 @@
+div.matrix-container {
+	margin-top: 100px;
+	background-color: #222;
+	position: relative;
+	display: block;
+}
+
+div.matrix-dot {
+	border-radius: 15px;
+	display: block;
+	position: absolute;
+}
