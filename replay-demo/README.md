@@ -9,10 +9,22 @@ What works:
  - `webpack` based build, importing packet capture into JS
  - rendering of lights (static / minimal animation)
 
+Compilation
+-----------
+
+Make sure that [node.js](https://nodejs.org/en/download/) is installed.
+
+```
+cd replay-demo
+npm ci
+npm run build
+```
+
 TODO:
 -----
 
  - Parse and playback imported capture
+
 
 
 

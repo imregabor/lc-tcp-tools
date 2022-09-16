@@ -1,6 +1,29 @@
+body {
+	margin: 0px;
+	font-family: sans-serif;
+}
+
+div.fps {
+	border-bottom: 1px solid #ccc;
+	margin: 0px;
+	margin-bottom: 20px;
+	padding: 8px;
+	background-color: #e8e8e8;
+}
+
+div.fps .label {
+	margin-right: 0.5em;
+}
+
+div.fps .value {
+	margin-right: 1em;
+}
+
+
 div.matrix-container {
+	margin-left: 10px;
 	margin-top: 100px;
-	background-color: #222;
+	background-color: #111;
 	position: relative;
 	display: block;
 }

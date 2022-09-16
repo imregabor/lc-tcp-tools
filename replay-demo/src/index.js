@@ -7,6 +7,43 @@ import cap from '../../data/capture-ppp.txt.gz';
 
 console.log("HHH", cap);
 
+function attachPerfCounter(d3sel) {
+  const buf = [];
+  const bufSize = 100;
+  var next = 0;
+
+  function render() {
+    if (buf.length < 2) {
+      d3sel.text("N / A");
+    } else {
+      const now = Date.now();
+      const first = buf[ next ];
+
+      if (now == first) {
+        d3sel.text("?");
+      } else {
+        d3sel.text("" + Math.round(1000 * buf.length / (now - first)));
+      }
+    }
+  }
+
+  const ret = {
+    tick : () => {
+      const now = Date.now();
+      if (buf.length < bufSize) {
+        buf.push(now);
+        next = 0;
+      } else {
+        buf[next] = now;
+        next = (next + 1) % buf.length;
+      }
+    },
+    render : () => render()
+  };
+  ret.render();
+  return ret;
+}
+
 
 function addMatrix(parentD3, opts) {
   const containerPadding = (opts.pad ? opts.pad : 1.0) * 60;
@@ -18,7 +55,7 @@ function addMatrix(parentD3, opts) {
   } 
 
   const vToColor = chroma
-    .scale(['#4d0f00', '#eded5e', '#ffffe6'])
+    .scale(['#4d0000', '#d41111', '#eded5e', '#ffffe6', '#ffffff'])
     .correctLightness();
 
   var dots = [];
@@ -82,6 +119,7 @@ function component() {
 }
 
 var m1;
+var fps;
 
 function anima1() {
   for (var i = 0; i < m1.cols(); i++) {
@@ -98,8 +136,10 @@ function anima1() {
 function initPage() {
   const body = d3.select('body');
 
-  body.append('span').text('Hello');
-
+  const fpsdiv = body.append('div').classed("fps", true);
+  fpsdiv.append("span").classed("label", true).text("Rendering FPS:");
+  const fpsv = fpsdiv.append("span").classed("value", true);
+  fps = attachPerfCounter(fpsv);
 
   m1 = addMatrix(body, { cols: 24, rows: 1, sep: 0.1, pad: 0.2 } );
   for (var i = 0; i < 24; i++) {
@@ -112,6 +152,8 @@ function initPage() {
 
   function r() {
     m1.render();
+    fps.tick();
+    fps.render();
     requestAnimationFrame(r);
   }
 
