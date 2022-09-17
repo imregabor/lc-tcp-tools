@@ -3,7 +3,8 @@ import _ from 'lodash';
 import * as d3 from 'd3';
 import './style.css';
 import chroma from 'chroma-js';
-import cap from '../../data/capture-ppp.txt.gz';
+//import cap from '../../data/capture-ppp.txt.gz';
+import cap from '../../data/capture-rfd.txt.gz';
 
 
 function replay(opts) {
@@ -55,7 +56,25 @@ function replay(opts) {
   return ret;
 }
 
+function parsePacket(s) {
+  if (!s.startsWith('S')) {
+    console.log('Invalid frame ' + s);
+    return
+  }
+  var ret = {
+    a: [],
+    d: []
+  };
 
+  var i = 1;
+  while (i < s.length - 3) {
+    ret.a.push(parseInt(s.substring(i + 0, i + 2), 16));
+    ret.d.push(parseInt(s.substring(i + 2, i + 4), 16));
+    i+= 4;
+  }
+
+  return ret;
+}
 
 
 function attachPerfCounter(d3sel) {
@@ -116,7 +135,8 @@ function addMatrix(parentD3, opts) {
         x : x,
         y : y,
         i : toIndex(x, y),
-        v: 0
+        v: 0,
+        t: 0
       }
       dots.push(dot);
     }
@@ -137,14 +157,23 @@ function addMatrix(parentD3, opts) {
     .attr("title", d => "Index: " + d.i);
 
   function render() {
-    ddivs.style('background-color', d => vToColor(d.v));
+    for (var d of dots) {
+      d.v = d.v - (d.v - d.t) * 0.5;
+    }
+    ddivs.style('background-color', d => vToColor(d.v * d.v));
   }
 
   render();
 
   var ret = {
     setValue : function(x, y, v) {
-      dots[ toIndex(x, y) ].v = v;
+      if (v < 0) {
+        v = 0;
+      } else if (v > 1) {
+        v = 1;
+      }
+      // v = v * v;
+      dots[ toIndex(x, y) ].t = v;
     },
     getValue : function(x, y) {
       return dots[ toIndex(x, y) ].v;
@@ -171,6 +200,8 @@ function component() {
 
 
 var m1;
+var m2;
+
 var fps;
 var pbv;
 var replayStatus; 
@@ -199,16 +230,20 @@ function initPage() {
   pbv = fpsdiv.append("span").classed("value", true);
 
   m1 = addMatrix(body, { cols: 24, rows: 1, sep: 0.1, pad: 0.2 } );
+
+  /*
   for (var i = 0; i < 24; i++) {
     m1.setValue(i, 0, i / 23.0);
   }
+  */
   m1.render();
-  var m2 = addMatrix(body, { cols: 7, rows: 5 } );
-
-  anima1();
+  m2 = addMatrix(body, { cols: 5, rows: 7 } );
+  m2.render();
+  // anima1();
 
   function r() {
     m1.render();
+    m2.render();
     fps.tick();
     fps.render();
     requestAnimationFrame(r);
@@ -220,6 +255,82 @@ function initPage() {
   replayStatus = replay({
     lines: cap.split('\n'),
     cb: p => {
+      for (var s of p) {
+        var packet = parsePacket(s);
+
+        // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 1 on port 6", 6, 0x28 ,8 ) ;
+        if (packet.a.length > 6) {
+          const a = packet.a[6];
+          const d = packet.d[6];
+          if (a >= 0x28 && a < 0x28 + 8) {
+            const li = 1.0 - (d - 2) / 118;
+            m1.setValue(a - 0x28, 0, li);
+          }
+        }
+
+        // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 2 on port 7", 7, 0x28 ,8 ) ;
+        if (packet.a.length > 7) {
+          const a = packet.a[7];
+          const d = packet.d[7];
+          if (a >= 0x20 && a < 0x28 + 8) {
+
+            const li = 1.0 - (d - 2) / 118;
+            m1.setValue(8 + a - 0x28, 0, li);
+          }
+        }
+
+        // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 3 on port 4", 4, 0x20 ,8) ;
+        if (packet.a.length > 4) {
+          const a = packet.a[4];
+          const d = packet.d[4];
+          if (a >= 0x20 && a < 0x20 + 8) {
+
+            const li = 1.0 - (d - 2) / 118;
+            m1.setValue(16 + a - 0x20, 0, li);
+          }
+        }
+
+        //  mods[ 4 ] = (Effect *)  new LightMatrix( "Light Matrix on Bus B0(R0),B1(R1-2),B2(R3-4),B3(R5-6)", 7, 5 );
+        // This is tricky
+        // Address map:
+
+        // ROW BUS  <5>  <4>  <3>  <2>  <1>
+        //           0    1    2    3    4
+        //  0   0   0x34 0x33 0x32 0x31 0x30
+        //  1   1   0x35 0x36 0x37 0x38 0x39 (reversed!)
+        //  2   1   0x3e 0x3d 0x3c 0x3b 0x3a
+        //  3   2   0x43 0x42 0x41 0x40 0x3f
+        //  4   2   0x48 0x47 0x46 0x45 0x44
+        //  5   3   0x4d 0x4c 0x4b 0x4a 0x49
+        //  6   3   0x52 0x51 0x50 0x4f 0x4e
+
+        if (packet.a.length > 3) {
+          const a0 = packet.a[0];
+          const d0 = packet.d[0];
+          const a1 = packet.a[1];
+          const d1 = packet.d[1];
+          const a2 = packet.a[2];
+          const d2 = packet.d[2];
+          const a3 = packet.a[3];
+          const d3 = packet.d[3];
+          const li0 = 1.0 - (d0 - 2) / 118;
+          const li1 = 1.0 - (d1 - 2) / 118;
+          const li2 = 1.0 - (d2 - 2) / 118;
+          const li3 = 1.0 - (d3 - 2) / 118;
+
+          if (a0 >= 0x30 && a0 <= 0x34) { m2.setValue(0x34 - a0, 0, li0); }
+          if (a1 >= 0x35 && a1 <= 0x39) { m2.setValue(a1 - 0x35, 1, li1); }
+          if (a1 >= 0x3a && a1 <= 0x3e) { m2.setValue(0x3e - a1, 2, li1); }
+          if (a2 >= 0x3f && a2 <= 0x43) { m2.setValue(0x43 - a2, 3, li2); }
+          if (a2 >= 0x44 && a2 <= 0x48) { m2.setValue(0x48 - a2, 4, li2); }
+          if (a3 >= 0x49 && a3 <= 0x4d) { m2.setValue(0x4d - a3, 5, li3); }
+          if (a3 >= 0x4e && a3 <= 0x52) { m2.setValue(0x52 - a3, 6, li3); }
+
+        }
+
+      }
+
+      // should be in the rendering loop
       const ts = replayStatus.getTs();
       const pp = replayStatus.getPp();
       var txt = ff(ts / 1000) + " s " + ff(pp) + " %";
