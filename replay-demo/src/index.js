@@ -11,6 +11,7 @@ function replay(opts) {
   const callback = opts.cb;
 
   const start = Date.now();
+  var lastTs = start;
   var nextLine = 0;
   var running = true;
 
@@ -27,6 +28,7 @@ function replay(opts) {
           setTimeout(fetch, dt - nowDt);
           break;
         }
+        lastTs = dt;
       }
       nextLine++;
 
@@ -46,7 +48,7 @@ function replay(opts) {
 
   var ret = {
     isRunning: () => running,
-    getTs: () => running ? Date.now() - start : "NOT RUNNING",
+    getTs: () => lastTs,
     getPp: () => 100 * nextLine / lines.length
   };
   fetch();
@@ -218,14 +220,11 @@ function initPage() {
   replayStatus = replay({
     lines: cap.split('\n'),
     cb: p => {
-      var txt;
-      if (replayStatus.isRunning()) {
-        const ts = replayStatus.getTs();
-        const pp = replayStatus.getPp();
-        txt = ff(ts / 1000) + " s " + ff(pp) + " %";
-
-      } else {
-        txt = "STOPPED";
+      const ts = replayStatus.getTs();
+      const pp = replayStatus.getPp();
+      var txt = ff(ts / 1000) + " s " + ff(pp) + " %";
+      if (!replayStatus.isRunning()) {
+        txt = txt + " (STOPPED)"
       }
       pbv.text(txt);
     }
