@@ -5,7 +5,56 @@ import './style.css';
 import chroma from 'chroma-js';
 import cap from '../../data/capture-ppp.txt.gz';
 
-console.log("HHH", cap);
+
+function replay(opts) {
+  const lines = opts.lines;
+  const callback = opts.cb;
+
+  const start = Date.now();
+  var nextLine = 0;
+  var running = true;
+
+  function fetch() {
+    var p = [];
+    const nowDt = Date.now() - start;
+
+    while (nextLine <  lines.length) {
+      const s = lines[nextLine];
+      if (s.startsWith("# dt ")) {
+        var dt = +s.substring(5);
+        if (dt > nowDt) {
+          running = true;
+          setTimeout(fetch, dt - nowDt);
+          break;
+        }
+      }
+      nextLine++;
+
+      if (s.startsWith("S")) {
+        p.push(s);
+      }
+    }
+
+    if (nextLine >= lines.length) {
+      running = false;
+    }
+
+    if (p.length > 0) {
+      callback(p);
+    }
+  }
+
+  var ret = {
+    isRunning: () => running,
+    getTs: () => running ? Date.now() - start : "NOT RUNNING",
+    getPp: () => 100 * nextLine / lines.length
+  };
+  fetch();
+  return ret;
+}
+
+
+
 
 function attachPerfCounter(d3sel) {
   const buf = [];
@@ -55,7 +104,7 @@ function addMatrix(parentD3, opts) {
   } 
 
   const vToColor = chroma
-    .scale(['#4d0000', '#d41111', '#eded5e', '#ffffe6', '#ffffff'])
+    .scale(['#300000', '#d41111', '#eded5e', '#ffffe6', '#ffffff'])
     .correctLightness();
 
   var dots = [];
@@ -118,8 +167,11 @@ function component() {
   return element;
 }
 
+
 var m1;
 var fps;
+var pbv;
+var replayStatus; 
 
 function anima1() {
   for (var i = 0; i < m1.cols(); i++) {
@@ -141,6 +193,9 @@ function initPage() {
   const fpsv = fpsdiv.append("span").classed("value", true);
   fps = attachPerfCounter(fpsv);
 
+  fpsdiv.append("span").classed("label", true).text("Playback:");
+  pbv = fpsdiv.append("span").classed("value", true);
+
   m1 = addMatrix(body, { cols: 24, rows: 1, sep: 0.1, pad: 0.2 } );
   for (var i = 0; i < 24; i++) {
     m1.setValue(i, 0, i / 23.0);
@@ -158,6 +213,24 @@ function initPage() {
   }
 
   r();
+
+  const ff = d3.format(".1f");
+  replayStatus = replay({
+    lines: cap.split('\n'),
+    cb: p => {
+      var txt;
+      if (replayStatus.isRunning()) {
+        const ts = replayStatus.getTs();
+        const pp = replayStatus.getPp();
+        txt = ff(ts / 1000) + " s " + ff(pp) + " %";
+
+      } else {
+        txt = "STOPPED";
+      }
+      pbv.text(txt);
+    }
+  });
+
 }
 
 // see
