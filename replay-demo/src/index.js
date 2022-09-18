@@ -77,14 +77,18 @@ function parsePacket(s) {
 }
 
 
-function attachPerfCounter(d3sel) {
+function attachPerfCounter(d3sel, formatSpec) {
   const buf = [];
+  const cnt = [];
+  var rollingCount = 0;
+  const format = d3.format(formatSpec ?  formatSpec : ".0f");
+
   const bufSize = 100;
   var next = 0;
 
   function render() {
     if (buf.length < 2) {
-      d3sel.text("N / A");
+      d3sel.text("----");
     } else {
       const now = Date.now();
       const first = buf[ next ];
@@ -92,19 +96,27 @@ function attachPerfCounter(d3sel) {
       if (now == first) {
         d3sel.text("?");
       } else {
-        d3sel.text("" + Math.round(1000 * buf.length / (now - first)));
+        d3sel.text(format(1000 * rollingCount / (now - first)));
       }
     }
   }
 
   const ret = {
-    tick : () => {
+    tick : (count) => {
+      if (count <= 0) {
+        console.log("Invalid count " + count);
+      }
       const now = Date.now();
       if (buf.length < bufSize) {
         buf.push(now);
+        cnt.push(count);
+        rollingCount += count;
         next = 0;
       } else {
+        rollingCount -= cnt[next];
+        rollingCount += count;
         buf[next] = now;
+        cnt[next] = count;
         next = (next + 1) % buf.length;
       }
     },
@@ -205,6 +217,8 @@ var m2;
 var fps;
 var pbv;
 var replayStatus; 
+var packetsPerSec;
+var packetGroupsPerSec;
 
 function anima1() {
   for (var i = 0; i < m1.cols(); i++) {
@@ -229,6 +243,16 @@ function initPage() {
   fpsdiv.append("span").classed("label", true).text("Playback:");
   pbv = fpsdiv.append("span").classed("value", true);
 
+  fpsdiv.append("span").classed("label", true).text("Data packets / s:");
+  const ppsdiv = fpsdiv.append("span").classed("value", true);
+  packetsPerSec = attachPerfCounter(ppsdiv, ".1f");
+
+  fpsdiv.append("span").classed("label", true).text("Packet groups / s:");
+  const pgpsdiv = fpsdiv.append("span").classed("value", true);
+  packetGroupsPerSec = attachPerfCounter(pgpsdiv, ".1f");
+
+
+
   m1 = addMatrix(body, { cols: 24, rows: 1, sep: 0.1, pad: 0.2 } );
 
   /*
@@ -244,8 +268,10 @@ function initPage() {
   function r() {
     m1.render();
     m2.render();
-    fps.tick();
+    fps.tick(1);
     fps.render();
+    packetsPerSec.render();
+    packetGroupsPerSec.render();
     requestAnimationFrame(r);
   }
 
@@ -255,6 +281,8 @@ function initPage() {
   replayStatus = replay({
     lines: cap.split('\n'),
     cb: p => {
+      packetGroupsPerSec.tick(1);
+      packetsPerSec.tick(p.length);
       for (var s of p) {
         var packet = parsePacket(s);
 
