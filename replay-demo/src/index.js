@@ -232,6 +232,80 @@ function anima1() {
   setTimeout(anima1, 50);
 }
 
+// map packet to lights
+function mapPacket(packet) {
+  // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 1 on port 6", 6, 0x28 ,8 ) ;
+  if (packet.a.length > 6) {
+    const a = packet.a[6];
+    const d = packet.d[6];
+    if (a >= 0x28 && a < 0x28 + 8) {
+      const li = 1.0 - (d - 2) / 118;
+      m1.setValue(a - 0x28, 0, li);
+    }
+  }
+
+  // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 2 on port 7", 7, 0x28 ,8 ) ;
+  if (packet.a.length > 7) {
+    const a = packet.a[7];
+    const d = packet.d[7];
+    if (a >= 0x20 && a < 0x28 + 8) {
+
+      const li = 1.0 - (d - 2) / 118;
+      m1.setValue(8 + a - 0x28, 0, li);
+    }
+  }
+
+  // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 3 on port 4", 4, 0x20 ,8) ;
+  if (packet.a.length > 4) {
+    const a = packet.a[4];
+    const d = packet.d[4];
+    if (a >= 0x20 && a < 0x20 + 8) {
+
+      const li = 1.0 - (d - 2) / 118;
+      m1.setValue(16 + a - 0x20, 0, li);
+    }
+  }
+
+  //  mods[ 4 ] = (Effect *)  new LightMatrix( "Light Matrix on Bus B0(R0),B1(R1-2),B2(R3-4),B3(R5-6)", 7, 5 );
+  // This is tricky
+  // Address map:
+
+  // ROW BUS  <5>  <4>  <3>  <2>  <1>
+  //           0    1    2    3    4
+  //  0   0   0x34 0x33 0x32 0x31 0x30
+  //  1   1   0x35 0x36 0x37 0x38 0x39 (reversed!)
+  //  2   1   0x3e 0x3d 0x3c 0x3b 0x3a
+  //  3   2   0x43 0x42 0x41 0x40 0x3f
+  //  4   2   0x48 0x47 0x46 0x45 0x44
+  //  5   3   0x4d 0x4c 0x4b 0x4a 0x49
+  //  6   3   0x52 0x51 0x50 0x4f 0x4e
+
+  if (packet.a.length > 3) {
+    const a0 = packet.a[0];
+    const d0 = packet.d[0];
+    const a1 = packet.a[1];
+    const d1 = packet.d[1];
+    const a2 = packet.a[2];
+    const d2 = packet.d[2];
+    const a3 = packet.a[3];
+    const d3 = packet.d[3];
+    const li0 = 1.0 - (d0 - 2) / 118;
+    const li1 = 1.0 - (d1 - 2) / 118;
+    const li2 = 1.0 - (d2 - 2) / 118;
+    const li3 = 1.0 - (d3 - 2) / 118;
+
+    if (a0 >= 0x30 && a0 <= 0x34) { m2.setValue(0x34 - a0, 0, li0); }
+    if (a1 >= 0x35 && a1 <= 0x39) { m2.setValue(a1 - 0x35, 1, li1); }
+    if (a1 >= 0x3a && a1 <= 0x3e) { m2.setValue(0x3e - a1, 2, li1); }
+    if (a2 >= 0x3f && a2 <= 0x43) { m2.setValue(0x43 - a2, 3, li2); }
+    if (a2 >= 0x44 && a2 <= 0x48) { m2.setValue(0x48 - a2, 4, li2); }
+    if (a3 >= 0x49 && a3 <= 0x4d) { m2.setValue(0x4d - a3, 5, li3); }
+    if (a3 >= 0x4e && a3 <= 0x52) { m2.setValue(0x52 - a3, 6, li3); }
+
+  }
+
+}
+
 function initPage() {
   const body = d3.select('body');
 
@@ -265,6 +339,9 @@ function initPage() {
   m2.render();
   // anima1();
 
+
+
+  const ff = d3.format(".1f");
   function r() {
     m1.render();
     m2.render();
@@ -273,92 +350,9 @@ function initPage() {
     packetsPerSec.render();
     packetGroupsPerSec.render();
     requestAnimationFrame(r);
-  }
 
-  r();
-
-  const ff = d3.format(".1f");
-  replayStatus = replay({
-    lines: cap.split('\n'),
-    cb: p => {
-      packetGroupsPerSec.tick(1);
-      packetsPerSec.tick(p.length);
-      for (var s of p) {
-        var packet = parsePacket(s);
-
-        // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 1 on port 6", 6, 0x28 ,8 ) ;
-        if (packet.a.length > 6) {
-          const a = packet.a[6];
-          const d = packet.d[6];
-          if (a >= 0x28 && a < 0x28 + 8) {
-            const li = 1.0 - (d - 2) / 118;
-            m1.setValue(a - 0x28, 0, li);
-          }
-        }
-
-        // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 2 on port 7", 7, 0x28 ,8 ) ;
-        if (packet.a.length > 7) {
-          const a = packet.a[7];
-          const d = packet.d[7];
-          if (a >= 0x20 && a < 0x28 + 8) {
-
-            const li = 1.0 - (d - 2) / 118;
-            m1.setValue(8 + a - 0x28, 0, li);
-          }
-        }
-
-        // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 3 on port 4", 4, 0x20 ,8) ;
-        if (packet.a.length > 4) {
-          const a = packet.a[4];
-          const d = packet.d[4];
-          if (a >= 0x20 && a < 0x20 + 8) {
-
-            const li = 1.0 - (d - 2) / 118;
-            m1.setValue(16 + a - 0x20, 0, li);
-          }
-        }
-
-        //  mods[ 4 ] = (Effect *)  new LightMatrix( "Light Matrix on Bus B0(R0),B1(R1-2),B2(R3-4),B3(R5-6)", 7, 5 );
-        // This is tricky
-        // Address map:
-
-        // ROW BUS  <5>  <4>  <3>  <2>  <1>
-        //           0    1    2    3    4
-        //  0   0   0x34 0x33 0x32 0x31 0x30
-        //  1   1   0x35 0x36 0x37 0x38 0x39 (reversed!)
-        //  2   1   0x3e 0x3d 0x3c 0x3b 0x3a
-        //  3   2   0x43 0x42 0x41 0x40 0x3f
-        //  4   2   0x48 0x47 0x46 0x45 0x44
-        //  5   3   0x4d 0x4c 0x4b 0x4a 0x49
-        //  6   3   0x52 0x51 0x50 0x4f 0x4e
-
-        if (packet.a.length > 3) {
-          const a0 = packet.a[0];
-          const d0 = packet.d[0];
-          const a1 = packet.a[1];
-          const d1 = packet.d[1];
-          const a2 = packet.a[2];
-          const d2 = packet.d[2];
-          const a3 = packet.a[3];
-          const d3 = packet.d[3];
-          const li0 = 1.0 - (d0 - 2) / 118;
-          const li1 = 1.0 - (d1 - 2) / 118;
-          const li2 = 1.0 - (d2 - 2) / 118;
-          const li3 = 1.0 - (d3 - 2) / 118;
-
-          if (a0 >= 0x30 && a0 <= 0x34) { m2.setValue(0x34 - a0, 0, li0); }
-          if (a1 >= 0x35 && a1 <= 0x39) { m2.setValue(a1 - 0x35, 1, li1); }
-          if (a1 >= 0x3a && a1 <= 0x3e) { m2.setValue(0x3e - a1, 2, li1); }
-          if (a2 >= 0x3f && a2 <= 0x43) { m2.setValue(0x43 - a2, 3, li2); }
-          if (a2 >= 0x44 && a2 <= 0x48) { m2.setValue(0x48 - a2, 4, li2); }
-          if (a3 >= 0x49 && a3 <= 0x4d) { m2.setValue(0x4d - a3, 5, li3); }
-          if (a3 >= 0x4e && a3 <= 0x52) { m2.setValue(0x52 - a3, 6, li3); }
-
-        }
-
-      }
-
-      // should be in the rendering loop
+    // should be in the rendering loop
+    if (replayStatus) {
       const ts = replayStatus.getTs();
       const pp = replayStatus.getPp();
       var txt = ff(ts / 1000) + " s " + ff(pp) + " %";
@@ -367,8 +361,45 @@ function initPage() {
       }
       pbv.text(txt);
     }
-  });
 
+  }
+
+  r();
+
+
+
+  const ws = new WebSocket('ws://localhost:8080');
+  ws.onopen = e => { console.log("onopen"); }
+  ws.onmessage = e => { 
+    var lines = e.data.split('\n');
+
+    var pgs = 0;
+    for (var s of lines) {
+      if (s.startsWith("S")) {
+        pgs++;
+        mapPacket(parsePacket(s));
+      }
+    }
+    if (pgs > 0) {
+      packetGroupsPerSec.tick(1);
+      packetsPerSec.tick(pgs);
+    }
+  }
+
+
+  /*
+  replayStatus = replay({
+    lines: cap.split('\n'),
+    cb: p => {
+      packetGroupsPerSec.tick(1);
+      packetsPerSec.tick(p.length);
+      for (var s of p) {
+        var packet = parsePacket(s);
+        mapPacket(packet);
+      }
+    }
+  });
+  */
 }
 
 // see

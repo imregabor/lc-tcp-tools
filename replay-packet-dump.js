@@ -7,7 +7,7 @@ const net = require("net");
 
 const host = "127.0.0.1";
 // const host = "192.168.10.101";
-const port = 1234;
+const port = 12345;
 // const port = 23;
 
 var rl = readline.createInterface({

@@ -8,6 +8,9 @@ Contents
 --------
 
   - `replay-demo`: browser based visualization of capture contents
+  
+  - `ws-server`: node.js tool to forward TCP traffic from effects computer (or replay tool) to
+    websocet based server
 
   - `packet-dump.js`: node.js tool to capture TCP traffic from effects computer with timestamps
   
