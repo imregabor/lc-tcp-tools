@@ -55,12 +55,15 @@ wss.on('connection', function connection(ws, req) {
 
 
 
+
+
 console.log("#");
 console.log("# Start TCP listening on port " + port);
 // see https://nodejs.org/api/net.html#netcreateserveroptions-connectionlistener
 var server = net.createServer({ noDelay : true}, function(socket) {
+  const socketDescription = "TCP effects connection from " + socket.remoteAddress + ":" + socket.remotePort;
 
-  console.log("# connection to TCP listening port from " + socket.remoteAddress + ":" + socket.remotePort);
+  console.log("# connection - " + socketDescription);
 
   socket.on("data", d => {
   	// console.log(d.toString());
@@ -75,11 +78,11 @@ var server = net.createServer({ noDelay : true}, function(socket) {
   });
 
   socket.on("close", () => {
-    console.log("# TCP listening socket from " + socket.remoteAddress + ":" + socket.remotePort + " closed, continue listening");
+    console.log("# close - " + socketDescription + ", continue listening");
   });
 
   socket.on("error", () => {
-    console.log("# TCP listening socket from " + socket.remoteAddress + ":" + socket.remotePort + " error, continue listening")
+    console.log("# error - " + socketDescription + ", continue listening")
   });
 });
 

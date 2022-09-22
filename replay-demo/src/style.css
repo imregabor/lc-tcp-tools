@@ -22,7 +22,7 @@ div.fps .value {
 
 
 div.matrix-container {
-	margin-left: 10px;
+	margin-left: 50px;
 	margin-top: 100px;
 	background-color: black;
 	position: relative;
@@ -33,4 +33,42 @@ div.matrix-dot {
 	border-radius: 15px;
 	display: block;
 	position: absolute;
+}
+
+div.matrix-container .container-label {
+	position:  absolute;
+	color: #808080;
+	white-space: nowrap;
+}
+
+div.matrix-container .container-label.top {
+	top: -1em;
+	left:  0;
+	right:  0;
+	text-align: center;
+}
+
+div.matrix-container .container-label.bottom {
+	bottom: -1em;
+	left:  0;
+	right:  0;
+	text-align: center;
+}
+
+div.matrix-container .container-label.right {
+	top:  0;
+	bottom:  0;
+	right:  -1em;
+	writing-mode:vertical-lr;
+    text-align: center;
+    transform: rotate(180deg);
+}
+
+div.matrix-container .container-label.left {
+	top:  0;
+	bottom:  0;
+	left:  -1em;
+	writing-mode:vertical-lr;
+    text-align: center;
+    transform: rotate(180deg);
 }

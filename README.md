@@ -33,22 +33,4 @@ Contents
 TODO
 ----
 
- - More graceful handle of connection reset in `packet-dump.js`, see
-
-```
-$ node packet-dump.js > capture.txt
-node:events:491
-      throw er; // Unhandled 'error' event
-      ^
-
-Error: read ECONNRESET
-    at TCP.onStreamRead (node:internal/stream_base_commons:217:20)
-Emitted 'error' event on Socket instance at:
-    at emitErrorNT (node:internal/streams/destroy:157:8)
-    at emitErrorCloseNT (node:internal/streams/destroy:122:3)
-    at processTicksAndRejections (node:internal/process/task_queues:83:21) {
-  errno: -4077,
-  code: 'ECONNRESET',
-  syscall: 'read'
-}
-```
+ - __More graceful handle of connection reset in `packet-dump.js` - done__ 

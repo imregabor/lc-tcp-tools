@@ -159,6 +159,11 @@ function addMatrix(parentD3, opts) {
     .style('width', (opts.cols * dotSize + (opts.cols - 1) * dotSeparation + 2 * containerPadding) + "px")
     .style('height', (opts.rows * dotSize + (opts.rows - 1) * dotSeparation + 2 * containerPadding) + "px");
 
+  cnt.append("span").classed("container-label top", true).text("top label");
+  cnt.append("span").classed("container-label bottom", true).text("bottom label");
+  cnt.append("span").classed("container-label left", true).text("left label");
+  cnt.append("span").classed("container-label right", true).text("right label");
+
   var ddivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
     .classed('matrix-dot', true)
     .style('width', dotSize + "px")
