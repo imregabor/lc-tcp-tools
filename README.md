@@ -33,4 +33,4 @@ Contents
 TODO
 ----
 
- - __More graceful handle of connection reset in `packet-dump.js` - done__ 
+ - ~~More graceful handle of connection reset in `packet-dump.js` - done~~ 
