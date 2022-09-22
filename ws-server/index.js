@@ -9,6 +9,17 @@ const nets = networkInterfaces();
 const port = 12345;
 
 
+const fwdHost = "192.168.10.101";
+// const host = "192.168.10.101";
+const fwdPort = 23;
+
+console.log("FWD connecting to " + fwdHost + " on port " + fwdPort);
+var fwdClient = net.Socket().connect({ port: fwdPort, host : fwdHost, family : 4, noDelay : true}, () => {
+  console.log("Connected to FWD");
+});
+
+
+
 const wss = new ws.Server({ port: 8080 });
 
 var sock;
@@ -45,21 +56,30 @@ wss.on('connection', function connection(ws, req) {
 
 
 console.log("#");
-console.log("# Start listening on port 12345");
+console.log("# Start TCP listening on port " + port);
 // see https://nodejs.org/api/net.html#netcreateserveroptions-connectionlistener
 var server = net.createServer({ noDelay : true}, function(socket) {
 
-  console.log("# connected");
+  console.log("# connection to TCP listening port from " + socket.remoteAddress + ":" + socket.remotePort);
 
   socket.on("data", d => {
   	// console.log(d.toString());
   	if (sock) {
   		sock.send(d.toString());
   	}
+
+    if (fwdClient) {
+      // console.log(">" + d.toString() + "<")
+      fwdClient.write(d.toString());
+    }
   });
 
   socket.on("close", () => {
-    console.log("# closed, continue listening");
+    console.log("# TCP listening socket from " + socket.remoteAddress + ":" + socket.remotePort + " closed, continue listening");
+  });
+
+  socket.on("error", () => {
+    console.log("# TCP listening socket from " + socket.remoteAddress + ":" + socket.remotePort + " error, continue listening")
   });
 });
 

@@ -170,7 +170,11 @@ function addMatrix(parentD3, opts) {
 
   function render() {
     for (var d of dots) {
-      d.v = d.v - (d.v - d.t) * 0.5;
+      if (d.v < d.t) {
+        d.v = d.t;
+      } else {
+        d.v = d.v - (d.v - d.t) * 0.5;
+      }
     }
     ddivs.style('background-color', d => vToColor(d.v * d.v));
   }
