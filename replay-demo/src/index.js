@@ -159,10 +159,13 @@ function addMatrix(parentD3, opts) {
     .style('width', (opts.cols * dotSize + (opts.cols - 1) * dotSeparation + 2 * containerPadding) + "px")
     .style('height', (opts.rows * dotSize + (opts.rows - 1) * dotSeparation + 2 * containerPadding) + "px");
 
-  cnt.append("span").classed("container-label top", true).text("top label");
-  cnt.append("span").classed("container-label bottom", true).text("bottom label");
-  cnt.append("span").classed("container-label left", true).text("left label");
-  cnt.append("span").classed("container-label right", true).text("right label");
+  var topLabel = cnt.append("span").classed("container-label top", true).text("top label");
+  var bottomLabel = cnt.append("span").classed("container-label bottom", true).text("bottom label");
+  var leftLabel = cnt.append("span").classed("container-label left", true).text("left label");
+  var rightLabel = cnt.append("span").classed("container-label right", true).text("right label");
+
+
+
 
   var ddivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
     .classed('matrix-dot', true)
@@ -187,6 +190,10 @@ function addMatrix(parentD3, opts) {
   render();
 
   var ret = {
+    topLabelText : t => { topLabel.text(t); return ret; },
+    bottomLabelText : t => { bottomLabel.text(t); return ret; },
+    leftLabelText : t => { leftLabel.text(t); return ret; },
+    rightLabelText : t => { rightLabel.text(t); return ret; },
     setValue : function(x, y, v) {
       if (v < 0) {
         v = 0;
@@ -336,7 +343,11 @@ function initPage() {
 
 
 
-  m1 = addMatrix(body, { cols: 24, rows: 1, sep: 0.1, pad: 0.2 } );
+  m1 = addMatrix(body, { cols: 24, rows: 1, sep: 0.1, pad: 0.2 } )
+    .leftLabelText("thujas")
+    .rightLabelText("road")
+    .topLabelText("")
+    .bottomLabelText("");
 
   /*
   for (var i = 0; i < 24; i++) {
@@ -344,7 +355,11 @@ function initPage() {
   }
   */
   m1.render();
-  m2 = addMatrix(body, { cols: 5, rows: 7 } );
+  m2 = addMatrix(body, { cols: 5, rows: 7 } )
+    .topLabelText("thujas")
+    .bottomLabelText("road")
+    .leftLabelText("garden")
+    .rightLabelText("building");
   m2.render();
   // anima1();
 
