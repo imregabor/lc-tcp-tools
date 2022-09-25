@@ -170,11 +170,11 @@ function addMatrix(parentD3, opts) {
 
   // controls over labels
   var ctrls = cnt.append("div").classed("controls", true);
-  var infoButton = ctrls.append("i").classed("fa fa-circle-info", true);;
-  ctrls.append("i").classed("fa fa-rotate-right", true);
-  ctrls.append("i").classed("fa fa-rotate-left", true);
-  ctrls.append("i").classed("fa fa-left-right", true);
-  ctrls.append("i").classed("fa fa-up-down", true);
+  var infoButton = ctrls.append("i").classed("fa fa-circle-info", true).attr('title', 'Show/hide info annotations');
+  ctrls.append('i').classed('fa fa-rotate-right', true).attr('title', 'Rotate display right');
+  ctrls.append('i').classed('fa fa-rotate-left', true).attr('title', 'Rotate display left');
+  ctrls.append('i').classed('fa fa-left-right', true).attr('title', 'Flip display horizontally');
+  ctrls.append('i').classed('fa fa-up-down', true).attr('title', 'Flip display vertically');
 
 
   infoButton.on("click", () => { 
