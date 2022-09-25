@@ -192,8 +192,12 @@ function addMatrix(parentD3, opts) {
     .style('top', d => (d.y * (dotSize + dotSeparation) + containerPadding) + "px")
     
     .attr("title", d => "Index: " + d.i);
-    
-  ddivs.append("div").classed("info-detail", true).text(d => d.infoText);
+
+  var infoTexts = ddivs.append("div").classed("info-detail", true);
+  function bindInfoText() {
+    infoTexts.text(d => d.infoText);
+  }
+  bindInfoText();
 
   function render() {
     for (var d of dots) {
@@ -213,6 +217,7 @@ function addMatrix(parentD3, opts) {
     bottomLabelText : t => { bottomLabel.text(t); return ret; },
     leftLabelText : t => { leftLabel.text(t); return ret; },
     rightLabelText : t => { rightLabel.text(t); return ret; },
+    infoText : (x, y, text) => { dots[ toIndex(x, y) ].infoText = text; bindInfoText(); return ret; },
     setValue : function(x, y, v) {
       if (v < 0) {
         v = 0;
@@ -367,7 +372,32 @@ function initPage() {
     .leftLabelText("thujas")
     .rightLabelText("road")
     .topLabelText("")
-    .bottomLabelText("");
+    .bottomLabelText("")
+    .infoText( 0 + 0, 0, "6:28") // bus 6
+    .infoText( 0 + 1, 0, "6:29")
+    .infoText( 0 + 2, 0, "6:2a")
+    .infoText( 0 + 3, 0, "6:2b")
+    .infoText( 0 + 4, 0, "6:2c")
+    .infoText( 0 + 5, 0, "6:2d")
+    .infoText( 0 + 6, 0, "6:2e")
+    .infoText( 0 + 7, 0, "6:2f")
+    .infoText( 8 + 0, 0, "7:28") // bus 7
+    .infoText( 8 + 1, 0, "7:29")
+    .infoText( 8 + 2, 0, "7:2a")
+    .infoText( 8 + 3, 0, "7:2b")
+    .infoText( 8 + 4, 0, "7:2c")
+    .infoText( 8 + 5, 0, "7:2d")
+    .infoText( 8 + 6, 0, "7:2e")
+    .infoText( 8 + 7, 0, "7:2f")
+    .infoText(16 + 0, 0, "4:28") // bus 4
+    .infoText(16 + 1, 0, "4:29")
+    .infoText(16 + 2, 0, "4:2a")
+    .infoText(16 + 3, 0, "4:2b")
+    .infoText(16 + 4, 0, "4:2c")
+    .infoText(16 + 5, 0, "4:2d")
+    .infoText(16 + 6, 0, "4:2e")
+    .infoText(16 + 7, 0, "4:2f")
+    ;
 
   /*
   for (var i = 0; i < 24; i++) {
@@ -379,7 +409,43 @@ function initPage() {
     .topLabelText("thujas")
     .bottomLabelText("road")
     .leftLabelText("garden")
-    .rightLabelText("building");
+    .rightLabelText("building")
+    .infoText(4, 0, "0:30") // row 0
+    .infoText(3, 0, "0:31")
+    .infoText(2, 0, "0:32")
+    .infoText(1, 0, "0:33")
+    .infoText(0, 0, "0:34")
+    .infoText(4, 1, "1:39") // row 1
+    .infoText(3, 1, "1:38")
+    .infoText(2, 1, "1:37")
+    .infoText(1, 1, "1:36")
+    .infoText(0, 1, "1:35")
+    .infoText(4, 2, "1:3a") // row 2
+    .infoText(3, 2, "1:3b")
+    .infoText(2, 2, "1:3c")
+    .infoText(1, 2, "1:3d")
+    .infoText(0, 2, "1:3e")
+    .infoText(4, 3, "2:3f") // row 3
+    .infoText(3, 3, "2:40")
+    .infoText(2, 3, "2:41")
+    .infoText(1, 3, "2:42")
+    .infoText(0, 3, "2:43")
+    .infoText(4, 4, "2:44") // row 4
+    .infoText(3, 4, "2:45")
+    .infoText(2, 4, "2:46")
+    .infoText(1, 4, "2:47")
+    .infoText(0, 4, "2:48")
+    .infoText(4, 5, "3:49") // row 5
+    .infoText(3, 5, "3:4a")
+    .infoText(2, 5, "3:4b")
+    .infoText(1, 5, "3:4c")
+    .infoText(0, 5, "3:4d")
+    .infoText(4, 6, "3:4e") // row 6
+    .infoText(3, 6, "3:4f")
+    .infoText(2, 6, "3:50")
+    .infoText(1, 6, "3:51")
+    .infoText(0, 6, "3:52")
+    ;
   m2.render();
   // anima1();
 
