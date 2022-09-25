@@ -57,6 +57,13 @@ div.matrix-container .controls {
 	position: absolute;
 	left: 0;
 	top: -1em;
+	z-index: 999;
+}
+
+div.matrix-container .controls:hover {
+	background-color: rgba(0, 0, 0, 0.5);
+	outline: 8px solid rgba(0, 0, 0, 0.5);
+	border-radius: 8px;
 }
 
 div.matrix-container .controls i {
