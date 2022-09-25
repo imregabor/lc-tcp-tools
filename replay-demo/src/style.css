@@ -53,13 +53,14 @@ div.matrix-container.hide-info .matrix-dot .info-detail {
 
 div.matrix-container .controls {
 	/* background-color: #888; */
-	color:  #808080;
+	
 	position: absolute;
 	left: 0;
 	top: -1em;
 }
 
 div.matrix-container .controls i {
+	color:  #808080;
 	cursor: pointer;
 	margin-right: 0.5em;
 }
@@ -70,20 +71,20 @@ div.matrix-container .controls i:hover {
 }
 
 div.matrix-container .controls i.on {
-	color:  #d0d0d0;
-}
-
-div.matrix-container .controls i:hover {
-	color:  #c0c0c0;
+	color:  #59c059;
 }
 
 div.matrix-container .controls i.on:hover {
-	color:  #e0e0e0;
+	color:  #a3dca3;
 }
 
 
 div.matrix-container .controls i:active {
 	color:  #ffffff;
+}
+
+div.matrix-container .controls i.on:active {
+	color:  #daf1da;
 }
 
 
