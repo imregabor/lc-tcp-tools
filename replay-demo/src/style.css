@@ -2,6 +2,7 @@ body {
 	margin: 0px;
 	background-color: black;
 	font-family: sans-serif;
+	user-select: none;
 }
 
 div.fps {
@@ -34,6 +35,57 @@ div.matrix-dot {
 	display: block;
 	position: absolute;
 }
+
+div.matrix-container .matrix-dot .info-detail {
+	display: block;
+	position: absolute;
+	color:  #808080;
+	top: -1.2em;
+	left:  -4em;
+	right: -4em;
+	text-align: center;
+}
+
+div.matrix-container.hide-info .matrix-dot .info-detail {
+    display: none;
+}
+
+
+div.matrix-container .controls {
+	/* background-color: #888; */
+	color:  #808080;
+	position: absolute;
+	left: 0;
+	top: -1em;
+}
+
+div.matrix-container .controls i {
+	cursor: pointer;
+	margin-right: 0.5em;
+}
+
+
+div.matrix-container .controls i:hover {
+	color:  #c0c0c0;
+}
+
+div.matrix-container .controls i.on {
+	color:  #d0d0d0;
+}
+
+div.matrix-container .controls i:hover {
+	color:  #c0c0c0;
+}
+
+div.matrix-container .controls i.on:hover {
+	color:  #e0e0e0;
+}
+
+
+div.matrix-container .controls i:active {
+	color:  #ffffff;
+}
+
 
 div.matrix-container .container-label {
 	position:  absolute;

@@ -5,6 +5,7 @@ import './style.css';
 import chroma from 'chroma-js';
 //import cap from '../../data/capture-ppp.txt.gz';
 import cap from '../../data/capture-rfd.txt.gz';
+import fa from "./fa.js";
 
 
 function replay(opts) {
@@ -148,23 +149,39 @@ function addMatrix(parentD3, opts) {
         y : y,
         i : toIndex(x, y),
         v: 0,
-        t: 0
+        t: 0,
+        infoText: x + ":" + y
       }
       dots.push(dot);
     }
   }
 
   var cnt = parentD3.append('div')
-    .classed('matrix-container', true)
+    .classed('matrix-container hide-info', true)
     .style('width', (opts.cols * dotSize + (opts.cols - 1) * dotSeparation + 2 * containerPadding) + "px")
     .style('height', (opts.rows * dotSize + (opts.rows - 1) * dotSeparation + 2 * containerPadding) + "px");
+
+
 
   var topLabel = cnt.append("span").classed("container-label top", true).text("top label");
   var bottomLabel = cnt.append("span").classed("container-label bottom", true).text("bottom label");
   var leftLabel = cnt.append("span").classed("container-label left", true).text("left label");
   var rightLabel = cnt.append("span").classed("container-label right", true).text("right label");
 
+  // controls over labels
+  var ctrls = cnt.append("div").classed("controls", true);
+  var infoButton = ctrls.append("i").classed("fa fa-circle-info", true);;
+  ctrls.append("i").classed("fa fa-rotate-right", true);
+  ctrls.append("i").classed("fa fa-rotate-left", true);
+  ctrls.append("i").classed("fa fa-left-right", true);
+  ctrls.append("i").classed("fa fa-up-down", true);
 
+
+  infoButton.on("click", () => { 
+    const toOn = cnt.classed("hide-info");
+    infoButton.classed("on", toOn);
+    cnt.classed("hide-info", !toOn); 
+  });
 
 
   var ddivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
@@ -175,6 +192,8 @@ function addMatrix(parentD3, opts) {
     .style('top', d => (d.y * (dotSize + dotSeparation) + containerPadding) + "px")
     
     .attr("title", d => "Index: " + d.i);
+    
+  ddivs.append("div").classed("info-detail", true).text(d => d.infoText);
 
   function render() {
     for (var d of dots) {
@@ -324,6 +343,7 @@ function mapPacket(packet) {
 
 function initPage() {
   const body = d3.select('body');
+
 
   const fpsdiv = body.append('div').classed("fps", true);
   fpsdiv.append("span").classed("label", true).text("Rendering FPS:");
