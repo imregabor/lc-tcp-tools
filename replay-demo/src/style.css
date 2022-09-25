@@ -93,6 +93,10 @@ div.matrix-container .container-label {
 	white-space: nowrap;
 }
 
+div.matrix-container.hide-info .container-label {
+	display: none;
+}
+
 div.matrix-container .container-label.top {
 	top: -1em;
 	left:  0;
