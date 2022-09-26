@@ -13,6 +13,42 @@ div.fps {
 	background-color: #e8e8e8;
 }
 
+div.fps div.page-controls {
+	position: absolute;
+	display: inline-block;
+	right: 8px;
+}
+
+.page-controls i {
+	color:  #808080;
+	margin-right: 0.5em;
+	cursor: pointer;
+}
+
+
+.page-controls i.on {
+	color:  #6bc76b;
+}
+
+.page-controls i:hover {
+	color:  #000000;
+}
+
+.page-controls i.on:hover {
+	color:  #318131;
+}
+
+
+.page-controls i:active {
+	color:  #a0a0a0;
+}
+
+.page-controls i.on:active {
+	color:  #a3dca3;
+}
+
+
+
 div.fps .label {
 	margin-right: 0.5em;
 }
@@ -23,6 +59,59 @@ div.fps .value {
 	display: inline-block;
 }
 
+
+div.frame-counter {
+	color: white;
+	font-family: monospace;
+	font-size:  16px;
+	height: 32px;
+	width: 800px;
+	position: relative;
+}
+
+div.frame-counter .frame-label {
+	position: absolute;
+	left: 0px;
+	top:  0px;
+	width:  80px;
+	height: 16px;
+}
+
+div.frame-counter .time-label {
+	position: absolute;
+	left: 0px;
+	top:  16px;
+	width:  80px;
+	height: 16px;
+}
+
+div.frame-counter .frame-value {
+	position: absolute;
+	left: 80px;
+	top:  0px;
+	width:  80px;
+	height: 16px;
+}
+
+div.frame-counter .time-value {
+	position: absolute;
+	left: 80px;
+	top:  16px;
+	width:  80px;
+	height: 16px;
+}
+
+div.frame-counter .box {
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 8px;
+	border: 1px solid white;
+}
+
+div.frame-counter .box.on {
+	background-color: white;
+}
 
 div.matrix-container {
 	margin-left: 50px;
