@@ -4,6 +4,7 @@
 const  ws = require('ws');
 const { networkInterfaces } = require('os');
 const net = require('net');
+const express = require('express');
 
 const nets = networkInterfaces();
 const port = 12345;
@@ -13,11 +14,88 @@ const fwdHost = "192.168.10.101";
 // const host = "192.168.10.101";
 const fwdPort = 23;
 
+const app = express();
+
+const expressPort = 3000
+
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+});
+
+app.post('/api/sendPacket', (req, res) => {
+  const bus = +req.query.bus;
+  const address = +req.query.address;
+  const data = +req.query.data;
+
+  console.log('sendPacket ' + bus + ':' + address + ' ' + data);
+
+  var err;
+  if (! (bus >= 0 && bus <= 7)) {
+    err = "Invalid bus: " + bus;
+  } 
+  if (! (address >= 0 && address <= 127)) {
+    err = (err ? err + " / " : "") + "Invalid address: " + address;
+  }
+  if (! (data >= 0 && data <= 255)) {
+    err = (err ? err + " / " : "") + "Invalid data: " + data; 
+  }
+
+  if (err) {
+    res.status(400).send(err);
+  } else {
+
+    var msg = "S";
+
+    for (var i = 0; i < bus; i++) {
+      msg += "0000";
+    }
+    var as = address.toString(16);
+    if (as.length < 2) {
+      msg += '0';
+    }
+    msg += as;
+
+    var dt = data.toString(16);
+    if (dt.length < 2) {
+      msg += '0';
+    }
+    msg += dt;
+    
+    for (var i = bus; i < 7; i++) {
+      msg += "0000";
+    }
+
+    console.log('Sending ' + msg)
+    if (fwdClient) {
+      // console.log(">" + d.toString() + "<")
+      fwdClient.write(msg + '\n');
+    }
+
+
+    res.status(200).send();
+  }
+});
+
+app.listen(expressPort, () => {
+  console.log('xpress server listening on port ' + expressPort);
+})
+
+
+function keepAliveConn() {
+  
+  if (fwdClient) {
+    fwdClient.write("#\n");
+  }
+  setTimeout(keepAliveConn, 1000);
+}
+keepAliveConn();
+
 console.log("FWD connecting to " + fwdHost + " on port " + fwdPort);
 var fwdClient = net.Socket().connect({ port: fwdPort, host : fwdHost, family : 4, noDelay : true}, () => {
   console.log("Connected to FWD");
-});
 
+
+});
 
 
 const wss = new ws.Server({ port: 8080 });

@@ -465,8 +465,8 @@ function initPage() {
   m2 = addMatrix(body, { cols: 5, rows: 7 } )
     .topLabelText("thujas")
     .bottomLabelText("road")
-    .leftLabelText("garden")
-    .rightLabelText("building")
+    .leftLabelText("building")
+    .rightLabelText("garden")
     .infoText(4, 0, "0:30") // row 0
     .infoText(3, 0, "0:31")
     .infoText(2, 0, "0:32")
