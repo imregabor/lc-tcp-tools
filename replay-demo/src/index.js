@@ -479,6 +479,42 @@ function initPage() {
   }
   srvListeningWarn();
 
+
+  const srvFwdConnIcon = pageControls.append('i').classed('fa fa-plug fa-fw stat', true);
+  function srvFwdConnDown() {
+    srvFwdConnIcon.classed('fa-plug', false);
+    srvFwdConnIcon.classed('fa-plug-circle-check', false);
+    srvFwdConnIcon.classed('fa-plug-circle-xmark', true);
+    srvFwdConnIcon.classed('fa-plug-circle-exclamation', false);
+    srvFwdConnIcon.classed('err', true);
+    srvFwdConnIcon.classed('ok', false);
+    srvFwdConnIcon.classed('warn', false);
+    srvFwdConnIcon.attr('title', 'Server forwarding connection is down');
+  }
+
+  function srvFwdConnUp() {
+    srvFwdConnIcon.classed('fa-plug', false);
+    srvFwdConnIcon.classed('fa-plug-circle-check', true);
+    srvFwdConnIcon.classed('fa-plug-circle-xmark', false);
+    srvFwdConnIcon.classed('fa-plug-circle-exclamation', false);
+    srvFwdConnIcon.classed('err', false);
+    srvFwdConnIcon.classed('ok', true);
+    srvFwdConnIcon.classed('warn', false);
+    srvFwdConnIcon.attr('title', 'Server forwarding connection is up');
+  }
+
+  function srvFwdConnWarn() {
+    srvFwdConnIcon.classed('fa-plug', false);
+    srvFwdConnIcon.classed('fa-plug-circle-check', false);
+    srvFwdConnIcon.classed('fa-plug-circle-xmark', false);
+    srvFwdConnIcon.classed('fa-plug-circle-exclamation', true);
+    srvFwdConnIcon.classed('err', false);
+    srvFwdConnIcon.classed('ok', false);
+    srvFwdConnIcon.classed('warn', true);
+    srvFwdConnIcon.attr('title', 'Server forwarding connection is in WARN state');
+  }
+  srvFwdConnWarn();
+
   pageControls.append('span').classed('sep', true);
 
   const frameCounterBtn = pageControls.append('i').classed('fa fa-clock', true).attr('title', 'Show/hide precision frame counter');
