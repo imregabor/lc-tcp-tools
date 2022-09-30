@@ -30,7 +30,7 @@ div.fps div.page-controls {
 	color:  #6bc76b;
 }
 
-.page-controls i:hover {
+.page-controls i:hover:not(.stat) {
 	color:  #000000;
 }
 
@@ -39,7 +39,7 @@ div.fps div.page-controls {
 }
 
 
-.page-controls i:active {
+.page-controls i:active:not(.stat) {
 	color:  #a0a0a0;
 }
 
@@ -47,6 +47,28 @@ div.fps div.page-controls {
 	color:  #a3dca3;
 }
 
+.page-controls .sep {
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+.page-controls i.stat {
+	cursor: help;
+}
+
+.page-controls i.stat.err {
+	outline:  5px solid #993a1a;
+	background-color: #993a1a;
+	color: #d99f8c;
+	border-radius: 5px;
+}
+
+.page-controls i.stat.ok {
+	outline:  5px solid #126d12;
+	background-color: #126d12;
+	color:  #a8f0a8;
+	border-radius: 5px;
+}
 
 
 div.fps .label {

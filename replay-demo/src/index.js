@@ -395,6 +395,7 @@ function mapPacket(packet) {
 function initPage() {
   const body = d3.select('body');
 
+  // Top header ----------------
 
   const fpsdiv = body.append('div').classed("fps", true);
   fpsdiv.append("span").classed("label", true).text("Rendering FPS:");
@@ -416,7 +417,30 @@ function initPage() {
   const frameCounter = addFrameCounter(body);
   frameCounter.show(false);
 
+
+  // page controls + status -------------------
   const pageControls = fpsdiv.append('div').classed('page-controls', true);
+
+  const wsLinkIcon = pageControls.append('i').classed('fa fa-link-slash stat', true);
+  function wsLinkDown() {
+    wsLinkIcon.classed('fa-link-slash', true);
+    wsLinkIcon.classed('fa-link', false);
+    wsLinkIcon.classed('err', true);
+    wsLinkIcon.classed('ok', false);
+    wsLinkIcon.attr('title', 'WS link is down');
+  }
+
+  function wsLinkUp() {
+    wsLinkIcon.classed('fa-link-slash', false);
+    wsLinkIcon.classed('fa-link', true);
+    wsLinkIcon.classed('err', false);
+    wsLinkIcon.classed('ok', true);
+    wsLinkIcon.attr('title', 'WS link is up')
+  }
+  wsLinkDown();
+
+  pageControls.append('span').classed('sep', true);
+
   const frameCounterBtn = pageControls.append('i').classed('fa fa-clock', true).attr('title', 'Show/hide precision frame counter');
   frameCounterBtn.on('click', () => {
     const next = !frameCounterBtn.classed('on');
@@ -537,7 +561,22 @@ function initPage() {
 
 
   const ws = new WebSocket('ws://localhost:8080');
-  ws.onopen = e => { console.log("onopen"); }
+
+  ws.onopen = e => { 
+    console.log('WS link onopen', e); 
+    wsLinkUp();
+  }
+
+  ws.onclose = e => {
+    console.log('WS link onclose', e)
+    wsLinkDown();
+  }
+
+  ws.onerror = e => {
+   console.log('WS link onerror', e) 
+   wsLinkDown();
+  }
+
   ws.onmessage = e => { 
     var lines = e.data.split('\n');
 
