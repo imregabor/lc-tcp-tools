@@ -421,12 +421,13 @@ function initPage() {
   // page controls + status -------------------
   const pageControls = fpsdiv.append('div').classed('page-controls', true);
 
-  const wsLinkIcon = pageControls.append('i').classed('fa fa-link-slash stat', true);
+  const wsLinkIcon = pageControls.append('i').classed('fa fa-link-slash fa-fw stat', true);
   function wsLinkDown() {
     wsLinkIcon.classed('fa-link-slash', true);
     wsLinkIcon.classed('fa-link', false);
     wsLinkIcon.classed('err', true);
     wsLinkIcon.classed('ok', false);
+    wsLinkIcon.classed('warn', false);
     wsLinkIcon.attr('title', 'WS link is down');
   }
 
@@ -435,9 +436,48 @@ function initPage() {
     wsLinkIcon.classed('fa-link', true);
     wsLinkIcon.classed('err', false);
     wsLinkIcon.classed('ok', true);
-    wsLinkIcon.attr('title', 'WS link is up')
+    wsLinkIcon.classed('warn', false);
+    wsLinkIcon.attr('title', 'WS link is up');
   }
-  wsLinkDown();
+
+  function wsLinkWarn() {
+    wsLinkIcon.classed('fa-link-slash', true);
+    wsLinkIcon.classed('fa-link', false);
+    wsLinkIcon.classed('err', false);
+    wsLinkIcon.classed('ok', false);
+    wsLinkIcon.classed('warn', true);
+    wsLinkIcon.attr('title', 'WS link is in WARN state');
+  }
+  wsLinkWarn();
+
+  const srvListeningIcon = pageControls.append('i').classed('fa fa-ear-deaf fa-fw stat', true);
+  function srvListeningDown() {
+    srvListeningIcon.classed('fa-ear-deaf', true);
+    srvListeningIcon.classed('fa-ear-listen', false);
+    srvListeningIcon.classed('err', true);
+    srvListeningIcon.classed('ok', false);
+    srvListeningIcon.classed('warn', false);
+    srvListeningIcon.attr('title', 'Server listening connection is down');
+  }
+
+  function srvListeningUp() {
+    srvListeningIcon.classed('fa-ear-deaf', false);
+    srvListeningIcon.classed('fa-ear-listen', true);
+    srvListeningIcon.classed('err', false);
+    srvListeningIcon.classed('ok', true);
+    srvListeningIcon.classed('warn', false);
+    srvListeningIcon.attr('title', 'Server listening connection is up');
+  }
+
+  function srvListeningWarn() {
+    srvListeningIcon.classed('fa-ear-deaf', true);
+    srvListeningIcon.classed('fa-ear-listen', false);
+    srvListeningIcon.classed('err', false);
+    srvListeningIcon.classed('ok', false);
+    srvListeningIcon.classed('warn', true);
+    srvListeningIcon.attr('title', 'Server listening connection is in WARN state');
+  }
+  srvListeningWarn();
 
   pageControls.append('span').classed('sep', true);
 

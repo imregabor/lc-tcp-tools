@@ -54,6 +54,8 @@ div.fps div.page-controls {
 
 .page-controls i.stat {
 	cursor: help;
+	margin-left: 8px;
+	margin-right: 8px;
 }
 
 .page-controls i.stat.err {
@@ -70,6 +72,12 @@ div.fps div.page-controls {
 	border-radius: 5px;
 }
 
+.page-controls i.stat.warn {
+	outline:  5px solid #afaf1d;
+	background-color: #afaf1d;
+	color:  #eded91;
+	border-radius: 5px;
+}
 
 div.fps .label {
 	margin-right: 0.5em;
