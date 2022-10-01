@@ -6,11 +6,11 @@ const { networkInterfaces } = require('os');
 const net = require('net');
 const express = require('express');
 const openFwdConn = require('./tcp-forwarding-connection.js');
-
+const openListeningSrv = require('./tcp-listening-server.js');
 
 
 const nets = networkInterfaces();
-const port = 12345;
+const listeningPort = 12345;
 
 
 const fwdHost = "192.168.10.101";
@@ -25,7 +25,13 @@ const expressPort = 3000
 
 const fwdConn = openFwdConn({
   host : fwdHost,
-  port : fwdPort
+  port : fwdPort,
+  log : m => console.log('[FWD conn]', m)
+});
+
+const listeningSrv = openListeningSrv({
+  port : listeningPort,
+  log : m => console.log('[LST srv]', m)
 });
 
 
@@ -77,13 +83,18 @@ app.post('/api/sendPacket', (req, res) => {
       msg += '0';
     }
     msg += dt;
-    
+
     for (var i = bus; i < 7; i++) {
       msg += "0000";
     }
 
     console.log('Sending ' + msg)
+
     fwdConn.write(msg + '\n');
+    if (sock) {
+      // Send on WebSocket
+      sock.send(msg + '\n');
+    }
 
 
     res.status(200).send();
@@ -134,7 +145,7 @@ wss.on('connection', function connection(ws, req) {
 
 
 console.log("#");
-console.log("# Start TCP listening on port " + port);
+console.log("# Start TCP listening on port " + listeningPort);
 // see https://nodejs.org/api/net.html#netcreateserveroptions-connectionlistener
 var server = net.createServer({ noDelay : true}, function(socket) {
   const socketDescription = "TCP effects connection from " + socket.remoteAddress + ":" + socket.remotePort;
@@ -160,8 +171,8 @@ var server = net.createServer({ noDelay : true}, function(socket) {
   });
 });
 
-server.listen(port, () => {
-  console.log('# TCP server bound on port ' + port + '. Waiting for connection.');
+server.listen(listeningPort, () => {
+  console.log('# TCP server bound on port ' + listeningPort + '. Waiting for connection.');
 });
 
 
