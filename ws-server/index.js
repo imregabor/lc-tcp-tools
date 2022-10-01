@@ -41,7 +41,8 @@ app.get('/', (req, res) => {
 
 app.get('/api/status', (req, res) => {
   res.json({
-    fwdConnStatus : fwdConn.getStatus()
+    fwdConnStatus : fwdConn.getStatus(),
+    listeningSrvStatus : listeningSrv.getStatus()
   });
 });
 
@@ -181,37 +182,14 @@ wss.on('connection', function connection(ws, req) {
 
 
 
+listeningSrv.onData(d => {
+  // console.log(d.toString());
+  if (sock) {
+    // Send on WebSocket
+    sock.send(d.toString());
+  }
 
-
-console.log("#");
-console.log("# Start TCP listening on port " + listeningPort);
-// see https://nodejs.org/api/net.html#netcreateserveroptions-connectionlistener
-var server = net.createServer({ noDelay : true}, function(socket) {
-  const socketDescription = "TCP effects connection from " + socket.remoteAddress + ":" + socket.remotePort;
-
-  console.log("# connection - " + socketDescription);
-
-  socket.on("data", d => {
-  	// console.log(d.toString());
-  	if (sock) {
-      // Send on WebSocket
-  		sock.send(d.toString());
-  	}
-
-    fwdConn.write(d.toString());
-  });
-
-  socket.on("close", () => {
-    console.log("# close - " + socketDescription + ", continue listening");
-  });
-
-  socket.on("error", () => {
-    console.log("# error - " + socketDescription + ", continue listening")
-  });
-});
-
-server.listen(listeningPort, () => {
-  console.log('# TCP server bound on port ' + listeningPort + '. Waiting for connection.');
+  fwdConn.write(d.toString());
 });
 
 
