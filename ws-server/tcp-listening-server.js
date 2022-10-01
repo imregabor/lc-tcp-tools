@@ -6,9 +6,16 @@ function open(opts) {
   const log = opts.log ? opts.log : console.log;
   const port = opts.port;
   var onData = opts.onData;
+  var onStatusChange = opts.onStatusChange;
   var connectionCount = 0;
 
   const activeConnections = {};
+
+  function notifyStatusChange() {
+    if (onStatusChange) {
+      onStatusChange();
+    }
+  }
 
   log("Start TCP listening on port " + port);
   // see https://nodejs.org/api/net.html#netcreateserveroptions-connectionlistener
@@ -32,25 +39,36 @@ function open(opts) {
     socket.on('close', () => {
       log('close (' + connectionId + ') - ' + socketDescription + ', continue listening');
       delete activeConnections[connectionId];
+      notifyStatusChange();
     });
 
     socket.on("error", () => {
       log('error (' + connectionId + ') - ' + socketDescription + ', continue listening')
       delete activeConnections[connectionId];
+      notifyStatusChange();
     });
+
+    notifyStatusChange();
   });
 
   // see https://nodejs.org/api/net.html#serverlistenport-host-backlog-callback
   server.listen(port, '0.0.0.0', () => {
     log('TCP server bound on port ' + port + '. Waiting for connection.');
+    notifyStatusChange();
   });
 
   const ret = {
     onData: f => {
-        if (onData) {
-            throw 'onData callback is already set.';
-        }
-        onData = f;
+      if (onData) {
+        throw 'onData callback is already set.';
+      }
+      onData = f;
+    },
+    onStatusChange: f => {
+      if (onStatusChange) {
+        throw 'onStatusChange callback is already set.';
+      }
+      onStatusChange = f;
     },
     getStatus: () => {
       const serverAddress = server.address();

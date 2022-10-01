@@ -192,6 +192,9 @@ listeningSrv.onData(d => {
   fwdConn.write(d.toString());
 });
 
+listeningSrv.onStatusChange(() => { if (sock) { sock.send('# status change\n');}});
+fwdConn.onStatusChange(() => { if (sock) { sock.send('# status change\n');}});
+
 
 
 
