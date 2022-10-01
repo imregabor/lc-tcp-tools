@@ -32,14 +32,18 @@ Contents
 
 TODO
 ----
- - Linear arrays:
 
-   - BUS6, ADDR 40 (0x28): road side group, inner
-   - BUS6, ADDR 47 (0x2f): road side group, outermost
+ - ~~Linear arrays:~~
 
-   - BUS4, ADDR 32 (0x20): thuja side group, outermost
-   - BUS4, ADDR 39 (0x27): thuja side group, innermost
+   - BUS6, ADDR 40 (0x28): road side group, inner (left when viewing from front of)
+   - BUS6, ADDR 47 (0x2f): road side group, outermost (right when viewing from front of)
 
- - 7 x 5 matrix: string directions switched (page displays correctly)
+   - BUS7, ADDR 32 (0x28): thuja side (left when viewing from front of)
+   - BUS7, ADDR 39 (0x2f): road side (right when viewing from front of)
+
+   - BUS4, ADDR 32 (0x20): thuja side group, outermost (left when viewing from front of)
+   - BUS4, ADDR 39 (0x27): thuja side group, innermost (right when viewing from front of)
+
+ - ~~7 x 5 matrix: string directions switched (page displays correctly)~~
 
  - ~~More graceful handle of connection reset in `packet-dump.js`~~ - done

@@ -320,35 +320,35 @@ function anima1() {
 
 // map packet to lights
 function mapPacket(packet) {
-  // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 1 on port 6", 6, 0x28 ,8 ) ;
-  if (packet.a.length > 6) {
-    const a = packet.a[6];
-    const d = packet.d[6];
-    if (a >= 0x28 && a < 0x28 + 8) {
+  // Thuja side group
+  if (packet.a.length > 4) {
+    const a = packet.a[4];
+    const d = packet.d[4];
+    if (a >= 0x20 && a < 0x20 + 8) {
       const li = 1.0 - (d - 2) / 118;
-      m1.setValue(a - 0x28, 0, li);
+      m1.setValue(a - 0x20, 0, li);
     }
   }
 
-  // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 2 on port 7", 7, 0x28 ,8 ) ;
+  // Middle group
   if (packet.a.length > 7) {
     const a = packet.a[7];
     const d = packet.d[7];
-    if (a >= 0x20 && a < 0x28 + 8) {
+    if (a >= 0x28 && a < 0x28 + 8) {
 
       const li = 1.0 - (d - 2) / 118;
       m1.setValue(8 + a - 0x28, 0, li);
     }
   }
 
-  // Translate to (Effect *)  new EightBulbEffect( "Nyolcizzo 3 on port 4", 4, 0x20 ,8) ;
-  if (packet.a.length > 4) {
-    const a = packet.a[4];
-    const d = packet.d[4];
-    if (a >= 0x20 && a < 0x20 + 8) {
+  // Road side group
+  if (packet.a.length > 6) {
+    const a = packet.a[6];
+    const d = packet.d[6];
+    if (a >= 0x28 && a < 0x28 + 8) {
 
       const li = 1.0 - (d - 2) / 118;
-      m1.setValue(16 + a - 0x20, 0, li);
+      m1.setValue(16 + a - 0x28, 0, li);
     }
   }
 
@@ -550,14 +550,14 @@ function initPage() {
     .rightLabelText("road")
     .topLabelText("")
     .bottomLabelText("")
-    .infoText( 0 + 0, 0, "6:28") // bus 6
-    .infoText( 0 + 1, 0, "6:29")
-    .infoText( 0 + 2, 0, "6:2a")
-    .infoText( 0 + 3, 0, "6:2b")
-    .infoText( 0 + 4, 0, "6:2c")
-    .infoText( 0 + 5, 0, "6:2d")
-    .infoText( 0 + 6, 0, "6:2e")
-    .infoText( 0 + 7, 0, "6:2f")
+    .infoText( 0 + 0, 0, "4:20") // bus 4
+    .infoText( 0 + 1, 0, "4:21")
+    .infoText( 0 + 2, 0, "4:22")
+    .infoText( 0 + 3, 0, "4:23")
+    .infoText( 0 + 4, 0, "4:24")
+    .infoText( 0 + 5, 0, "4:25")
+    .infoText( 0 + 6, 0, "4:26")
+    .infoText( 0 + 7, 0, "4:27")
     .infoText( 8 + 0, 0, "7:28") // bus 7
     .infoText( 8 + 1, 0, "7:29")
     .infoText( 8 + 2, 0, "7:2a")
@@ -566,14 +566,14 @@ function initPage() {
     .infoText( 8 + 5, 0, "7:2d")
     .infoText( 8 + 6, 0, "7:2e")
     .infoText( 8 + 7, 0, "7:2f")
-    .infoText(16 + 0, 0, "4:28") // bus 4
-    .infoText(16 + 1, 0, "4:29")
-    .infoText(16 + 2, 0, "4:2a")
-    .infoText(16 + 3, 0, "4:2b")
-    .infoText(16 + 4, 0, "4:2c")
-    .infoText(16 + 5, 0, "4:2d")
-    .infoText(16 + 6, 0, "4:2e")
-    .infoText(16 + 7, 0, "4:2f")
+    .infoText(16 + 0, 0, "6:28") // bus 6
+    .infoText(16 + 1, 0, "6:29")
+    .infoText(16 + 2, 0, "6:2a")
+    .infoText(16 + 3, 0, "6:2b")
+    .infoText(16 + 4, 0, "6:2c")
+    .infoText(16 + 5, 0, "6:2d")
+    .infoText(16 + 6, 0, "6:2e")
+    .infoText(16 + 7, 0, "6:2f")
     ;
 
   /*
