@@ -380,13 +380,13 @@ function mapPacket(packet) {
     const li2 = 1.0 - (d2 - 2) / 118;
     const li3 = 1.0 - (d3 - 2) / 118;
 
-    if (a0 >= 0x30 && a0 <= 0x34) { m2.setValue(0x34 - a0, 0, li0); }
-    if (a1 >= 0x35 && a1 <= 0x39) { m2.setValue(a1 - 0x35, 1, li1); }
-    if (a1 >= 0x3a && a1 <= 0x3e) { m2.setValue(0x3e - a1, 2, li1); }
-    if (a2 >= 0x3f && a2 <= 0x43) { m2.setValue(0x43 - a2, 3, li2); }
-    if (a2 >= 0x44 && a2 <= 0x48) { m2.setValue(0x48 - a2, 4, li2); }
-    if (a3 >= 0x49 && a3 <= 0x4d) { m2.setValue(0x4d - a3, 5, li3); }
-    if (a3 >= 0x4e && a3 <= 0x52) { m2.setValue(0x52 - a3, 6, li3); }
+    if (a0 >= 0x30 && a0 <= 0x34) { m2.setValue(6, a0 - 0x30, li0); }
+    if (a1 >= 0x35 && a1 <= 0x39) { m2.setValue(5, 0x39 - a1, li1); }
+    if (a1 >= 0x3a && a1 <= 0x3e) { m2.setValue(4, a1 - 0x3a, li1); }
+    if (a2 >= 0x3f && a2 <= 0x43) { m2.setValue(3, a2 - 0x3f, li2); }
+    if (a2 >= 0x44 && a2 <= 0x48) { m2.setValue(2, a2 - 0x44, li2); }
+    if (a3 >= 0x49 && a3 <= 0x4d) { m2.setValue(1, a3 - 0x49, li3); }
+    if (a3 >= 0x4e && a3 <= 0x52) { m2.setValue(0, a3 - 0x4e, li3); }
 
   }
 
@@ -582,46 +582,46 @@ function initPage() {
   }
   */
   m1.render();
-  m2 = addMatrix(body, { cols: 5, rows: 7 } )
-    .topLabelText("thujas")
-    .bottomLabelText("road")
-    .leftLabelText("building")
-    .rightLabelText("garden")
-    .infoText(4, 0, "0:30") // row 0
-    .infoText(3, 0, "0:31")
-    .infoText(2, 0, "0:32")
-    .infoText(1, 0, "0:33")
-    .infoText(0, 0, "0:34")
-    .infoText(4, 1, "1:39") // row 1
-    .infoText(3, 1, "1:38")
-    .infoText(2, 1, "1:37")
-    .infoText(1, 1, "1:36")
-    .infoText(0, 1, "1:35")
-    .infoText(4, 2, "1:3a") // row 2
-    .infoText(3, 2, "1:3b")
-    .infoText(2, 2, "1:3c")
-    .infoText(1, 2, "1:3d")
-    .infoText(0, 2, "1:3e")
-    .infoText(4, 3, "2:3f") // row 3
-    .infoText(3, 3, "2:40")
-    .infoText(2, 3, "2:41")
-    .infoText(1, 3, "2:42")
-    .infoText(0, 3, "2:43")
-    .infoText(4, 4, "2:44") // row 4
-    .infoText(3, 4, "2:45")
-    .infoText(2, 4, "2:46")
-    .infoText(1, 4, "2:47")
-    .infoText(0, 4, "2:48")
-    .infoText(4, 5, "3:49") // row 5
-    .infoText(3, 5, "3:4a")
-    .infoText(2, 5, "3:4b")
-    .infoText(1, 5, "3:4c")
-    .infoText(0, 5, "3:4d")
-    .infoText(4, 6, "3:4e") // row 6
-    .infoText(3, 6, "3:4f")
-    .infoText(2, 6, "3:50")
-    .infoText(1, 6, "3:51")
-    .infoText(0, 6, "3:52")
+  m2 = addMatrix(body, { cols: 7, rows: 5 } )
+    .topLabelText("garden")
+    .bottomLabelText("building")
+    .leftLabelText("road")
+    .rightLabelText("thujas")
+    .infoText(6, 0, "0:30") // row 0
+    .infoText(6, 1, "0:31")
+    .infoText(6, 2, "0:32")
+    .infoText(6, 3, "0:33")
+    .infoText(6, 4, "0:34")
+    .infoText(5, 0, "1:39") // row 1
+    .infoText(5, 1, "1:38")
+    .infoText(5, 2, "1:37")
+    .infoText(5, 3, "1:36")
+    .infoText(5, 4, "1:35")
+    .infoText(4, 0, "1:3a") // row 2
+    .infoText(4, 1, "1:3b")
+    .infoText(4, 2, "1:3c")
+    .infoText(4, 3, "1:3d")
+    .infoText(4, 4, "1:3e")
+    .infoText(3, 0, "2:3f") // row 3
+    .infoText(3, 1, "2:40")
+    .infoText(3, 2, "2:41")
+    .infoText(3, 3, "2:42")
+    .infoText(3, 4, "2:43")
+    .infoText(2, 0, "2:44") // row 4
+    .infoText(2, 1, "2:45")
+    .infoText(2, 2, "2:46")
+    .infoText(2, 3, "2:47")
+    .infoText(2, 4, "2:48")
+    .infoText(1, 0, "3:49") // row 5
+    .infoText(1, 1, "3:4a")
+    .infoText(1, 2, "3:4b")
+    .infoText(1, 3, "3:4c")
+    .infoText(1, 4, "3:4d")
+    .infoText(0, 0, "3:4e") // row 6
+    .infoText(0, 1, "3:4f")
+    .infoText(0, 2, "3:50")
+    .infoText(0, 3, "3:51")
+    .infoText(0, 4, "3:52")
     ;
   m2.render();
   // anima1();
