@@ -1,0 +1,85 @@
+"use strict";
+
+const net = require('net');
+
+
+function open(opts) {
+  const log = opts.log ? opts.log : console.log;
+  const host = opts.host;
+  const port = opts.port;
+  const conns = host + ":" + port;
+  var connectionAttempts = 0;
+
+  log('FWD connecting to ' + conns);
+  var connected = false;
+  var fwdClient;
+
+  // see https://nodejs.org/api/net.html#socketconnectoptions-connectlistener
+  function tryConnect() {
+    connectionAttempts ++;
+
+    if (fwdClient) {
+      fwdClient.destroy();
+    }
+    var retrying = false;
+    fwdClient = net.Socket().connect({ port: port, host : host, family : 4, noDelay : true}, () => {
+      log('Connected to FWD to ' + conns);
+      connected = true;
+    });
+    fwdClient.on('end', () => {
+      log("End FWD connection to " + conns);
+      connected = false;
+      if (!retrying) {
+        retrying = true;
+        log("  Retry FWD conenction in 1s");
+        setTimeout(tryConnect, 1000);
+      }
+    });
+    fwdClient.on('error', () => {
+      log("ERROR FWD connection to " + conns);
+      connected = false;
+      if (!retrying) {
+        retrying = true;
+        log("  Retry FWD conenction in 1s");
+        setTimeout(tryConnect, 1000);
+      }
+    });
+    fwdClient.on('data', d => {
+      log("DATA from FWD connection (dropped): " + d.toString());
+    });
+  }
+  tryConnect();
+
+
+  function keepAliveConn() {
+    if (connected) {
+      fwdClient.write("#\n");
+    }
+    setTimeout(keepAliveConn, 1000);
+  }
+  keepAliveConn();
+
+
+  const ret = {
+    getStatus: () => {
+      return {
+        connectionAttempts : connectionAttempts,
+        bytesRead : fwdClient.bytesRead,
+        bytesWritten : fwdClient.bytesWritten,
+        remote : conns,
+        connected : connected,
+        readyState : fwdClient.readyState,
+        local: fwdClient.localAddress + ":" + fwdClient.localPort + " (" + fwdClient.localFamily + ")"
+      };
+    },
+    isConnected: () => connected,
+    write : data => {
+      if (connected) {
+        fwdClient.write(data);
+      }
+    }
+  };
+  return ret;
+}
+
+module.exports = open;

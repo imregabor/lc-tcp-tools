@@ -5,12 +5,16 @@ const  ws = require('ws');
 const { networkInterfaces } = require('os');
 const net = require('net');
 const express = require('express');
+const openFwdConn = require('./tcp-forwarding-connection.js');
+
+
 
 const nets = networkInterfaces();
 const port = 12345;
 
 
 const fwdHost = "192.168.10.101";
+//const fwdHost = "localhost";
 // const host = "192.168.10.101";
 const fwdPort = 23;
 
@@ -18,8 +22,21 @@ const app = express();
 
 const expressPort = 3000
 
+
+const fwdConn = openFwdConn({
+  host : fwdHost,
+  port : fwdPort
+});
+
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
+});
+
+app.get('/api/status', (req, res) => {
+  res.json({
+    fwdConnStatus : fwdConn.getStatus()
+  });
 });
 
 app.post('/api/sendPacket', (req, res) => {
@@ -66,10 +83,7 @@ app.post('/api/sendPacket', (req, res) => {
     }
 
     console.log('Sending ' + msg)
-    if (fwdClient) {
-      // console.log(">" + d.toString() + "<")
-      fwdClient.write(msg + '\n');
-    }
+    fwdConn.write(msg + '\n');
 
 
     res.status(200).send();
@@ -80,22 +94,6 @@ app.listen(expressPort, () => {
   console.log('xpress server listening on port ' + expressPort);
 })
 
-
-function keepAliveConn() {
-  
-  if (fwdClient) {
-    fwdClient.write("#\n");
-  }
-  setTimeout(keepAliveConn, 1000);
-}
-keepAliveConn();
-
-console.log("FWD connecting to " + fwdHost + " on port " + fwdPort);
-var fwdClient = net.Socket().connect({ port: fwdPort, host : fwdHost, family : 4, noDelay : true}, () => {
-  console.log("Connected to FWD");
-
-
-});
 
 
 const wss = new ws.Server({ port: 8080 });
@@ -146,13 +144,11 @@ var server = net.createServer({ noDelay : true}, function(socket) {
   socket.on("data", d => {
   	// console.log(d.toString());
   	if (sock) {
+      // Send on WebSocket
   		sock.send(d.toString());
   	}
 
-    if (fwdClient) {
-      // console.log(">" + d.toString() + "<")
-      fwdClient.write(d.toString());
-    }
+    fwdConn.write(d.toString());
   });
 
   socket.on("close", () => {
