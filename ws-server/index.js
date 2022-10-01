@@ -45,6 +45,45 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+app.post('/api/sendToAll', (req, res) => {
+  const data = +req.query.data;
+  console.log('sendToAll ' + data);
+
+  var err;
+    if (! (data >= 0 && data <= 255)) {
+    err = (err ? err + " / " : "") + "Invalid data: " + data;
+  }
+
+  if (err) {
+    res.status(400).send(err);
+  } else {
+    var ds = data.toString(16);
+    if (ds.length < 2) {
+      ds = '0' + ds;
+    }
+
+    for (var address = 0; address < 128; address++) {
+      var as = address.toString(16);
+      if (as.length < 2) {
+        as = '0' + as;
+      }
+
+      var msg = 'S';
+      for (var i = 0; i < 8; i++) {
+        msg += as;
+        msg += ds;
+      }
+
+      fwdConn.write(msg + '\n');
+      if (sock) {
+        // Send on WebSocket
+        sock.send(msg + '\n');
+      }
+    }
+    res.status(200).send();
+  }
+});
+
 app.post('/api/sendPacket', (req, res) => {
   const bus = +req.query.bus;
   const address = +req.query.address;
