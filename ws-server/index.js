@@ -22,6 +22,8 @@ const app = express();
 
 const expressPort = 3000
 
+const starttime = Date.now();
+
 
 const fwdConn = openFwdConn({
   host : fwdHost,
@@ -41,6 +43,7 @@ app.get('/', (req, res) => {
 
 app.get('/api/status', (req, res) => {
   res.json({
+    uptime : Date.now() - starttime,
     fwdConnStatus : fwdConn.getStatus(),
     listeningSrvStatus : listeningSrv.getStatus()
   });

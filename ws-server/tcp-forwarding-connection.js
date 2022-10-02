@@ -13,6 +13,7 @@ function open(opts) {
 
   log('FWD connecting to ' + conns);
   var connected = false;
+  var connectedTime;;
   var fwdClient;
 
   function notifyStatusChange() {
@@ -32,6 +33,7 @@ function open(opts) {
     fwdClient = net.Socket().connect({ port: port, host : host, family : 4, noDelay : true}, () => {
       log('Connected to FWD to ' + conns);
       connected = true;
+      connectedTime = Date.now();
       notifyStatusChange();
     });
     fwdClient.on('end', () => {
@@ -84,6 +86,7 @@ function open(opts) {
         bytesWritten : fwdClient.bytesWritten,
         remote : conns,
         connected : connected,
+        uptime : connected ? Date.now() - connectedTime : 0,
         readyState : fwdClient.readyState,
         local: fwdClient.localAddress + ":" + fwdClient.localPort + " (" + fwdClient.localFamily + ")"
       };

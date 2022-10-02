@@ -23,7 +23,10 @@ function open(opts) {
   var server = net.createServer({ noDelay : true}, socket => {
     const socketDescription = "TCP effects connection from " + socket.remoteAddress + ":" + socket.remotePort;
     const connectionId = connectionCount;
-    activeConnections[connectionId] = socket;
+    activeConnections[connectionId] = {
+      socket : socket,
+      connectedTime : Date.now()
+    };
 
     connectionCount++;
 
@@ -84,14 +87,15 @@ function open(opts) {
         if (!activeConnections.hasOwnProperty(ci)) {
           continue;
         }
-        const c = activeConnections[ci];
-
+        const c = activeConnections[ci].socket;
+        const u = Date.now() - activeConnections[ci].connectedTime;
         status.activeConnectionCount++;
         status.activeConnections.push({
           bytesRead : c.bytesRead,
           bytesWritten : c.bytesWritten,
           remote : c.remoteAddress + ':' + c.remotePort +' (' + c.remoteFamily + ')',
-          readyState : c.readyState
+          readyState : c.readyState,
+          uptime : u
         });
       }
       return status;
