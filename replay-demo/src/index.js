@@ -416,6 +416,9 @@ function initPage() {
   const frameCounter = addFrameCounter(body);
   frameCounter.show(false);
 
+  const statusInfoDiv = body.append('div').classed('status-info', true).style('display', 'none');
+  const statusInfoContent = statusInfoDiv.append('pre');
+
 
   // page controls + status -------------------
   const pageControls = fpsdiv.append('div').classed('page-controls', true);
@@ -541,6 +544,35 @@ function initPage() {
     const next = !frameCounterBtn.classed('on');
     frameCounter.show(next);
     frameCounterBtn.classed('on', next);
+  });
+
+
+  function fetchStatusInfo() {
+    d3.json('api/status')
+      .then(
+        response => {
+          if (!infoButton.classed('on')) {
+            return;
+          }
+          statusInfoDiv.style('display', 'block');
+          statusInfoContent.text(JSON.stringify(response, null, 2));
+          setTimeout(fetchStatusInfo, 500);
+        },
+        error => {
+          console.log('Error', error);
+        });
+
+  }
+
+  const infoButton = pageControls.append('i').classed('fa fa-circle-info', true).attr('title', 'Show/hide server status');
+  infoButton.on('click', () => {
+    const next = !infoButton.classed('on');
+    infoButton.classed('on', next);
+    if (!next) {
+      statusInfoDiv.style('display', 'none');
+      return;
+    }
+    fetchStatusInfo();
   });
 
 

@@ -143,6 +143,12 @@ div.frame-counter .box.on {
 	background-color: white;
 }
 
+
+div.status-info {
+	font-family: monospace;
+	color:  white;
+}
+
 div.matrix-container {
 	margin-left: 50px;
 	margin-top: 100px;
