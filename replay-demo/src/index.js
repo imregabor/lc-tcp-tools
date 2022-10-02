@@ -7,7 +7,6 @@ import chroma from 'chroma-js';
 import cap from '../../data/capture-rfd.txt.gz';
 import fa from "./fa.js";
 
-
 function replay(opts) {
   const lines = opts.lines;
   const callback = opts.cb;
@@ -656,7 +655,18 @@ function initPage() {
 
 
 
-  const ws = new WebSocket('ws://localhost:8080');
+  //const ws = new WebSocket('ws://localhost:8080');
+  // See https://stackoverflow.com/questions/10406930/how-to-construct-a-websocket-uri-relative-to-the-page-uri
+  var windowLocation = window.location;
+  var wsUri;
+  if (windowLocation.protocol === 'https:') {
+    wsUri = 'wss:';
+  } else {
+    wsUri = 'ws:';
+  }
+  wsUri += '//' + windowLocation.host + '/';
+
+  const ws = new WebSocket(wsUri);
 
   ws.onopen = e => { 
     console.log('WS link onopen', e); 

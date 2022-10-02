@@ -37,9 +37,8 @@ const listeningSrv = openListeningSrv({
 });
 
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-});
+app.use(express.static('../replay-demo/dist'));
+
 
 app.get('/api/status', (req, res) => {
   res.json({
@@ -144,13 +143,12 @@ app.post('/api/sendPacket', (req, res) => {
   }
 });
 
-app.listen(expressPort, () => {
-  console.log('xpress server listening on port ' + expressPort);
-})
 
 
 
-const wss = new ws.Server({ port: 8080 });
+// const wss = new ws.Server({ port: 8080 });
+// see https://masteringjs.io/tutorials/express/websockets
+const wss = new ws.Server({ noServer: true });
 
 var sock;
 
@@ -183,6 +181,16 @@ wss.on('connection', function connection(ws, req) {
   ws.send('something');
 });
 
+
+// see https://masteringjs.io/tutorials/express/websockets
+const expressServer = app.listen(expressPort, () => {
+  console.log('xpress server listening on port ' + expressPort);
+})
+expressServer.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, socket => {
+    wss.emit('connection', socket, request);
+  });
+});
 
 
 listeningSrv.onData(d => {
