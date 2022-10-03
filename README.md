@@ -32,7 +32,8 @@ Contents
 
 TODO
 ----
-
+ - Handle multiple WS connection from Node side
+ - Check if WS connection is still alive
  - ~~Linear arrays:~~
 
    - BUS6, ADDR 40 (0x28): road side group, inner (left when viewing from front of)
