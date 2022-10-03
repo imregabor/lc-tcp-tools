@@ -7,8 +7,10 @@ This is a small visualization for packet capture contents.
 What works:
 -----------
 
- - `webpack` based build, importing packet capture into JS
+ - `webpack` based build
+ - importing packet capture into JS receiving effect data over websocket connection 
  - rendering of lights (static / minimal animation)
+ - performance counters, status info
 
 
 Compilation
@@ -22,13 +24,15 @@ npm ci
 npm run build
 ```
 
-After compilation open `replay-demo/dist/index.html`.
+After compilation open `replay-demo/dist/index.html` or launch Node server in `../ws-server`.
 
 
 TODO
------
+----
 
- - Parse and playback imported capture
+ - Flip / mirror of display
+ - Manual control 
+ - ~~Parse and playback imported capture~~
 
 
 See also 
