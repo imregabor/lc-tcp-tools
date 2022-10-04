@@ -7,6 +7,22 @@ import chroma from 'chroma-js';
 import cap from '../../data/capture-rfd.txt.gz';
 import fa from "./fa.js";
 
+
+/* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=replay
+
+                               ,,
+                             `7MM
+                               MM
+`7Mb,od8  .gP"Ya  `7MMpdMAo.   MM   ,6"Yb.  `7M'   `MF'
+  MM' "' ,M'   Yb   MM   `Wb   MM  8)   MM    VA   ,V
+  MM     8M""""""   MM    M8   MM   ,pm9MM     VA ,V
+  MM     YM.    ,   MM   ,AP   MM  8M   MM      VVV
+.JMML.    `Mbmmd'   MMbmmd'  .JMML.`Moo9^Yo.    ,V
+                    MM                         ,V
+                  .JMML.                    OOb"
+
+ */
+
 function replay(opts) {
   const lines = opts.lines;
   const callback = opts.cb;
@@ -172,6 +188,19 @@ function attachPerfCounter(d3sel, formatSpec) {
   return ret;
 }
 
+/* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=addMatrix
+
+                ,,         ,,                                              ,,
+              `7MM       `7MM  `7MMM.     ,MMF'           mm               db
+                MM         MM    MMMb    dPMM             MM
+ ,6"Yb.    ,M""bMM    ,M""bMM    M YM   ,M MM   ,6"Yb.  mmMMmm  `7Mb,od8 `7MM  `7M'   `MF'
+8)   MM  ,AP    MM  ,AP    MM    M  Mb  M' MM  8)   MM    MM      MM' "'   MM    `VA ,V'
+ ,pm9MM  8MI    MM  8MI    MM    M  YM.P'  MM   ,pm9MM    MM      MM       MM      XMX
+8M   MM  `Mb    MM  `Mb    MM    M  `YM'   MM  8M   MM    MM      MM       MM    ,V' VA.
+`Moo9^Yo. `Wbmd"MML. `Wbmd"MML..JML. `'  .JMML.`Moo9^Yo.  `Mbmo .JMML.   .JMML..AM.   .MA.
+
+
+ */
 
 function addMatrix(parentD3, opts) {
   const containerPadding = (opts.pad ? opts.pad : 1.0) * 60;
@@ -221,11 +250,26 @@ function addMatrix(parentD3, opts) {
   ctrls.append('i').classed('fa fa-left-right', true).attr('title', 'Flip display horizontally');
   ctrls.append('i').classed('fa fa-up-down', true).attr('title', 'Flip display vertically');
 
+  var lightupButton = ctrls.append("i").classed("fa-regular fa-lightbulb", true).attr('title', 'Light up on hover');
 
-  infoButton.on("click", () => { 
-    const toOn = cnt.classed("hide-info");
-    infoButton.classed("on", toOn);
-    cnt.classed("hide-info", !toOn); 
+  var lighupOnHover = false;
+
+  infoButton.on('click', () => {
+    const toOn = cnt.classed('hide-info');
+    infoButton.classed('on', toOn);
+    cnt.classed('hide-info', !toOn);
+  });
+
+  lightupButton.on('click', () => {
+    const toOn = !lightupButton.classed('on');
+    lighupOnHover = toOn;
+    lightupButton
+      .classed("fa-regular", !toOn)
+      .classed("fa-solid", toOn)
+      .classed('on', toOn);
+    if (!toOn) {
+      ddivs.classed('mark', false);
+    }
   });
 
 
@@ -235,8 +279,27 @@ function addMatrix(parentD3, opts) {
     .style('height', dotSize + "px")
     .style('left', d => (d.x * (dotSize + dotSeparation) + containerPadding) + "px")
     .style('top', d => (d.y * (dotSize + dotSeparation) + containerPadding) + "px")
-    
     .attr("title", d => "Index: " + d.i);
+
+
+  ddivs.on('mouseenter', (e, d) => {
+    if (!lighupOnHover) {
+      return;
+    }
+    d3.select(e.target).classed('mark', true);
+    if (opts.hover) {
+      opts.hover(d.x, d.y, 1.0);
+    }
+  });
+  ddivs.on('mouseleave', (e, d) => {
+    if (!lighupOnHover) {
+      return;
+    }
+    d3.select(e.target).classed('mark', false);
+    if (opts.hover) {
+      opts.hover(d.x, d.y, 0.0);
+    }
+  });
 
   var infoTexts = ddivs.append("div").classed("info-detail", true);
   function bindInfoText() {
@@ -317,6 +380,20 @@ function anima1() {
   setTimeout(anima1, 50);
 }
 
+/* see https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=mapPacket
+
+                                      `7MM"""Mq.                   `7MM                 mm
+                                        MM   `MM.                    MM                 MM
+`7MMpMMMb.pMMMb.   ,6"Yb.  `7MMpdMAo.   MM   ,M9  ,6"Yb.   ,p6"bo    MM  ,MP' .gP"Ya  mmMMmm
+  MM    MM    MM  8)   MM    MM   `Wb   MMmmdM9  8)   MM  6M'  OO    MM ;Y   ,M'   Yb   MM
+  MM    MM    MM   ,pm9MM    MM    M8   MM        ,pm9MM  8M         MM;Mm   8M""""""   MM
+  MM    MM    MM  8M   MM    MM   ,AP   MM       8M   MM  YM.    ,   MM `Mb. YM.    ,   MM
+.JMML  JMML  JMML.`Moo9^Yo.  MMbmmd'  .JMML.     `Moo9^Yo. YMbmd'  .JMML. YA. `Mbmmd'   `Mbmo
+                             MM
+                           .JMML.
+
+ */
+
 // map packet to lights
 function mapPacket(packet) {
   // Thuja side group
@@ -390,6 +467,20 @@ function mapPacket(packet) {
   }
 
 }
+
+/* see https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=initPage
+
+  ,,                ,,
+  db                db    mm    `7MM"""Mq.
+                          MM      MM   `MM.
+`7MM  `7MMpMMMb.  `7MM  mmMMmm    MM   ,M9  ,6"Yb.   .P"Ybmmm  .gP"Ya
+  MM    MM    MM    MM    MM      MMmmdM9  8)   MM  :MI  I8   ,M'   Yb
+  MM    MM    MM    MM    MM      MM        ,pm9MM   WmmmP"   8M""""""
+  MM    MM    MM    MM    MM      MM       8M   MM  8M        YM.    ,
+.JMML..JMML  JMML..JMML.  `Mbmo .JMML.     `Moo9^Yo. YMMMMMb   `Mbmmd'
+                                                    6'     dP
+                                                    Ybmmmd'
+*/
 
 function initPage() {
   const body = d3.select('body');
@@ -576,7 +667,35 @@ function initPage() {
   });
 
 
-  m1 = addMatrix(body, { cols: 24, rows: 1, sep: 0.1, pad: 0.2 } )
+  m1 = addMatrix(body, {
+    cols: 24,
+    rows: 1,
+    sep: 0.1,
+    pad: 0.2,
+    hover : (x, y, v) => {
+      var bus, addr, value;
+
+      value = Math.round(120 - 118 * v);
+      if (value < 2) { value = 2; }
+      if (value > 120) { value = 120; }
+
+      if (x < 8) {
+        bus = 4;
+        addr = 0x20 + x;
+      } else if (x < 16) {
+        bus = 7;
+        addr = 0x28 + x - 8;
+      } else {
+        bus = 6;
+        addr = 0x28 + x - 16;
+      }
+
+      // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
+      d3.text('/api/sendPacket?bus=' + bus + '&address=' + addr + '&data=' + value, {
+        method : 'POST'
+      });
+    }
+  } )
     .leftLabelText("thujas")
     .rightLabelText("road")
     .topLabelText("")
@@ -613,7 +732,44 @@ function initPage() {
   }
   */
   m1.render();
-  m2 = addMatrix(body, { cols: 7, rows: 5 } )
+  m2 = addMatrix(body, {
+    cols: 7,
+    rows: 5,
+    hover : (x, y, v) => {
+      var bus, addr, value;
+
+      value = Math.round(120 - 118 * v);
+      if (value < 2) { value = 2; }
+      if (value > 120) { value = 120; }
+
+      if (x == 6) {
+        bus = 0;
+        addr = 0x30 + y;
+      } else if (x == 5) {
+        bus = 1;
+        addr = 0x39 - y;
+      } else if (x == 4) {
+        bus = 1;
+        addr = 0x3a + y;
+      } else if (x == 3) {
+        bus = 2;
+        addr = 0x3f + y;
+      } else if (x == 2) {
+        bus = 2;
+        addr = 0x44 + y;
+      } else if (x == 1) {
+        bus = 3;
+        addr = 0x49 + y;
+      } else  {
+        bus = 3;
+        addr = 0x4e + y;
+      }
+
+      // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
+      d3.text('/api/sendPacket?bus=' + bus + '&address=' + addr + '&data=' + value, {
+        method : 'POST'
+      });
+    }})
     .topLabelText("garden")
     .bottomLabelText("building")
     .leftLabelText("road")

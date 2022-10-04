@@ -163,6 +163,10 @@ div.matrix-dot {
 	position: absolute;
 }
 
+div.matrix-dot.mark {
+	outline: 3px solid rgba(255, 255, 255, 0.4);
+}
+
 div.matrix-container .matrix-dot .info-detail {
 	display: block;
 	position: absolute;
