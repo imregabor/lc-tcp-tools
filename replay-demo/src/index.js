@@ -140,25 +140,38 @@ function addFrameCounter(d3sel) {
 }
 
 function attachPerfCounter(d3sel, formatSpec) {
-  const buf = [];
-  const cnt = [];
-  var rollingCount = 0;
+  const maxBufSize = 100;
+  const buf = Array(maxBufSize).fill(0);
+  const cnt = Array(maxBufSize).fill(0);
   const format = d3.format(formatSpec ?  formatSpec : ".0f");
 
-  const bufSize = 100;
-  var next = 0;
+
+  var nextToWrite = 0;
+  var oldestValid = 0;
+  var validCount = 0;
+  var cntSum = 0;
+  var lastTime ;
 
   function render() {
-    if (buf.length < 2) {
-      d3sel.text("----");
-    } else {
-      const now = Date.now();
-      const first = buf[ next ];
+    const now = Date.now();
+    while (validCount > 0 && buf[oldestValid] < now - 1000) {
+      cntSum -= cnt[oldestValid];
+      oldestValid = (oldestValid + 1) % maxBufSize;
+      validCount --;
+    }
 
-      if (now == first) {
+    if (validCount < 1) {
+      d3sel.text("-----");
+    } else if (validCount < 10) {
+      const s = Math.round(validCount / 2);
+      d3sel.text("*****".substring(5 - s));
+    } else {
+      const oldestTime = buf[oldestValid];
+      const oldestCount = cnt[oldestValid];
+      if (lastTime == oldestTime) {
         d3sel.text("?");
       } else {
-        d3sel.text(format(1000 * rollingCount / (now - first)));
+        d3sel.text(format(1000 * (cntSum - oldestCount) / (lastTime - oldestTime)));
       }
     }
   }
@@ -169,17 +182,19 @@ function attachPerfCounter(d3sel, formatSpec) {
         console.log("Invalid count " + count);
       }
       const now = Date.now();
-      if (buf.length < bufSize) {
-        buf.push(now);
-        cnt.push(count);
-        rollingCount += count;
-        next = 0;
+      lastTime = now;
+      if (validCount == maxBufSize) {
+        cntSum -= cnt[nextToWrite];
+      }
+      cntSum += count;
+      buf[nextToWrite] = now;
+      cnt[nextToWrite] = count;
+
+      nextToWrite = (nextToWrite + 1) % maxBufSize;
+      if (validCount == maxBufSize) {
+        oldestValid = nextToWrite;
       } else {
-        rollingCount -= cnt[next];
-        rollingCount += count;
-        buf[next] = now;
-        cnt[next] = count;
-        next = (next + 1) % buf.length;
+        validCount ++;
       }
     },
     render : () => render()
