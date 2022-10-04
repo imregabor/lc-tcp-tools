@@ -157,13 +157,18 @@ div.matrix-container {
 	display: block;
 }
 
-div.matrix-dot {
-	border-radius: 15px;
+div.matrix-dot-outer {
 	display: block;
 	position: absolute;
 }
 
-div.matrix-dot.mark {
+div.matrix-dot {
+	border-radius: 15px;
+	display: block;
+	position: relative;
+}
+
+div.matrix-dot-outer.mark div.matrix-dot {
 	outline: 3px solid rgba(255, 255, 255, 0.4);
 }
 

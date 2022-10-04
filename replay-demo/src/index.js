@@ -205,6 +205,7 @@ function attachPerfCounter(d3sel, formatSpec) {
 function addMatrix(parentD3, opts) {
   const containerPadding = (opts.pad ? opts.pad : 1.0) * 60;
   const dotSeparation = (opts.sep ? opts.sep : 1.0) * 40;
+  const halfDotSeparation = Math.round(dotSeparation / 2);
   const dotSize = 30;
 
   function toIndex(col, row) {
@@ -272,17 +273,22 @@ function addMatrix(parentD3, opts) {
     }
   });
 
+  var dotOuterDivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
+    .classed('matrix-dot-outer', true)
+    .style('width', (dotSize + dotSeparation) + 'px')
+    .style('height', (dotSize + dotSeparation) + 'px')
+    .style('left', d => (d.x * (dotSize + dotSeparation) + containerPadding - halfDotSeparation) + 'px')
+    .style('top', d => (d.y * (dotSize + dotSeparation) + containerPadding - halfDotSeparation) + 'px')
 
-  var ddivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
+  var ddivs = dotOuterDivs.append('div')
     .classed('matrix-dot', true)
     .style('width', dotSize + "px")
     .style('height', dotSize + "px")
-    .style('left', d => (d.x * (dotSize + dotSeparation) + containerPadding) + "px")
-    .style('top', d => (d.y * (dotSize + dotSeparation) + containerPadding) + "px")
+    .style('left', halfDotSeparation + "px")
+    .style('top', halfDotSeparation + "px")
     .attr("title", d => "Index: " + d.i);
 
-
-  ddivs.on('mouseenter', (e, d) => {
+  dotOuterDivs.on('mouseenter', (e, d) => {
     if (!lighupOnHover) {
       return;
     }
@@ -291,7 +297,7 @@ function addMatrix(parentD3, opts) {
       opts.hover(d.x, d.y, 1.0);
     }
   });
-  ddivs.on('mouseleave', (e, d) => {
+  dotOuterDivs.on('mouseleave', (e, d) => {
     if (!lighupOnHover) {
       return;
     }
