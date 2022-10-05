@@ -651,18 +651,40 @@ function initPage() {
 
   pageControls.append('span').classed('sep', true);
 
+  function updateStatusIcons(statusInfo) {
+    if (statusInfo.listeningSrvStatus.activeConnectionCount > 0) {
+      srvListeningUp();
+    } else {
+      srvListeningDown();
+    }
+    if (statusInfo.fwdConnStatus.connected) {
+      srvFwdConnUp();
+    } else {
+      srvFwdConnDown();
+    }
+  }
+
+
   const frameCounterBtn = pageControls.append('i').classed('fa fa-clock', true).attr('title', 'Show/hide precision frame counter');
   frameCounterBtn.on('click', () => {
     const next = !frameCounterBtn.classed('on');
     frameCounter.show(next);
     frameCounterBtn.classed('on', next);
   });
-
+  function pingStatusInfo() {
+    d3.json('api/status')
+      .then(
+        response => {
+          updateStatusIcons(response);
+        }
+      );
+  }
 
   function fetchStatusInfo() {
     d3.json('api/status')
       .then(
         response => {
+          updateStatusIcons(response);
           if (!infoButton.classed('on')) {
             return;
           }
@@ -900,6 +922,8 @@ function initPage() {
       if (s.startsWith("S")) {
         pgs++;
         mapPacket(parsePacket(s));
+      } else if (s.startsWith('# status change')) {
+        pingStatusInfo();
       }
     }
     if (pgs > 0) {
@@ -908,6 +932,11 @@ function initPage() {
     }
   }
 
+  function periodicStatusInfo() {
+    pingStatusInfo();
+    setTimeout(periodicStatusInfo, 2000);
+  }
+  periodicStatusInfo();
 
   /*
   replayStatus = replay({
