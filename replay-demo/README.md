@@ -11,7 +11,8 @@ What works:
  - importing packet capture into JS receiving effect data over websocket connection 
  - rendering of lights (static / minimal animation)
  - performance counters, status info
-
+ - minimal manual control: light up on mouse hover (send data through REST API, feedback through WS link)
+ 
 
 Compilation
 -----------
@@ -31,7 +32,7 @@ TODO
 ----
 
  - Flip / mirror of display
- - Manual control 
+ - More manual control 
  - ~~Parse and playback imported capture~~
 
 
