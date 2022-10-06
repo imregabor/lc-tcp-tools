@@ -5,7 +5,9 @@ import './style.css';
 import chroma from 'chroma-js';
 //import cap from '../../data/capture-ppp.txt.gz';
 import cap from '../../data/capture-rfd.txt.gz';
-import fa from "./fa.js";
+import fa from './fa.js';
+import parsePacket from './packet-parsing.js';
+import * as setup from './current-setup.js';
 
 
 /* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=replay
@@ -69,26 +71,6 @@ function replay(opts) {
     getPp: () => 100 * nextLine / lines.length
   };
   fetch();
-  return ret;
-}
-
-function parsePacket(s) {
-  if (!s.startsWith('S')) {
-    console.log('Invalid frame ' + s);
-    return
-  }
-  var ret = {
-    a: [],
-    d: []
-  };
-
-  var i = 1;
-  while (i < s.length - 3) {
-    ret.a.push(parseInt(s.substring(i + 0, i + 2), 16));
-    ret.d.push(parseInt(s.substring(i + 2, i + 4), 16));
-    i+= 4;
-  }
-
   return ret;
 }
 
@@ -268,6 +250,12 @@ function addMatrix(parentD3, opts) {
 
   var lightupButton = ctrls.append("i").classed("fa-regular fa-lightbulb", true).attr('title', 'Light up on hover');
 
+  ctrls.append("i").classed("fa-solid fa-arrows-up-to-line fa-rotate-270", true).attr('title', 'Light up left block on hover');
+  ctrls.append("i").classed("fa-solid fa-arrows-up-to-line fa-rotate-90", true).attr('title', 'Light up left block on hover');
+  ctrls.append("i").classed("fa-solid fa-arrows-up-to-line", true).attr('title', 'Light up top block on hover');
+  ctrls.append("i").classed("fa-solid fa-arrows-up-to-line fa-rotate-180", true).attr('title', 'Light up bottom block on hover');
+
+
   var lighupOnHover = false;
 
   infoButton.on('click', () => {
@@ -417,76 +405,8 @@ function anima1() {
 
 // map packet to lights
 function mapPacket(packet) {
-  // Thuja side group
-  if (packet.a.length > 4) {
-    const a = packet.a[4];
-    const d = packet.d[4];
-    if (a >= 0x20 && a < 0x20 + 8) {
-      const li = 1.0 - (d - 2) / 118;
-      m1.setValue(a - 0x20, 0, li);
-    }
-  }
-
-  // Middle group
-  if (packet.a.length > 7) {
-    const a = packet.a[7];
-    const d = packet.d[7];
-    if (a >= 0x28 && a < 0x28 + 8) {
-
-      const li = 1.0 - (d - 2) / 118;
-      m1.setValue(8 + a - 0x28, 0, li);
-    }
-  }
-
-  // Road side group
-  if (packet.a.length > 6) {
-    const a = packet.a[6];
-    const d = packet.d[6];
-    if (a >= 0x28 && a < 0x28 + 8) {
-
-      const li = 1.0 - (d - 2) / 118;
-      m1.setValue(16 + a - 0x28, 0, li);
-    }
-  }
-
-  //  mods[ 4 ] = (Effect *)  new LightMatrix( "Light Matrix on Bus B0(R0),B1(R1-2),B2(R3-4),B3(R5-6)", 7, 5 );
-  // This is tricky
-  // Address map:
-
-  // ROW BUS  <5>  <4>  <3>  <2>  <1>
-  //           0    1    2    3    4
-  //  0   0   0x34 0x33 0x32 0x31 0x30
-  //  1   1   0x35 0x36 0x37 0x38 0x39 (reversed!)
-  //  2   1   0x3e 0x3d 0x3c 0x3b 0x3a
-  //  3   2   0x43 0x42 0x41 0x40 0x3f
-  //  4   2   0x48 0x47 0x46 0x45 0x44
-  //  5   3   0x4d 0x4c 0x4b 0x4a 0x49
-  //  6   3   0x52 0x51 0x50 0x4f 0x4e
-
-  if (packet.a.length > 3) {
-    const a0 = packet.a[0];
-    const d0 = packet.d[0];
-    const a1 = packet.a[1];
-    const d1 = packet.d[1];
-    const a2 = packet.a[2];
-    const d2 = packet.d[2];
-    const a3 = packet.a[3];
-    const d3 = packet.d[3];
-    const li0 = 1.0 - (d0 - 2) / 118;
-    const li1 = 1.0 - (d1 - 2) / 118;
-    const li2 = 1.0 - (d2 - 2) / 118;
-    const li3 = 1.0 - (d3 - 2) / 118;
-
-    if (a0 >= 0x30 && a0 <= 0x34) { m2.setValue(6, a0 - 0x30, li0); }
-    if (a1 >= 0x35 && a1 <= 0x39) { m2.setValue(5, 0x39 - a1, li1); }
-    if (a1 >= 0x3a && a1 <= 0x3e) { m2.setValue(4, a1 - 0x3a, li1); }
-    if (a2 >= 0x3f && a2 <= 0x43) { m2.setValue(3, a2 - 0x3f, li2); }
-    if (a2 >= 0x44 && a2 <= 0x48) { m2.setValue(2, a2 - 0x44, li2); }
-    if (a3 >= 0x49 && a3 <= 0x4d) { m2.setValue(1, a3 - 0x49, li3); }
-    if (a3 >= 0x4e && a3 <= 0x52) { m2.setValue(0, a3 - 0x4e, li3); }
-
-  }
-
+  setup.linear24.mapPacket(packet, m1.setValue);
+  setup.matrix35.mapPacket(packet, m2.setValue);
 }
 
 /* see https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=initPage
@@ -502,6 +422,13 @@ function mapPacket(packet) {
                                                     6'     dP
                                                     Ybmmmd'
 */
+
+function sendSinglePacket(packet) {
+  // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
+  d3.text('/api/sendPacket?bus=' + packet.bus + '&address=' + packet.addr + '&data=' + packet.value, {
+    method : 'POST'
+  });
+}
 
 function initPage() {
   const body = d3.select('body');
@@ -716,27 +643,7 @@ function initPage() {
     sep: 0.1,
     pad: 0.2,
     hover : (x, y, v) => {
-      var bus, addr, value;
-
-      value = Math.round(120 - 118 * v);
-      if (value < 2) { value = 2; }
-      if (value > 120) { value = 120; }
-
-      if (x < 8) {
-        bus = 4;
-        addr = 0x20 + x;
-      } else if (x < 16) {
-        bus = 7;
-        addr = 0x28 + x - 8;
-      } else {
-        bus = 6;
-        addr = 0x28 + x - 16;
-      }
-
-      // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
-      d3.text('/api/sendPacket?bus=' + bus + '&address=' + addr + '&data=' + value, {
-        method : 'POST'
-      });
+      sendSinglePacket(setup.linear24.toWire(x, y, v));
     }
   } )
     .leftLabelText("thujas")
@@ -779,39 +686,7 @@ function initPage() {
     cols: 7,
     rows: 5,
     hover : (x, y, v) => {
-      var bus, addr, value;
-
-      value = Math.round(120 - 118 * v);
-      if (value < 2) { value = 2; }
-      if (value > 120) { value = 120; }
-
-      if (x == 6) {
-        bus = 0;
-        addr = 0x30 + y;
-      } else if (x == 5) {
-        bus = 1;
-        addr = 0x39 - y;
-      } else if (x == 4) {
-        bus = 1;
-        addr = 0x3a + y;
-      } else if (x == 3) {
-        bus = 2;
-        addr = 0x3f + y;
-      } else if (x == 2) {
-        bus = 2;
-        addr = 0x44 + y;
-      } else if (x == 1) {
-        bus = 3;
-        addr = 0x49 + y;
-      } else  {
-        bus = 3;
-        addr = 0x4e + y;
-      }
-
-      // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
-      d3.text('/api/sendPacket?bus=' + bus + '&address=' + addr + '&data=' + value, {
-        method : 'POST'
-      });
+      sendSinglePacket(setup.matrix35.toWire(x, y, v));
     }})
     .topLabelText("garden")
     .bottomLabelText("building")
