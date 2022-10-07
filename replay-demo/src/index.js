@@ -200,10 +200,14 @@ function attachPerfCounter(d3sel, formatSpec) {
  */
 
 function addMatrix(parentD3, opts) {
-  const containerPadding = (opts.pad ? opts.pad : 1.0) * 60;
-  const dotSeparation = (opts.sep ? opts.sep : 1.0) * 40;
-  const halfDotSeparation = Math.round(dotSeparation / 2);
-  const dotSize = 30;
+  const containerPaddingH = (opts.padh ? opts.padh : 1.0) * 20;
+  const containerPaddingV = (opts.padv ? opts.padv : 1.0) * 20;
+  const dotSeparationH = (opts.seph ? opts.seph : 1.0) * 40;
+  const dotSeparationV = (opts.sepv ? opts.sepv : 1.0) * 40;
+  const halfDotSeparationH = Math.round(dotSeparationH / 2);
+  const halfDotSeparationV = Math.round(dotSeparationV / 2);
+  const dotSizeH = 30;
+  const dotSizeV = 30;
 
   function toIndex(col, row) {
     return row * opts.cols + col;
@@ -230,8 +234,8 @@ function addMatrix(parentD3, opts) {
 
   var cnt = parentD3.append('div')
     .classed('matrix-container hide-info', true)
-    .style('width', (opts.cols * dotSize + (opts.cols - 1) * dotSeparation + 2 * containerPadding) + "px")
-    .style('height', (opts.rows * dotSize + (opts.rows - 1) * dotSeparation + 2 * containerPadding) + "px");
+    .style('width', (opts.cols * ( dotSizeH + dotSeparationH) + 2 * containerPaddingH) + "px")
+    .style('height', (opts.rows * (dotSizeV + dotSeparationV) + 2 * containerPaddingV) + "px");
 
 
 
@@ -280,17 +284,17 @@ function addMatrix(parentD3, opts) {
 
   var dotOuterDivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
     .classed('matrix-dot-outer', true)
-    .style('width', (dotSize + dotSeparation) + 'px')
-    .style('height', (dotSize + dotSeparation) + 'px')
-    .style('left', d => (d.x * (dotSize + dotSeparation) + containerPadding - halfDotSeparation) + 'px')
-    .style('top', d => (d.y * (dotSize + dotSeparation) + containerPadding - halfDotSeparation) + 'px')
+    .style('width', (dotSizeH + dotSeparationH) + 'px')
+    .style('height', (dotSizeV + dotSeparationV) + 'px')
+    .style('left', d => (d.x * (dotSizeH + dotSeparationH) + containerPaddingH) + 'px')
+    .style('top', d => (d.y * (dotSizeV + dotSeparationV) + containerPaddingV) + 'px')
 
   var ddivs = dotOuterDivs.append('div')
     .classed('matrix-dot', true)
-    .style('width', dotSize + "px")
-    .style('height', dotSize + "px")
-    .style('left', halfDotSeparation + "px")
-    .style('top', halfDotSeparation + "px")
+    .style('width', dotSizeH + "px")
+    .style('height', dotSizeV + "px")
+    .style('left', halfDotSeparationH + "px")
+    .style('top', halfDotSeparationV + "px")
     .attr("title", d => "Index: " + d.i);
 
   dotOuterDivs.on('mouseenter', (e, d) => {
@@ -643,8 +647,8 @@ function initPage() {
   m1 = addMatrix(body, {
     cols: 24,
     rows: 1,
-    sep: 0.1,
-    pad: 0.2,
+    seph: 0.1,
+    // padh: 0.2,
     hover : (x, y, v) => {
       sendSinglePacket(setup.linear24.toWire(x, y, v));
     }
