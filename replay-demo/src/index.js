@@ -200,8 +200,8 @@ function attachPerfCounter(d3sel, formatSpec) {
  */
 
 function addMatrix(parentD3, opts) {
-  const containerPaddingH = (opts.padh ? opts.padh : 1.0) * 20;
-  const containerPaddingV = (opts.padv ? opts.padv : 1.0) * 20;
+  const containerPaddingH = (opts.padh ? opts.padh : 1.0) * 30;
+  const containerPaddingV = (opts.padv ? opts.padv : 1.0) * 30;
   const dotSeparationH = (opts.seph ? opts.seph : 1.0) * 40;
   const dotSeparationV = (opts.sepv ? opts.sepv : 1.0) * 40;
   const halfDotSeparationH = Math.round(dotSeparationH / 2);
@@ -234,8 +234,8 @@ function addMatrix(parentD3, opts) {
 
   var cnt = parentD3.append('div')
     .classed('matrix-container hide-info', true)
-    .style('width', (opts.cols * ( dotSizeH + dotSeparationH) + 2 * containerPaddingH) + "px")
-    .style('height', (opts.rows * (dotSizeV + dotSeparationV) + 2 * containerPaddingV) + "px");
+    .style('width', (opts.cols * ( dotSizeH + dotSeparationH) + 2 * containerPaddingH - dotSeparationH) + "px")
+    .style('height', (opts.rows * (dotSizeV + dotSeparationV) + 2 * containerPaddingV - dotSeparationV) + "px");
 
 
 
@@ -286,8 +286,8 @@ function addMatrix(parentD3, opts) {
     .classed('matrix-dot-outer', true)
     .style('width', (dotSizeH + dotSeparationH) + 'px')
     .style('height', (dotSizeV + dotSeparationV) + 'px')
-    .style('left', d => (d.x * (dotSizeH + dotSeparationH) + containerPaddingH) + 'px')
-    .style('top', d => (d.y * (dotSizeV + dotSeparationV) + containerPaddingV) + 'px')
+    .style('left', d => (d.x * (dotSizeH + dotSeparationH) + containerPaddingH - halfDotSeparationH) + 'px')
+    .style('top', d => (d.y * (dotSizeV + dotSeparationV) + containerPaddingV - halfDotSeparationV) + 'px')
 
   var ddivs = dotOuterDivs.append('div')
     .classed('matrix-dot', true)
