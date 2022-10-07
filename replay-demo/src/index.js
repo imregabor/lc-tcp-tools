@@ -239,6 +239,7 @@ function addMatrix(parentD3, opts) {
   var bottomLabel = cnt.append("span").classed("container-label bottom", true).text("bottom label");
   var leftLabel = cnt.append("span").classed("container-label left", true).text("left label");
   var rightLabel = cnt.append("span").classed("container-label right", true).text("right label");
+  var titleLabel = cnt.append("span").classed("container-label title", true).text("title label");
 
   // controls over labels
   var ctrls = cnt.append("div").classed("controls", true);
@@ -331,6 +332,7 @@ function addMatrix(parentD3, opts) {
   render();
 
   var ret = {
+    titleLabelText : t => { titleLabel.text(t); return ret; },
     topLabelText : t => { topLabel.text(t); return ret; },
     bottomLabelText : t => { bottomLabel.text(t); return ret; },
     leftLabelText : t => { leftLabel.text(t); return ret; },
@@ -647,6 +649,7 @@ function initPage() {
       sendSinglePacket(setup.linear24.toWire(x, y, v));
     }
   } )
+    .titleLabelText(setup.linear24.description)
     .leftLabelText("thujas")
     .rightLabelText("road")
     .topLabelText("")
@@ -689,6 +692,7 @@ function initPage() {
     hover : (x, y, v) => {
       sendSinglePacket(setup.matrix35.toWire(x, y, v));
     }})
+    .titleLabelText(setup.matrix35.description)
     .topLabelText("garden")
     .bottomLabelText("building")
     .leftLabelText("road")

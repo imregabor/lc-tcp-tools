@@ -252,6 +252,14 @@ div.matrix-container.hide-info .container-label {
 	display: none;
 }
 
+div.matrix-container .container-label.title {
+	font-size: 125%;
+	bottom: -2.5em;
+	left:  0;
+	right:  0;
+	text-align: center;
+}
+
 div.matrix-container .container-label.top {
 	top: -1em;
 	left:  0;
