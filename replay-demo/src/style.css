@@ -162,6 +162,10 @@ div.matrix-dot-outer {
 	position: absolute;
 }
 
+div.matrix-container.highlighting div.matrix-dot-outer {
+	border: 1px solid #555;
+}
+
 div.matrix-dot {
 	border-radius: 15px;
 	display: block;

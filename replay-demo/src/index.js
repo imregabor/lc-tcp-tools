@@ -266,6 +266,7 @@ function addMatrix(parentD3, opts) {
 
   lightupButton.on('click', () => {
     const toOn = !lightupButton.classed('on');
+    cnt.classed('highlighting', toOn);
     lighupOnHover = toOn;
     lightupButton
       .classed("fa-regular", !toOn)
