@@ -65,6 +65,7 @@ app.post('/api/sendToAll', (req, res) => {
       ds = '0' + ds;
     }
 
+    var messages = '';
     for (var address = 0; address < 128; address++) {
       var as = address.toString(16);
       if (as.length < 2) {
@@ -77,11 +78,19 @@ app.post('/api/sendToAll', (req, res) => {
         msg += ds;
       }
 
-      fwdConn.write(msg + '\n');
-      if (sock) {
-        // Send on WebSocket
-        sock.send(msg + '\n');
-      }
+      messages = messages + msg + '\n';
+
+      //fwdConn.write(msg + '\n');
+      //if (sock) {
+      //  // Send on WebSocket
+      //  sock.send(msg + '\n');
+      //}
+    }
+
+    fwdConn.write(messages);
+    if (sock) {
+      // Send on WebSocket
+      sock.send(messages);
     }
     res.status(200).send();
   }
