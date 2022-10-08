@@ -49,51 +49,21 @@ app.get('/api/status', (req, res) => {
 });
 
 app.post('/api/sendToAll', (req, res) => {
-  const data = +req.query.data;
-  console.log('sendToAll ' + data);
-
-  var err;
-    if (! (data >= 0 && data <= 255)) {
-    err = (err ? err + ' / ' : '') + 'Invalid data: ' + data;
-  }
-
-  if (err) {
-    res.status(400).send(err);
-  } else {
-    var ds = data.toString(16);
-    if (ds.length < 2) {
-      ds = '0' + ds;
-    }
-
-    var messages = '';
-    for (var address = 0; address < 128; address++) {
-      var as = address.toString(16);
-      if (as.length < 2) {
-        as = '0' + as;
-      }
-
-      var msg = 'S';
-      for (var i = 0; i < 8; i++) {
-        msg += as;
-        msg += ds;
-      }
-
-      messages = messages + msg + '\n';
-
-      //fwdConn.write(msg + '\n');
-      //if (sock) {
-      //  // Send on WebSocket
-      //  sock.send(msg + '\n');
-      //}
-    }
-
+  try {
+    console.log('sendToAll ' + req.query.data);
+    const messages = lowLevel.singleDataToAllBusesAndAddresses(req.query.data);
     fwdConn.write(messages);
     if (sock) {
       // Send on WebSocket
       sock.send(messages);
     }
     res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
   }
+
+
 });
 
 app.post('/api/sendPacket', (req, res) => {
@@ -106,10 +76,10 @@ app.post('/api/sendPacket', (req, res) => {
 
     console.log('sendPacket ' + message);
 
-    fwdConn.write(message + '\n');
+    fwdConn.write(message);
     if (sock) {
       // Send on WebSocket
-      sock.send(message + '\n');
+      sock.send(message);
     }
     res.status(200).send();
   } catch (e) {

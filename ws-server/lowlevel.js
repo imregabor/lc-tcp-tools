@@ -55,9 +55,42 @@ function singlePacketToMessage(b, a, d) {
     for (var i = bus; i < 7; i++) {
       msg += '0000';
     }
+    msg += '\n';
 
     return msg;
   }
 }
 
+function singleDataToAllBusesAndAddresses(d) {
+  const data = parse(d);
+
+
+  if (! (data >= 0 && data <= 255)) {
+    throw 'Invalid data: ' + data;
+  }
+
+  var ds = data.toString(16);
+  if (ds.length < 2) {
+    ds = '0' + ds;
+  }
+
+  var ret = '';
+  for (var address = 0; address < 128; address++) {
+    var as = address.toString(16);
+    if (as.length < 2) {
+      as = '0' + as;
+    }
+
+    var msg = 'S';
+    for (var i = 0; i < 8; i++) {
+      msg += as;
+      msg += ds;
+    }
+
+    ret = ret + msg + '\n';
+  }
+  return ret;
+}
+
 module.exports.singlePacketToMessage = singlePacketToMessage;
+module.exports.singleDataToAllBusesAndAddresses = singleDataToAllBusesAndAddresses;
