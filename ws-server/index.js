@@ -7,7 +7,7 @@ const net = require('net');
 const express = require('express');
 const openFwdConn = require('./tcp-forwarding-connection.js');
 const openListeningSrv = require('./tcp-listening-server.js');
-
+const lowLevel = require('./lowlevel.js');
 
 const nets = networkInterfaces();
 const listeningPort = 12345;
@@ -97,58 +97,24 @@ app.post('/api/sendToAll', (req, res) => {
 });
 
 app.post('/api/sendPacket', (req, res) => {
-  const bus = +req.query.bus;
-  const address = +req.query.address;
-  const data = +req.query.data;
+  try {
+    const message = lowLevel.singlePacketToMessage(
+      req.query.bus,
+      req.query.address,
+      req.query.data
+    );
 
-  console.log('sendPacket ' + bus + ':' + address + ' ' + data);
+    console.log('sendPacket ' + message);
 
-  var err;
-  if (! (bus >= 0 && bus <= 7)) {
-    err = 'Invalid bus: ' + bus;
-  } 
-  if (! (address >= 0 && address <= 127)) {
-    err = (err ? err + ' / ' : '') + 'Invalid address: ' + address;
-  }
-  if (! (data >= 0 && data <= 255)) {
-    err = (err ? err + ' / ' : '') + 'Invalid data: ' + data;
-  }
-
-  if (err) {
-    res.status(400).send(err);
-  } else {
-
-    var msg = 'S';
-
-    for (var i = 0; i < bus; i++) {
-      msg += '0000';
-    }
-    var as = address.toString(16);
-    if (as.length < 2) {
-      msg += '0';
-    }
-    msg += as;
-
-    var dt = data.toString(16);
-    if (dt.length < 2) {
-      msg += '0';
-    }
-    msg += dt;
-
-    for (var i = bus; i < 7; i++) {
-      msg += '0000';
-    }
-
-    console.log('Sending ' + msg)
-
-    fwdConn.write(msg + '\n');
+    fwdConn.write(message + '\n');
     if (sock) {
       // Send on WebSocket
-      sock.send(msg + '\n');
+      sock.send(message + '\n');
     }
-
-
     res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
   }
 });
 
