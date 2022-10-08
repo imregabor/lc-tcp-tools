@@ -21,6 +21,7 @@ function addLinkIcon(d3sel, opts) {
           .classed(opts.styles.unknown, true)
           .classed('err ok warn', false);
       icon.attr('title', opts.titles.unknown);
+      return ret;
     },
     ok : () => {
       icon
@@ -31,7 +32,7 @@ function addLinkIcon(d3sel, opts) {
           .classed('err warn', false)
           .classed('ok', true);
       icon.attr('title', opts.titles.ok);
-
+      return ret;
     },
     err : () => {
       icon
@@ -42,6 +43,7 @@ function addLinkIcon(d3sel, opts) {
           .classed('ok warn', false)
           .classed('err', true);
       icon.attr('title', opts.titles.err);
+      return ret;
     },
     warn : () => {
       icon
@@ -51,7 +53,8 @@ function addLinkIcon(d3sel, opts) {
           .classed(opts.styles.warn, true)
           .classed('err ok', false)
           .classed('warn', true);
-        icon.attr('title', opts.titles.warn);
+      icon.attr('title', opts.titles.warn);
+      return ret;
     }
   };
   ret.unknown();
@@ -77,5 +80,19 @@ export const iconStyles = {
     err : 'fa-link-slash',
     warn : 'fa-link-slash',
     unknown : 'fa-link-slash'
+  },
+  ear : {
+    common : '',
+    ok : 'fa-ear-listen',
+    err : 'fa-ear-deaf',
+    warn : 'fa-ear-deaf',
+    unknown : 'fa-ear-deaf'
+  },
+  plug : {
+    common : '',
+    ok : 'fa-plug-circle-check',
+    err : 'fa-plug-circle-xmark',
+    warn : 'fa-plug-circle-exclamation',
+    unknown : 'fa-plug-circle-exclamation'
   }
 };

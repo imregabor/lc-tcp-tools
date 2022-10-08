@@ -287,46 +287,28 @@ function initPage() {
       err : 'WS link is not connected',
       ok : 'WS link is up',
     }
-  });
-  wsLinkIcon.warn();
+  }).warn();
 
+  const srvListeningIcon = pageControls.addLinkIcon({
+    styles : pageCtr.iconStyles.ear,
+    titles : {
+      unknown: 'Server listening connection is in unknown state',
+      warn: 'Server listening connection is in unknown state',
+      err: 'Server listening connection has no connected client',
+      ok: 'Client connected to server listening connection'
+    }
+  }).unknown();
 
-  const srvListeningIcon = pageControls.getDiv().append('i').classed('fa fa-ear-deaf fa-fw stat', true);
-  function srvListeningDown() {
-    srvListeningIcon.classed('fa-ear-deaf', true);
-    srvListeningIcon.classed('fa-ear-listen', false);
-    srvListeningIcon.classed('err', true);
-    srvListeningIcon.classed('ok', false);
-    srvListeningIcon.classed('warn', false);
-    srvListeningIcon.attr('title', 'Server listening connection is down');
-  }
+  const srvFwdConnIcon = pageControls.addLinkIcon({
+    style : pageCtr.iconStyles.plug,
+    titles : {
+      unknown : 'Server forwarding connection is in unknown state',
+      warn : 'Server forwarding connection is in unknown state',
+      err : 'Server forwarding connection is not connected',
+      ok : 'Server forwarding connection is connected',
+    }
+  }).unknown();
 
-  function srvListeningUp() {
-    srvListeningIcon.classed('fa-ear-deaf', false);
-    srvListeningIcon.classed('fa-ear-listen', true);
-    srvListeningIcon.classed('err', false);
-    srvListeningIcon.classed('ok', true);
-    srvListeningIcon.classed('warn', false);
-    srvListeningIcon.attr('title', 'Server listening connection is up');
-  }
-
-  function srvListeningWarn() {
-    srvListeningIcon.classed('fa-ear-deaf', true);
-    srvListeningIcon.classed('fa-ear-listen', false);
-    srvListeningIcon.classed('err', false);
-    srvListeningIcon.classed('ok', false);
-    srvListeningIcon.classed('warn', true);
-    srvListeningIcon.attr('title', 'Server listening connection is in WARN state');
-  }
-  function srvListeningUnknown() {
-    srvListeningIcon.classed('fa-ear-deaf', true);
-    srvListeningIcon.classed('fa-ear-listen', false);
-    srvListeningIcon.classed('err', false);
-    srvListeningIcon.classed('ok', false);
-    srvListeningIcon.classed('warn', false);
-    srvListeningIcon.attr('title', 'Server listening connection is in unknown state');
-  }
-  srvListeningUnknown();
 
 
   const srvFwdConnIcon = pageControls.getDiv().append('i').classed('fa fa-plug fa-fw stat', true);
@@ -380,14 +362,14 @@ function initPage() {
 
   function updateStatusIcons(statusInfo) {
     if (statusInfo.listeningSrvStatus.activeConnectionCount > 0) {
-      srvListeningUp();
+      srvListeningIcon.ok();
     } else {
-      srvListeningDown();
+      srvListeningIcon.err();
     }
     if (statusInfo.fwdConnStatus.connected) {
-      srvFwdConnUp();
+      srvFwdConnIcon.ok();
     } else {
-      srvFwdConnDown();
+      srvFwdConnIcon.err();
     }
   }
 
