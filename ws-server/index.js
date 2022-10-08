@@ -1,15 +1,14 @@
 "use strict";
 
 
-const  ws = require('ws');
-const { networkInterfaces } = require('os');
-const net = require('net');
+const ws = require('ws');
 const express = require('express');
 const openFwdConn = require('./tcp-forwarding-connection.js');
 const openListeningSrv = require('./tcp-listening-server.js');
 const lowLevel = require('./lowlevel.js');
+const net = require('net');
+const network = require('./network.js');
 
-const nets = networkInterfaces();
 const listeningPort = 12345;
 
 
@@ -62,8 +61,6 @@ app.post('/api/sendToAll', (req, res) => {
     console.log(e);
     res.status(400).send(e);
   }
-
-
 });
 
 app.post('/api/sendPacket', (req, res) => {
@@ -97,22 +94,12 @@ const wss = new ws.Server({ noServer: true });
 
 var sock;
 
-
 console.log('# TCP server / web socket server')
 console.log('#')
 console.log('# My IP address(es):');
-
-for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-        // 'IPv4' is in Node <= 17, from 18 it's a number 4 or 6
-        const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4
-        if (net.family === familyV4Value && !net.internal) {
-            console.log('#   ', name, ': ', net.address);
-        }
-    }
+for(const a of network.getLocalIPv4Interfaces()) {
+  console.log('# ' + a.name + ': ' + a.address);
 }
-
 
 
 wss.on('connection', function connection(ws, req) {
