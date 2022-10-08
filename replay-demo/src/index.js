@@ -336,6 +336,7 @@ function addMatrix(parentD3, opts) {
   render();
 
   var ret = {
+    call : f => f(ret),
     titleLabelText : t => { titleLabel.text(t); return ret; },
     topLabelText : t => { topLabel.text(t); return ret; },
     bottomLabelText : t => { bottomLabel.text(t); return ret; },
@@ -643,6 +644,17 @@ function initPage() {
     fetchStatusInfo();
   });
 
+  function setLabelsOnMatrix(m, setup) {
+    m
+      .titleLabelText(setup.description)
+      .leftLabelText(setup.labels.left)
+      .rightLabelText(setup.labels.right)
+      .topLabelText(setup.labels.top)
+      .bottomLabelText(setup.labels.bottom);
+    for (const i of setup.infos) {
+      m.infoText(i.x, i.y, i.text);
+    }
+  }
 
   m1 = addMatrix(body, {
     cols: 24,
@@ -653,35 +665,7 @@ function initPage() {
       sendSinglePacket(setup.linear24.toWire(x, y, v));
     }
   } )
-    .titleLabelText(setup.linear24.description)
-    .leftLabelText("thujas")
-    .rightLabelText("road")
-    .topLabelText("")
-    .bottomLabelText("")
-    .infoText( 0 + 0, 0, "4:20") // bus 4
-    .infoText( 0 + 1, 0, "4:21")
-    .infoText( 0 + 2, 0, "4:22")
-    .infoText( 0 + 3, 0, "4:23")
-    .infoText( 0 + 4, 0, "4:24")
-    .infoText( 0 + 5, 0, "4:25")
-    .infoText( 0 + 6, 0, "4:26")
-    .infoText( 0 + 7, 0, "4:27")
-    .infoText( 8 + 0, 0, "7:28") // bus 7
-    .infoText( 8 + 1, 0, "7:29")
-    .infoText( 8 + 2, 0, "7:2a")
-    .infoText( 8 + 3, 0, "7:2b")
-    .infoText( 8 + 4, 0, "7:2c")
-    .infoText( 8 + 5, 0, "7:2d")
-    .infoText( 8 + 6, 0, "7:2e")
-    .infoText( 8 + 7, 0, "7:2f")
-    .infoText(16 + 0, 0, "6:28") // bus 6
-    .infoText(16 + 1, 0, "6:29")
-    .infoText(16 + 2, 0, "6:2a")
-    .infoText(16 + 3, 0, "6:2b")
-    .infoText(16 + 4, 0, "6:2c")
-    .infoText(16 + 5, 0, "6:2d")
-    .infoText(16 + 6, 0, "6:2e")
-    .infoText(16 + 7, 0, "6:2f")
+    .call(m => { setLabelsOnMatrix(m, setup.linear24); return m; })
     ;
 
   /*
@@ -696,46 +680,8 @@ function initPage() {
     hover : (x, y, v) => {
       sendSinglePacket(setup.matrix35.toWire(x, y, v));
     }})
-    .titleLabelText(setup.matrix35.description)
-    .topLabelText("garden")
-    .bottomLabelText("building")
-    .leftLabelText("road")
-    .rightLabelText("thujas")
-    .infoText(6, 0, "0:30") // row 0
-    .infoText(6, 1, "0:31")
-    .infoText(6, 2, "0:32")
-    .infoText(6, 3, "0:33")
-    .infoText(6, 4, "0:34")
-    .infoText(5, 0, "1:39") // row 1
-    .infoText(5, 1, "1:38")
-    .infoText(5, 2, "1:37")
-    .infoText(5, 3, "1:36")
-    .infoText(5, 4, "1:35")
-    .infoText(4, 0, "1:3a") // row 2
-    .infoText(4, 1, "1:3b")
-    .infoText(4, 2, "1:3c")
-    .infoText(4, 3, "1:3d")
-    .infoText(4, 4, "1:3e")
-    .infoText(3, 0, "2:3f") // row 3
-    .infoText(3, 1, "2:40")
-    .infoText(3, 2, "2:41")
-    .infoText(3, 3, "2:42")
-    .infoText(3, 4, "2:43")
-    .infoText(2, 0, "2:44") // row 4
-    .infoText(2, 1, "2:45")
-    .infoText(2, 2, "2:46")
-    .infoText(2, 3, "2:47")
-    .infoText(2, 4, "2:48")
-    .infoText(1, 0, "3:49") // row 5
-    .infoText(1, 1, "3:4a")
-    .infoText(1, 2, "3:4b")
-    .infoText(1, 3, "3:4c")
-    .infoText(1, 4, "3:4d")
-    .infoText(0, 0, "3:4e") // row 6
-    .infoText(0, 1, "3:4f")
-    .infoText(0, 2, "3:50")
-    .infoText(0, 3, "3:51")
-    .infoText(0, 4, "3:52")
+    .call(m => { setLabelsOnMatrix(m, setup.matrix35); return m; })
+
     ;
   m2.render();
   // anima1();
