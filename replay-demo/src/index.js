@@ -11,6 +11,7 @@ import * as setup from './current-setup.js';
 import addFrameCounter from './add-frame-counter.js';
 import attachPerfCounter from './add-perf-counter.js';
 import replay from './replay.js';
+import * as pageCtr from './page-controls.js';
 
 
 /* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=addMatrix
@@ -193,17 +194,6 @@ function addMatrix(parentD3, opts) {
 }
 
 
-
-function component() {
-  const element = document.createElement('div');
-
-  element.innerHTML = _.join(['Hello', 'webpack'], ' ');
-
-  d3.selectAll('abc')
-  return element;
-}
-
-
 var m1;
 var m2;
 
@@ -213,17 +203,6 @@ var replayStatus;
 var packetsPerSec;
 var packetGroupsPerSec;
 
-function anima1() {
-  for (var i = 0; i < m1.cols(); i++) {
-    const ov = m1.getValue(i, 0);
-    var nv = ov + 0.05;
-    if (nv > 1.0) {
-      nv = nv -1.0;
-    }
-    m1.setValue(i, 0, nv);
-  }
-  setTimeout(anima1, 50);
-}
 
 /* see https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=mapPacket
 
@@ -298,38 +277,21 @@ function initPage() {
 
 
   // page controls + status -------------------
-  const pageControls = fpsdiv.append('div').classed('page-controls', true);
+  const pageControls = pageCtr.addTo(fpsdiv);
 
-  const wsLinkIcon = pageControls.append('i').classed('fa fa-link-slash fa-fw stat', true);
-  function wsLinkDown() {
-    wsLinkIcon.classed('fa-link-slash', true);
-    wsLinkIcon.classed('fa-link', false);
-    wsLinkIcon.classed('err', true);
-    wsLinkIcon.classed('ok', false);
-    wsLinkIcon.classed('warn', false);
-    wsLinkIcon.attr('title', 'WS link is down');
-  }
+  const wsLinkIcon = pageControls.addLinkIcon({
+    styles : pageCtr.iconStyles.link,
+    titles : {
+      unknown : 'WS link is in unknown state',
+      warn : 'WS link is connecting',
+      err : 'WS link is not connected',
+      ok : 'WS link is up',
+    }
+  });
+  wsLinkIcon.warn();
 
-  function wsLinkUp() {
-    wsLinkIcon.classed('fa-link-slash', false);
-    wsLinkIcon.classed('fa-link', true);
-    wsLinkIcon.classed('err', false);
-    wsLinkIcon.classed('ok', true);
-    wsLinkIcon.classed('warn', false);
-    wsLinkIcon.attr('title', 'WS link is up');
-  }
 
-  function wsLinkWarn() {
-    wsLinkIcon.classed('fa-link-slash', true);
-    wsLinkIcon.classed('fa-link', false);
-    wsLinkIcon.classed('err', false);
-    wsLinkIcon.classed('ok', false);
-    wsLinkIcon.classed('warn', true);
-    wsLinkIcon.attr('title', 'WS link is in WARN state');
-  }
-  wsLinkWarn();
-
-  const srvListeningIcon = pageControls.append('i').classed('fa fa-ear-deaf fa-fw stat', true);
+  const srvListeningIcon = pageControls.getDiv().append('i').classed('fa fa-ear-deaf fa-fw stat', true);
   function srvListeningDown() {
     srvListeningIcon.classed('fa-ear-deaf', true);
     srvListeningIcon.classed('fa-ear-listen', false);
@@ -367,7 +329,7 @@ function initPage() {
   srvListeningUnknown();
 
 
-  const srvFwdConnIcon = pageControls.append('i').classed('fa fa-plug fa-fw stat', true);
+  const srvFwdConnIcon = pageControls.getDiv().append('i').classed('fa fa-plug fa-fw stat', true);
   function srvFwdConnDown() {
     srvFwdConnIcon.classed('fa-plug', false);
     srvFwdConnIcon.classed('fa-plug-circle-check', false);
@@ -414,7 +376,7 @@ function initPage() {
   }
   srvFwdConnUnknown();
 
-  pageControls.append('span').classed('sep', true);
+  pageControls.getDiv().append('span').classed('sep', true);
 
   function updateStatusIcons(statusInfo) {
     if (statusInfo.listeningSrvStatus.activeConnectionCount > 0) {
@@ -429,7 +391,7 @@ function initPage() {
     }
   }
 
-  const playbackBtn = pageControls.append('i').classed('fa-regular fa-circle-play', true).attr('title', 'Start local packet replay');
+  const playbackBtn = pageControls.getDiv().append('i');
   function noPlayback() {
     playbackGroup.classed('hidden', true);
     playbackBtn
@@ -444,7 +406,7 @@ function initPage() {
         .classed('fa-regular fa-circle-play', false)
         .attr('title', 'Stop playback');
   }
-
+  noPlayback();
   playbackBtn.on('click', () => {
     if (replayStatus) {
       noPlayback();
@@ -471,7 +433,7 @@ function initPage() {
   });
 
 
-  const frameCounterBtn = pageControls.append('i').classed('fa fa-clock', true).attr('title', 'Show/hide precision frame counter');
+  const frameCounterBtn = pageControls.getDiv().append('i').classed('fa fa-clock', true).attr('title', 'Show/hide precision frame counter');
   frameCounterBtn.on('click', () => {
     const next = !frameCounterBtn.classed('on');
     frameCounter.show(next);
@@ -504,7 +466,7 @@ function initPage() {
 
   }
 
-  const infoButton = pageControls.append('i').classed('fa fa-circle-info', true).attr('title', 'Show/hide server status');
+  const infoButton = pageControls.getDiv().append('i').classed('fa fa-circle-info', true).attr('title', 'Show/hide server status');
   infoButton.on('click', () => {
     const next = !infoButton.classed('on');
     infoButton.classed('on', next);
@@ -555,7 +517,6 @@ function initPage() {
 
     ;
   m2.render();
-  // anima1();
 
 
 
@@ -602,17 +563,18 @@ function initPage() {
 
   ws.onopen = e => { 
     console.log('WS link onopen', e); 
-    wsLinkUp();
+    wsLinkIcon.ok();
   }
 
   ws.onclose = e => {
     console.log('WS link onclose', e)
-    wsLinkDown();
+    wsLinkIcon.err();
+
   }
 
   ws.onerror = e => {
    console.log('WS link onerror', e) 
-   wsLinkDown();
+   wsLinkIcon.err();
   }
 
   ws.onmessage = e => { 
