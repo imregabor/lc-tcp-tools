@@ -40,7 +40,7 @@ function replay(opts) {
 
     while (nextLine <  lines.length) {
       const s = lines[nextLine];
-      if (s.startsWith("# dt ")) {
+      if (s.startsWith('# dt ')) {
         var dt = +s.substring(5);
         if (dt > nowDt) {
           running = true;
@@ -51,7 +51,7 @@ function replay(opts) {
       }
       nextLine++;
 
-      if (s.startsWith("S")) {
+      if (s.startsWith('S')) {
         p.push(s);
       }
     }
@@ -125,7 +125,7 @@ function attachPerfCounter(d3sel, formatSpec) {
   const maxBufSize = 100;
   const buf = Array(maxBufSize).fill(0);
   const cnt = Array(maxBufSize).fill(0);
-  const format = d3.format(formatSpec ?  formatSpec : ".0f");
+  const format = d3.format(formatSpec ?  formatSpec : '.0f');
 
 
   var nextToWrite = 0;
@@ -143,15 +143,15 @@ function attachPerfCounter(d3sel, formatSpec) {
     }
 
     if (validCount < 1) {
-      d3sel.text("-----");
+      d3sel.text('-----');
     } else if (validCount < 10) {
       const s = Math.round(validCount / 2);
-      d3sel.text("*****".substring(5 - s));
+      d3sel.text('*****'.substring(5 - s));
     } else {
       const oldestTime = buf[oldestValid];
       const oldestCount = cnt[oldestValid];
       if (lastTime == oldestTime) {
-        d3sel.text("?");
+        d3sel.text('?');
       } else {
         d3sel.text(format(1000 * (cntSum - oldestCount) / (lastTime - oldestTime)));
       }
@@ -161,7 +161,7 @@ function attachPerfCounter(d3sel, formatSpec) {
   const ret = {
     tick : (count) => {
       if (count <= 0) {
-        console.log("Invalid count " + count);
+        console.log('Invalid count ' + count);
       }
       const now = Date.now();
       lastTime = now;
@@ -226,7 +226,7 @@ function addMatrix(parentD3, opts) {
         i : toIndex(x, y),
         v: 0,
         t: 0,
-        infoText: x + ":" + y
+        infoText: x + ':' + y
       }
       dots.push(dot);
     }
@@ -234,31 +234,31 @@ function addMatrix(parentD3, opts) {
 
   var cnt = parentD3.append('div')
     .classed('matrix-container hide-info', true)
-    .style('width', (opts.cols * ( dotSizeH + dotSeparationH) + 2 * containerPaddingH - dotSeparationH) + "px")
-    .style('height', (opts.rows * (dotSizeV + dotSeparationV) + 2 * containerPaddingV - dotSeparationV) + "px");
+    .style('width', (opts.cols * ( dotSizeH + dotSeparationH) + 2 * containerPaddingH - dotSeparationH) + 'px')
+    .style('height', (opts.rows * (dotSizeV + dotSeparationV) + 2 * containerPaddingV - dotSeparationV) + 'px');
 
 
 
-  var topLabel = cnt.append("span").classed("container-label top", true).text("top label");
-  var bottomLabel = cnt.append("span").classed("container-label bottom", true).text("bottom label");
-  var leftLabel = cnt.append("span").classed("container-label left", true).text("left label");
-  var rightLabel = cnt.append("span").classed("container-label right", true).text("right label");
-  var titleLabel = cnt.append("span").classed("container-label title", true).text("title label");
+  var topLabel = cnt.append('span').classed('container-label top', true).text('top label');
+  var bottomLabel = cnt.append('span').classed('container-label bottom', true).text('bottom label');
+  var leftLabel = cnt.append('span').classed('container-label left', true).text('left label');
+  var rightLabel = cnt.append('span').classed('container-label right', true).text('right label');
+  var titleLabel = cnt.append('span').classed('container-label title', true).text('title label');
 
   // controls over labels
-  var ctrls = cnt.append("div").classed("controls", true);
-  var infoButton = ctrls.append("i").classed("fa fa-circle-info", true).attr('title', 'Show/hide info annotations');
+  var ctrls = cnt.append('div').classed('controls', true);
+  var infoButton = ctrls.append('i').classed('fa fa-circle-info', true).attr('title', 'Show/hide info annotations');
   ctrls.append('i').classed('fa fa-rotate-right', true).attr('title', 'Rotate display right');
   ctrls.append('i').classed('fa fa-rotate-left', true).attr('title', 'Rotate display left');
   ctrls.append('i').classed('fa fa-left-right', true).attr('title', 'Flip display horizontally');
   ctrls.append('i').classed('fa fa-up-down', true).attr('title', 'Flip display vertically');
 
-  var lightupButton = ctrls.append("i").classed("fa-regular fa-lightbulb", true).attr('title', 'Light up on hover');
+  var lightupButton = ctrls.append('i').classed('fa-regular fa-lightbulb', true).attr('title', 'Light up on hover');
 
-  ctrls.append("i").classed("fa-solid fa-arrows-up-to-line fa-rotate-270", true).attr('title', 'Light up left block on hover');
-  ctrls.append("i").classed("fa-solid fa-arrows-up-to-line fa-rotate-90", true).attr('title', 'Light up left block on hover');
-  ctrls.append("i").classed("fa-solid fa-arrows-up-to-line", true).attr('title', 'Light up top block on hover');
-  ctrls.append("i").classed("fa-solid fa-arrows-up-to-line fa-rotate-180", true).attr('title', 'Light up bottom block on hover');
+  ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-270', true).attr('title', 'Light up left block on hover');
+  ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-90', true).attr('title', 'Light up left block on hover');
+  ctrls.append('i').classed('fa-solid fa-arrows-up-to-line', true).attr('title', 'Light up top block on hover');
+  ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-180', true).attr('title', 'Light up bottom block on hover');
 
 
   var lighupOnHover = false;
@@ -274,8 +274,8 @@ function addMatrix(parentD3, opts) {
     cnt.classed('highlighting', toOn);
     lighupOnHover = toOn;
     lightupButton
-      .classed("fa-regular", !toOn)
-      .classed("fa-solid", toOn)
+      .classed('fa-regular', !toOn)
+      .classed('fa-solid', toOn)
       .classed('on', toOn);
     if (!toOn) {
       ddivs.classed('mark', false);
@@ -291,11 +291,11 @@ function addMatrix(parentD3, opts) {
 
   var ddivs = dotOuterDivs.append('div')
     .classed('matrix-dot', true)
-    .style('width', dotSizeH + "px")
-    .style('height', dotSizeV + "px")
-    .style('left', halfDotSeparationH + "px")
-    .style('top', halfDotSeparationV + "px")
-    .attr("title", d => "Index: " + d.i);
+    .style('width', dotSizeH + 'px')
+    .style('height', dotSizeV + 'px')
+    .style('left', halfDotSeparationH + 'px')
+    .style('top', halfDotSeparationV + 'px')
+    .attr('title', d => 'Index: ' + d.i);
 
   dotOuterDivs.on('mouseenter', (e, d) => {
     if (!lighupOnHover) {
@@ -316,7 +316,7 @@ function addMatrix(parentD3, opts) {
     }
   });
 
-  var infoTexts = ddivs.append("div").classed("info-detail", true);
+  var infoTexts = ddivs.append('div').classed('info-detail', true);
   function bindInfoText() {
     infoTexts.text(d => d.infoText);
   }
@@ -443,21 +443,21 @@ function initPage() {
 
   // Top header ----------------
 
-  const fpsdiv = body.append('div').classed("fps", true);
-  fpsdiv.append("span").classed("label", true).text("Rendering FPS:");
-  const fpsv = fpsdiv.append("span").classed("value", true);
+  const fpsdiv = body.append('div').classed('fps', true);
+  fpsdiv.append('span').classed('label', true).text('Rendering FPS:');
+  const fpsv = fpsdiv.append('span').classed('value', true);
   fps = attachPerfCounter(fpsv);
 
-  fpsdiv.append("span").classed("label", true).text("Playback:");
-  pbv = fpsdiv.append("span").classed("value", true);
+  fpsdiv.append('span').classed('label', true).text('Playback:');
+  pbv = fpsdiv.append('span').classed('value', true);
 
-  fpsdiv.append("span").classed("label", true).text("Data packets / s:");
-  const ppsdiv = fpsdiv.append("span").classed("value", true);
-  packetsPerSec = attachPerfCounter(ppsdiv, ".1f");
+  fpsdiv.append('span').classed('label', true).text('Data packets / s:');
+  const ppsdiv = fpsdiv.append('span').classed('value', true);
+  packetsPerSec = attachPerfCounter(ppsdiv, '.1f');
 
-  fpsdiv.append("span").classed("label", true).text("Packet groups / s:");
-  const pgpsdiv = fpsdiv.append("span").classed("value", true);
-  packetGroupsPerSec = attachPerfCounter(pgpsdiv, ".1f");
+  fpsdiv.append('span').classed('label', true).text('Packet groups / s:');
+  const pgpsdiv = fpsdiv.append('span').classed('value', true);
+  packetGroupsPerSec = attachPerfCounter(pgpsdiv, '.1f');
 
 
   const frameCounter = addFrameCounter(body);
@@ -688,7 +688,7 @@ function initPage() {
 
 
 
-  const ff = d3.format(".1f");
+  const ff = d3.format('.1f');
   function r() {
     m1.render();
     m2.render();
@@ -703,9 +703,9 @@ function initPage() {
     if (replayStatus) {
       const ts = replayStatus.getTs();
       const pp = replayStatus.getPp();
-      var txt = ff(ts / 1000) + " s " + ff(pp) + " %";
+      var txt = ff(ts / 1000) + ' s ' + ff(pp) + ' %';
       if (!replayStatus.isRunning()) {
-        txt = txt + " (STOPPED)"
+        txt = txt + ' (STOPPED)'
       }
       pbv.text(txt);
     }
@@ -749,7 +749,7 @@ function initPage() {
 
     var pgs = 0;
     for (var s of lines) {
-      if (s.startsWith("S")) {
+      if (s.startsWith('S')) {
         pgs++;
         mapPacket(parsePacket(s));
       } else if (s.startsWith('# status change')) {
@@ -784,4 +784,4 @@ function initPage() {
 }
 
 // see
-document.addEventListener("DOMContentLoaded", initPage);
+document.addEventListener('DOMContentLoaded', initPage);

@@ -8,7 +8,7 @@ function open(opts) {
   const host = opts.host;
   const port = opts.port;
   var onStatusChange = opts.onStatusChange;
-  const conns = host + ":" + port;
+  const conns = host + ':' + port;
   var connectionAttempts = 0;
 
   log('FWD connecting to ' + conns);
@@ -37,27 +37,27 @@ function open(opts) {
       notifyStatusChange();
     });
     fwdClient.on('end', () => {
-      log("End FWD connection to " + conns);
+      log('End FWD connection to ' + conns);
       connected = false;
       if (!retrying) {
         retrying = true;
-        log("  Retry FWD conenction in 1s");
+        log('  Retry FWD conenction in 1s');
         setTimeout(tryConnect, 1000);
         notifyStatusChange();
       }
     });
     fwdClient.on('error', () => {
-      log("ERROR FWD connection to " + conns);
+      log('ERROR FWD connection to ' + conns);
       connected = false;
       if (!retrying) {
         retrying = true;
-        log("  Retry FWD conenction in 1s");
+        log('  Retry FWD conenction in 1s');
         setTimeout(tryConnect, 1000);
         notifyStatusChange();
       }
     });
     fwdClient.on('data', d => {
-      log("DATA from FWD connection (dropped): " + d.toString());
+      log('DATA from FWD connection (dropped): ' + d.toString());
     });
   }
   tryConnect();
@@ -65,7 +65,7 @@ function open(opts) {
 
   function keepAliveConn() {
     if (connected) {
-      fwdClient.write("#\n");
+      fwdClient.write('#\n');
     }
     setTimeout(keepAliveConn, 1000);
   }
@@ -88,7 +88,7 @@ function open(opts) {
         connected : connected,
         uptime : connected ? Date.now() - connectedTime : 0,
         readyState : fwdClient.readyState,
-        local: fwdClient.localAddress + ":" + fwdClient.localPort + " (" + fwdClient.localFamily + ")"
+        local: fwdClient.localAddress + ':' + fwdClient.localPort + ' (' + fwdClient.localFamily + ')'
       };
     },
     isConnected: () => connected,

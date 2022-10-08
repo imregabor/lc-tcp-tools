@@ -13,9 +13,9 @@ const nets = networkInterfaces();
 const listeningPort = 12345;
 
 
-const fwdHost = "192.168.10.101";
-//const fwdHost = "localhost";
-// const host = "192.168.10.101";
+const fwdHost = '192.168.10.101';
+//const fwdHost = 'localhost';
+// const host = '192.168.10.101';
 const fwdPort = 23;
 
 const app = express();
@@ -54,7 +54,7 @@ app.post('/api/sendToAll', (req, res) => {
 
   var err;
     if (! (data >= 0 && data <= 255)) {
-    err = (err ? err + " / " : "") + "Invalid data: " + data;
+    err = (err ? err + ' / ' : '') + 'Invalid data: ' + data;
   }
 
   if (err) {
@@ -105,23 +105,23 @@ app.post('/api/sendPacket', (req, res) => {
 
   var err;
   if (! (bus >= 0 && bus <= 7)) {
-    err = "Invalid bus: " + bus;
+    err = 'Invalid bus: ' + bus;
   } 
   if (! (address >= 0 && address <= 127)) {
-    err = (err ? err + " / " : "") + "Invalid address: " + address;
+    err = (err ? err + ' / ' : '') + 'Invalid address: ' + address;
   }
   if (! (data >= 0 && data <= 255)) {
-    err = (err ? err + " / " : "") + "Invalid data: " + data; 
+    err = (err ? err + ' / ' : '') + 'Invalid data: ' + data;
   }
 
   if (err) {
     res.status(400).send(err);
   } else {
 
-    var msg = "S";
+    var msg = 'S';
 
     for (var i = 0; i < bus; i++) {
-      msg += "0000";
+      msg += '0000';
     }
     var as = address.toString(16);
     if (as.length < 2) {
@@ -136,7 +136,7 @@ app.post('/api/sendPacket', (req, res) => {
     msg += dt;
 
     for (var i = bus; i < 7; i++) {
-      msg += "0000";
+      msg += '0000';
     }
 
     console.log('Sending ' + msg)
@@ -162,9 +162,9 @@ const wss = new ws.Server({ noServer: true });
 var sock;
 
 
-console.log("# TCP server / web socket server")
-console.log("#")
-console.log("# My IP address(es):");
+console.log('# TCP server / web socket server')
+console.log('#')
+console.log('# My IP address(es):');
 
 for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
@@ -172,7 +172,7 @@ for (const name of Object.keys(nets)) {
         // 'IPv4' is in Node <= 17, from 18 it's a number 4 or 6
         const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4
         if (net.family === familyV4Value && !net.internal) {
-            console.log("#   ", name, ": ", net.address);
+            console.log('#   ', name, ': ', net.address);
         }
     }
 }
@@ -180,7 +180,7 @@ for (const name of Object.keys(nets)) {
 
 
 wss.on('connection', function connection(ws, req) {
-  console.log("WebSocket connection from " +  req.socket.remoteAddress);
+  console.log('WebSocket connection from ' +  req.socket.remoteAddress);
 
   ws.on('message', function message(data) {
     console.log('received: %s', data);

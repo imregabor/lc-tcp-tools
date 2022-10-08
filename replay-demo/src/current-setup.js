@@ -151,30 +151,30 @@ export const linear24 = {
     right: 'road'
   },
   infos: [
-    { x:  0 + 0, y: 0, text: "4:20" }, // bus 4
-    { x:  0 + 1, y: 0, text: "4:21" },
-    { x:  0 + 2, y: 0, text: "4:22" },
-    { x:  0 + 3, y: 0, text: "4:23" },
-    { x:  0 + 4, y: 0, text: "4:24" },
-    { x:  0 + 5, y: 0, text: "4:25" },
-    { x:  0 + 6, y: 0, text: "4:26" },
-    { x:  0 + 7, y: 0, text: "4:27" },
-    { x:  8 + 0, y: 0, text: "7:28" }, // bus 7
-    { x:  8 + 1, y: 0, text: "7:29" },
-    { x:  8 + 2, y: 0, text: "7:2a" },
-    { x:  8 + 3, y: 0, text: "7:2b" },
-    { x:  8 + 4, y: 0, text: "7:2c" },
-    { x:  8 + 5, y: 0, text: "7:2d" },
-    { x:  8 + 6, y: 0, text: "7:2e" },
-    { x:  8 + 7, y: 0, text: "7:2f" },
-    { x: 16 + 0, y: 0, text: "6:28" }, // bus 6
-    { x: 16 + 1, y: 0, text: "6:29" },
-    { x: 16 + 2, y: 0, text: "6:2a" },
-    { x: 16 + 3, y: 0, text: "6:2b" },
-    { x: 16 + 4, y: 0, text: "6:2c" },
-    { x: 16 + 5, y: 0, text: "6:2d" },
-    { x: 16 + 6, y: 0, text: "6:2e" },
-    { x: 16 + 7, y: 0, text: "6:2f" }
+    { x:  0 + 0, y: 0, text: '4:20' }, // bus 4
+    { x:  0 + 1, y: 0, text: '4:21' },
+    { x:  0 + 2, y: 0, text: '4:22' },
+    { x:  0 + 3, y: 0, text: '4:23' },
+    { x:  0 + 4, y: 0, text: '4:24' },
+    { x:  0 + 5, y: 0, text: '4:25' },
+    { x:  0 + 6, y: 0, text: '4:26' },
+    { x:  0 + 7, y: 0, text: '4:27' },
+    { x:  8 + 0, y: 0, text: '7:28' }, // bus 7
+    { x:  8 + 1, y: 0, text: '7:29' },
+    { x:  8 + 2, y: 0, text: '7:2a' },
+    { x:  8 + 3, y: 0, text: '7:2b' },
+    { x:  8 + 4, y: 0, text: '7:2c' },
+    { x:  8 + 5, y: 0, text: '7:2d' },
+    { x:  8 + 6, y: 0, text: '7:2e' },
+    { x:  8 + 7, y: 0, text: '7:2f' },
+    { x: 16 + 0, y: 0, text: '6:28' }, // bus 6
+    { x: 16 + 1, y: 0, text: '6:29' },
+    { x: 16 + 2, y: 0, text: '6:2a' },
+    { x: 16 + 3, y: 0, text: '6:2b' },
+    { x: 16 + 4, y: 0, text: '6:2c' },
+    { x: 16 + 5, y: 0, text: '6:2d' },
+    { x: 16 + 6, y: 0, text: '6:2e' },
+    { x: 16 + 7, y: 0, text: '6:2f' }
   ],
   dimensions : { cols : 24, rows : 1 },
   toWire : linear24ToWire,
@@ -190,41 +190,41 @@ export const matrix35 = {
     right: 'thujas'
   },
   infos: [
-    { x: 6, y: 0, text: "0:30" }, // row 0
-    { x: 6, y: 1, text: "0:31" },
-    { x: 6, y: 2, text: "0:32" },
-    { x: 6, y: 3, text: "0:33" },
-    { x: 6, y: 4, text: "0:34" },
-    { x: 5, y: 0, text: "1:39" }, // row 1
-    { x: 5, y: 1, text: "1:38" },
-    { x: 5, y: 2, text: "1:37" },
-    { x: 5, y: 3, text: "1:36" },
-    { x: 5, y: 4, text: "1:35" },
-    { x: 4, y: 0, text: "1:3a" }, // row 2
-    { x: 4, y: 1, text: "1:3b" },
-    { x: 4, y: 2, text: "1:3c" },
-    { x: 4, y: 3, text: "1:3d" },
-    { x: 4, y: 4, text: "1:3e" },
-    { x: 3, y: 0, text: "2:3f" }, // row 3
-    { x: 3, y: 1, text: "2:40" },
-    { x: 3, y: 2, text: "2:41" },
-    { x: 3, y: 3, text: "2:42" },
-    { x: 3, y: 4, text: "2:43" },
-    { x: 2, y: 0, text: "2:44" }, // row 4
-    { x: 2, y: 1, text: "2:45" },
-    { x: 2, y: 2, text: "2:46" },
-    { x: 2, y: 3, text: "2:47" },
-    { x: 2, y: 4, text: "2:48" },
-    { x: 1, y: 0, text: "3:49" }, // row 5
-    { x: 1, y: 1, text: "3:4a" },
-    { x: 1, y: 2, text: "3:4b" },
-    { x: 1, y: 3, text: "3:4c" },
-    { x: 1, y: 4, text: "3:4d" },
-    { x: 0, y: 0, text: "3:4e" }, // row 6
-    { x: 0, y: 1, text: "3:4f" },
-    { x: 0, y: 2, text: "3:50" },
-    { x: 0, y: 3, text: "3:51" },
-    { x: 0, y: 4, text: "3:52" }
+    { x: 6, y: 0, text: '0:30' }, // row 0
+    { x: 6, y: 1, text: '0:31' },
+    { x: 6, y: 2, text: '0:32' },
+    { x: 6, y: 3, text: '0:33' },
+    { x: 6, y: 4, text: '0:34' },
+    { x: 5, y: 0, text: '1:39' }, // row 1
+    { x: 5, y: 1, text: '1:38' },
+    { x: 5, y: 2, text: '1:37' },
+    { x: 5, y: 3, text: '1:36' },
+    { x: 5, y: 4, text: '1:35' },
+    { x: 4, y: 0, text: '1:3a' }, // row 2
+    { x: 4, y: 1, text: '1:3b' },
+    { x: 4, y: 2, text: '1:3c' },
+    { x: 4, y: 3, text: '1:3d' },
+    { x: 4, y: 4, text: '1:3e' },
+    { x: 3, y: 0, text: '2:3f' }, // row 3
+    { x: 3, y: 1, text: '2:40' },
+    { x: 3, y: 2, text: '2:41' },
+    { x: 3, y: 3, text: '2:42' },
+    { x: 3, y: 4, text: '2:43' },
+    { x: 2, y: 0, text: '2:44' }, // row 4
+    { x: 2, y: 1, text: '2:45' },
+    { x: 2, y: 2, text: '2:46' },
+    { x: 2, y: 3, text: '2:47' },
+    { x: 2, y: 4, text: '2:48' },
+    { x: 1, y: 0, text: '3:49' }, // row 5
+    { x: 1, y: 1, text: '3:4a' },
+    { x: 1, y: 2, text: '3:4b' },
+    { x: 1, y: 3, text: '3:4c' },
+    { x: 1, y: 4, text: '3:4d' },
+    { x: 0, y: 0, text: '3:4e' }, // row 6
+    { x: 0, y: 1, text: '3:4f' },
+    { x: 0, y: 2, text: '3:50' },
+    { x: 0, y: 3, text: '3:51' },
+    { x: 0, y: 4, text: '3:52' }
   ],
   dimensions : { cols : 7, rows : 5 },
   toWire : matrix35ToWire,
