@@ -300,7 +300,7 @@ function initPage() {
   }).unknown();
 
   const srvFwdConnIcon = pageControls.addLinkIcon({
-    style : pageCtr.iconStyles.plug,
+    styles : pageCtr.iconStyles.plug,
     titles : {
       unknown : 'Server forwarding connection is in unknown state',
       warn : 'Server forwarding connection is in unknown state',
@@ -308,55 +308,6 @@ function initPage() {
       ok : 'Server forwarding connection is connected',
     }
   }).unknown();
-
-
-
-  const srvFwdConnIcon = pageControls.getDiv().append('i').classed('fa fa-plug fa-fw stat', true);
-  function srvFwdConnDown() {
-    srvFwdConnIcon.classed('fa-plug', false);
-    srvFwdConnIcon.classed('fa-plug-circle-check', false);
-    srvFwdConnIcon.classed('fa-plug-circle-xmark', true);
-    srvFwdConnIcon.classed('fa-plug-circle-exclamation', false);
-    srvFwdConnIcon.classed('err', true);
-    srvFwdConnIcon.classed('ok', false);
-    srvFwdConnIcon.classed('warn', false);
-    srvFwdConnIcon.attr('title', 'Server forwarding connection is down');
-  }
-
-  function srvFwdConnUp() {
-    srvFwdConnIcon.classed('fa-plug', false);
-    srvFwdConnIcon.classed('fa-plug-circle-check', true);
-    srvFwdConnIcon.classed('fa-plug-circle-xmark', false);
-    srvFwdConnIcon.classed('fa-plug-circle-exclamation', false);
-    srvFwdConnIcon.classed('err', false);
-    srvFwdConnIcon.classed('ok', true);
-    srvFwdConnIcon.classed('warn', false);
-    srvFwdConnIcon.attr('title', 'Server forwarding connection is up');
-  }
-
-  function srvFwdConnWarn() {
-    srvFwdConnIcon.classed('fa-plug', false);
-    srvFwdConnIcon.classed('fa-plug-circle-check', false);
-    srvFwdConnIcon.classed('fa-plug-circle-xmark', false);
-    srvFwdConnIcon.classed('fa-plug-circle-exclamation', true);
-    srvFwdConnIcon.classed('err', false);
-    srvFwdConnIcon.classed('ok', false);
-    srvFwdConnIcon.classed('warn', true);
-    srvFwdConnIcon.attr('title', 'Server forwarding connection is in WARN state');
-  }
-
-  function srvFwdConnUnknown() {
-    srvFwdConnIcon.classed('fa-plug', true);
-    srvFwdConnIcon.classed('fa-plug-circle-check', false);
-    srvFwdConnIcon.classed('fa-plug-circle-xmark', false);
-    srvFwdConnIcon.classed('fa-plug-circle-exclamation', false);
-    srvFwdConnIcon.classed('err', false);
-    srvFwdConnIcon.classed('ok', false);
-    srvFwdConnIcon.classed('warn', false);
-    srvFwdConnIcon.attr('title', 'Server forwarding connection is in unknown state');
-
-  }
-  srvFwdConnUnknown();
 
   pageControls.getDiv().append('span').classed('sep', true);
 
