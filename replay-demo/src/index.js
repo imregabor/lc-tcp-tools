@@ -9,6 +9,7 @@ import fa from './fa.js';
 import parsePacket from './packet-parsing.js';
 import * as setup from './current-setup.js';
 import addFrameCounter from './add-frame-counter.js';
+import attachPerfCounter from './add-perf-counter.js';
 
 /* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=replay
 
@@ -75,70 +76,6 @@ function replay(opts) {
 }
 
 
-
-function attachPerfCounter(d3sel, formatSpec) {
-  const maxBufSize = 100;
-  const buf = Array(maxBufSize).fill(0);
-  const cnt = Array(maxBufSize).fill(0);
-  const format = d3.format(formatSpec ?  formatSpec : '.0f');
-
-
-  var nextToWrite = 0;
-  var oldestValid = 0;
-  var validCount = 0;
-  var cntSum = 0;
-  var lastTime ;
-
-  function render() {
-    const now = Date.now();
-    while (validCount > 0 && buf[oldestValid] < now - 1000) {
-      cntSum -= cnt[oldestValid];
-      oldestValid = (oldestValid + 1) % maxBufSize;
-      validCount --;
-    }
-
-    if (validCount < 1) {
-      d3sel.text('-----');
-    } else if (validCount < 10) {
-      const s = Math.round(validCount / 2);
-      d3sel.text('*****'.substring(5 - s));
-    } else {
-      const oldestTime = buf[oldestValid];
-      const oldestCount = cnt[oldestValid];
-      if (lastTime == oldestTime) {
-        d3sel.text('?');
-      } else {
-        d3sel.text(format(1000 * (cntSum - oldestCount) / (lastTime - oldestTime)));
-      }
-    }
-  }
-
-  const ret = {
-    tick : (count) => {
-      if (count <= 0) {
-        console.log('Invalid count ' + count);
-      }
-      const now = Date.now();
-      lastTime = now;
-      if (validCount == maxBufSize) {
-        cntSum -= cnt[nextToWrite];
-      }
-      cntSum += count;
-      buf[nextToWrite] = now;
-      cnt[nextToWrite] = count;
-
-      nextToWrite = (nextToWrite + 1) % maxBufSize;
-      if (validCount == maxBufSize) {
-        oldestValid = nextToWrite;
-      } else {
-        validCount ++;
-      }
-    },
-    render : () => render()
-  };
-  ret.render();
-  return ret;
-}
 
 /* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=addMatrix
 
