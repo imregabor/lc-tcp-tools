@@ -90,60 +90,6 @@ div.fps .value {
 }
 
 
-div.frame-counter {
-	color: white;
-	font-family: monospace;
-	font-size:  16px;
-	height: 32px;
-	width: 800px;
-	position: relative;
-}
-
-div.frame-counter .frame-label {
-	position: absolute;
-	left: 0px;
-	top:  0px;
-	width:  80px;
-	height: 16px;
-}
-
-div.frame-counter .time-label {
-	position: absolute;
-	left: 0px;
-	top:  16px;
-	width:  80px;
-	height: 16px;
-}
-
-div.frame-counter .frame-value {
-	position: absolute;
-	left: 80px;
-	top:  0px;
-	width:  80px;
-	height: 16px;
-}
-
-div.frame-counter .time-value {
-	position: absolute;
-	left: 80px;
-	top:  16px;
-	width:  80px;
-	height: 16px;
-}
-
-div.frame-counter .box {
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	top: 8px;
-	border: 1px solid white;
-}
-
-div.frame-counter .box.on {
-	background-color: white;
-}
-
-
 div.status-info {
 	font-family: monospace;
 	color:  white;
