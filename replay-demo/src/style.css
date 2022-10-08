@@ -13,6 +13,14 @@ div.fps {
 	background-color: #e8e8e8;
 }
 
+div.fps div.counter-group {
+	display: inline-block;
+}
+
+div.fps div.counter-group.hidden {
+	display: none;
+}
+
 div.fps div.page-controls {
 	position: absolute;
 	display: inline-block;

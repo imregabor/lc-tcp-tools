@@ -10,71 +10,7 @@ import parsePacket from './packet-parsing.js';
 import * as setup from './current-setup.js';
 import addFrameCounter from './add-frame-counter.js';
 import attachPerfCounter from './add-perf-counter.js';
-
-/* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=replay
-
-                               ,,
-                             `7MM
-                               MM
-`7Mb,od8  .gP"Ya  `7MMpdMAo.   MM   ,6"Yb.  `7M'   `MF'
-  MM' "' ,M'   Yb   MM   `Wb   MM  8)   MM    VA   ,V
-  MM     8M""""""   MM    M8   MM   ,pm9MM     VA ,V
-  MM     YM.    ,   MM   ,AP   MM  8M   MM      VVV
-.JMML.    `Mbmmd'   MMbmmd'  .JMML.`Moo9^Yo.    ,V
-                    MM                         ,V
-                  .JMML.                    OOb"
-
- */
-
-function replay(opts) {
-  const lines = opts.lines;
-  const callback = opts.cb;
-
-  const start = Date.now();
-  var lastTs = start;
-  var nextLine = 0;
-  var running = true;
-
-  function fetch() {
-    var p = [];
-    const nowDt = Date.now() - start;
-
-    while (nextLine <  lines.length) {
-      const s = lines[nextLine];
-      if (s.startsWith('# dt ')) {
-        var dt = +s.substring(5);
-        if (dt > nowDt) {
-          running = true;
-          setTimeout(fetch, dt - nowDt);
-          break;
-        }
-        lastTs = dt;
-      }
-      nextLine++;
-
-      if (s.startsWith('S')) {
-        p.push(s);
-      }
-    }
-
-    if (nextLine >= lines.length) {
-      running = false;
-    }
-
-    if (p.length > 0) {
-      callback(p);
-    }
-  }
-
-  var ret = {
-    isRunning: () => running,
-    getTs: () => lastTs,
-    getPp: () => 100 * nextLine / lines.length
-  };
-  fetch();
-  return ret;
-}
-
+import replay from './replay.js';
 
 
 /* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=addMatrix
@@ -336,12 +272,14 @@ function initPage() {
   // Top header ----------------
 
   const fpsdiv = body.append('div').classed('fps', true);
+
   fpsdiv.append('span').classed('label', true).text('Rendering FPS:');
   const fpsv = fpsdiv.append('span').classed('value', true);
   fps = attachPerfCounter(fpsv);
 
-  fpsdiv.append('span').classed('label', true).text('Playback:');
-  pbv = fpsdiv.append('span').classed('value', true);
+  const playbackGroup = fpsdiv.append('div').classed('counter-group', true);
+  playbackGroup.append('span').classed('label', true).text('Playback:');
+  pbv = playbackGroup.append('span').classed('value', true);
 
   fpsdiv.append('span').classed('label', true).text('Data packets / s:');
   const ppsdiv = fpsdiv.append('span').classed('value', true);
@@ -490,6 +428,47 @@ function initPage() {
       srvFwdConnDown();
     }
   }
+
+  const playbackBtn = pageControls.append('i').classed('fa-regular fa-circle-play', true).attr('title', 'Start local packet replay');
+  function noPlayback() {
+    playbackGroup.classed('hidden', true);
+    playbackBtn
+        .classed('fa-solid fa-circle-stop on', false)
+        .classed('fa-regular fa-circle-play', true)
+        .attr('title', 'Start local packet replay');
+  }
+  function playbackGoing() {
+    playbackGroup.classed('hidden', false);
+    playbackBtn
+        .classed('fa-solid fa-circle-stop on', true)
+        .classed('fa-regular fa-circle-play', false)
+        .attr('title', 'Stop playback');
+  }
+
+  playbackBtn.on('click', () => {
+    if (replayStatus) {
+      noPlayback();
+      replayStatus.stop();
+      replayStatus = undefined;
+    } else {
+      playbackGoing();
+      replayStatus = replay({
+        lines: cap.split('\n'),
+        cb: p => {
+          packetGroupsPerSec.tick(1);
+          packetsPerSec.tick(p.length);
+          for (var s of p) {
+            var packet = parsePacket(s);
+            mapPacket(packet);
+          }
+        },
+        onFinish : () => {
+          replayStatus = undefined;
+          noPlayback();
+        }
+      });
+    }
+  });
 
 
   const frameCounterBtn = pageControls.append('i').classed('fa fa-clock', true).attr('title', 'Show/hide precision frame counter');
@@ -660,19 +639,7 @@ function initPage() {
   }
   periodicStatusInfo();
 
-  /*
-  replayStatus = replay({
-    lines: cap.split('\n'),
-    cb: p => {
-      packetGroupsPerSec.tick(1);
-      packetsPerSec.tick(p.length);
-      for (var s of p) {
-        var packet = parsePacket(s);
-        mapPacket(packet);
-      }
-    }
-  });
-  */
+
 }
 
 // see
