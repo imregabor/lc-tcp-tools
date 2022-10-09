@@ -157,5 +157,12 @@ export const iconStyles = {
     err : 'fa-plug-circle-xmark',
     warn : 'fa-plug-circle-exclamation',
     unknown : 'fa-plug-circle-exclamation'
+  },
+  network : {
+    common : 'fa-solid fa-network-wired',
+    ok : '',
+    err : '',
+    warn : '',
+    unknown : ''
   }
 };

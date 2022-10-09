@@ -6,6 +6,7 @@ import * as d3 from 'd3';
  * WS API related functionalities.
  */
 
+
 export function getStatusInfo(result, error) {
   d3.json('api/status')
     .then(result, error);

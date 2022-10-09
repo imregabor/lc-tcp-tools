@@ -281,7 +281,18 @@ function initPage() {
       err : 'WS link is not connected',
       ok : 'WS link is up',
     }
-  }).warn();
+  }).unknown();
+
+  const restApiIcon = pageControls.addLinkIcon({
+    styles : pageCtr.iconStyles.network,
+    titles : {
+      unknown : 'REST API availability is unknown',
+      warn : 'REST API availability is unknown',
+      err : 'REST API is not reachable',
+      ok : 'REST API is up',
+    }
+  }).unknown();
+
 
   const srvListeningIcon = pageControls.addLinkIcon({
     styles : pageCtr.iconStyles.ear,
@@ -305,7 +316,8 @@ function initPage() {
 
   pageControls.sep();
 
-  function updateStatusIcons(statusInfo) {
+  function updateStatusIconsOk(statusInfo) {
+    restApiIcon.ok();
     if (statusInfo.listeningSrvStatus.activeConnectionCount > 0) {
       srvListeningIcon.ok();
     } else {
@@ -316,6 +328,12 @@ function initPage() {
     } else {
       srvFwdConnIcon.err();
     }
+  }
+
+  function updateStatusIconsErr(statusInfo) {
+    restApiIcon.err();
+    srvListeningIcon.unknown();
+    srvFwdConnIcon.unknown();
   }
 
   const playbackBtn = pageControls.addButtonIcon({
@@ -371,13 +389,13 @@ function initPage() {
   });
 
   function pingStatusInfo() {
-    apiClient.getStatusInfo(updateStatusIcons);
+    apiClient.getStatusInfo(updateStatusIconsOk, updateStatusIconsErr);
   }
 
   function fetchStatusInfo() {
     apiClient.getStatusInfo(
         response => {
-          updateStatusIcons(response);
+          updateStatusIconsOk(response);
           if (!infoButton.isOn()) {
             statusInfoDiv.classed('hidden', true);
             return;
@@ -387,6 +405,7 @@ function initPage() {
           setTimeout(fetchStatusInfo, 500);
         },
         error => {
+          updateStatusIconsErr(error);
           console.log('Error fetching status info', error);
         }
     );
@@ -465,9 +484,11 @@ function initPage() {
   apiClient.openWsLink({
     onUp : () => {
       wsLinkIcon.ok();
+      pingStatusInfo();
     },
     onDown : () => {
       wsLinkIcon.err();
+      pingStatusInfo();
     },
     onPackets : packets => {
       packetGroupsPerSec.tick(1);
