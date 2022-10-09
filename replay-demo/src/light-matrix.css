@@ -27,7 +27,7 @@ div.matrix-dot-outer.mark div.matrix-dot {
 }
 
 div.matrix-container .matrix-dot .info-detail {
-  display: block;
+  display: none;
   position: absolute;
   color:  #808080;
   top: -1.2em;
@@ -36,8 +36,8 @@ div.matrix-container .matrix-dot .info-detail {
   text-align: center;
 }
 
-div.matrix-container.hide-info .matrix-dot .info-detail {
-    display: none;
+div.matrix-container.show-info .matrix-dot .info-detail {
+    display: block;
 }
 
 
@@ -55,6 +55,11 @@ div.matrix-container .controls:hover {
   outline: 8px solid rgba(0, 0, 0, 0.5);
   border-radius: 8px;
   opacity: 1.0;
+}
+
+div.matrix-container .controls span.sep {
+  width: 1em;
+  display: inline-block;
 }
 
 div.matrix-container .controls:hover i {
@@ -93,13 +98,14 @@ div.matrix-container .controls i.on:active {
 
 
 div.matrix-container .container-label {
+  display: none;
   position:  absolute;
   color: #808080;
   white-space: nowrap;
 }
 
-div.matrix-container.hide-info .container-label {
-  display: none;
+div.matrix-container.show-info .container-label {
+  display: block;
 }
 
 div.matrix-container .container-label.title {

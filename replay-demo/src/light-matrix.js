@@ -24,6 +24,46 @@ import * as d3 from 'd3';
 
  */
 
+function addToggle(parentD3, faClass) {
+  const icon = parentD3.append('i').classed('fa', true).classed(faClass, true);
+  var toggleClassOn, toggleClass;
+  function updateToggleClass() {
+    if (!toggleClass || !toggleClassOn) {
+      return;
+    }
+    toggleClassOn.classed(toggleClass, ret.isOn());
+  }
+  const ret = {
+    title : title => {
+      icon.attr('title', title);
+      return ret;
+    },
+    toggleClassOn : (d3sel, clazz) => {
+      toggleClassOn = d3sel;
+      toggleClass = clazz;
+      updateToggleClass();
+      return ret;
+    },
+    isOn : () => icon.classed('on')
+  };
+  icon.on('click', () => {
+    const next = !ret.isOn();
+    icon.classed('on', next);
+    updateToggleClass();
+  });
+  return ret;
+}
+
+function addControls(containerDivD3) {
+  const ctrls = containerDivD3.append('div').classed('controls', true);
+  const ret = {
+    getDiv : () => ctrls,
+    addToggle : faClass => addToggle(ctrls, faClass),
+    addSep : () => { ctrls.append('span').classed('sep', true); return ret; }
+  };
+  return ret;
+}
+
 export function addMatrix(parentD3, opts) {
   const containerPaddingH = (opts.padh ? opts.padh : 1.0) * 30;
   const containerPaddingV = (opts.padv ? opts.padv : 1.0) * 30;
@@ -58,11 +98,12 @@ export function addMatrix(parentD3, opts) {
   }
 
   var cnt = parentD3.append('div')
-    .classed('matrix-container hide-info', true)
+    .classed('matrix-container', true)
     .style('width', (opts.cols * ( dotSizeH + dotSeparationH) + 2 * containerPaddingH - dotSeparationH) + 'px')
     .style('height', (opts.rows * (dotSizeV + dotSeparationV) + 2 * containerPaddingV - dotSeparationV) + 'px');
 
 
+  // labels ===========================================================================
 
   var topLabel = cnt.append('span').classed('container-label top', true).text('top label');
   var bottomLabel = cnt.append('span').classed('container-label bottom', true).text('bottom label');
@@ -70,13 +111,23 @@ export function addMatrix(parentD3, opts) {
   var rightLabel = cnt.append('span').classed('container-label right', true).text('right label');
   var titleLabel = cnt.append('span').classed('container-label title', true).text('title label');
 
-  // controls over labels
-  var ctrls = cnt.append('div').classed('controls', true);
-  var infoButton = ctrls.append('i').classed('fa fa-circle-info', true).attr('title', 'Show/hide info annotations');
+  // controls =========================================================================
+  var controls = addControls(cnt);
+  controls.addToggle('fa-circle-info')
+    .title('Show/hide address/direction annotations')
+    .toggleClassOn(cnt, 'show-info');
+
+  controls.addSep();
+
+  var ctrls = controls.getDiv();
+
+
   ctrls.append('i').classed('fa fa-rotate-right', true).attr('title', 'Rotate display right');
   ctrls.append('i').classed('fa fa-rotate-left', true).attr('title', 'Rotate display left');
   ctrls.append('i').classed('fa fa-left-right', true).attr('title', 'Flip display horizontally');
   ctrls.append('i').classed('fa fa-up-down', true).attr('title', 'Flip display vertically');
+
+  controls.addSep();
 
   var lightupButton = ctrls.append('i').classed('fa-regular fa-lightbulb', true).attr('title', 'Light up on hover');
 
@@ -88,11 +139,6 @@ export function addMatrix(parentD3, opts) {
 
   var lighupOnHover = false;
 
-  infoButton.on('click', () => {
-    const toOn = cnt.classed('hide-info');
-    infoButton.classed('on', toOn);
-    cnt.classed('hide-info', !toOn);
-  });
 
   lightupButton.on('click', () => {
     const toOn = !lightupButton.classed('on');
