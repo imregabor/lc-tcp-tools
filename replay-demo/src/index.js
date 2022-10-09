@@ -272,7 +272,7 @@ function initPage() {
   const frameCounter = addFrameCounter(body);
   frameCounter.show(false);
 
-  const statusInfoDiv = body.append('div').classed('status-info', true).style('display', 'none');
+  const statusInfoDiv = body.append('div').classed('status-info', true).classed('hidden', 'true');
   const statusInfoContent = statusInfoDiv.append('pre');
 
 
@@ -309,7 +309,7 @@ function initPage() {
     }
   }).unknown();
 
-  pageControls.getDiv().append('span').classed('sep', true);
+  pageControls.sep();
 
   function updateStatusIcons(statusInfo) {
     if (statusInfo.listeningSrvStatus.activeConnectionCount > 0) {
@@ -324,54 +324,57 @@ function initPage() {
     }
   }
 
-  const playbackBtn = pageControls.getDiv().append('i');
-  function noPlayback() {
-    playbackGroup.classed('hidden', true);
-    playbackBtn
-        .classed('fa-solid fa-circle-stop on', false)
-        .classed('fa-regular fa-circle-play', true)
-        .attr('title', 'Start local packet replay');
-  }
-  function playbackGoing() {
-    playbackGroup.classed('hidden', false);
-    playbackBtn
-        .classed('fa-solid fa-circle-stop on', true)
-        .classed('fa-regular fa-circle-play', false)
-        .attr('title', 'Stop playback');
-  }
-  noPlayback();
-  playbackBtn.on('click', () => {
-    if (replayStatus) {
-      noPlayback();
-      replayStatus.stop();
-      replayStatus = undefined;
-    } else {
-      playbackGoing();
-      replayStatus = replay({
-        lines: cap.split('\n'),
-        cb: p => {
-          packetGroupsPerSec.tick(1);
-          packetsPerSec.tick(p.length);
-          for (var s of p) {
-            var packet = parsePacket(s);
-            mapPacket(packet);
+  const playbackBtn = pageControls.addButtonIcon({
+    styles : pageCtr.buttonStyles.playStop,
+    titles : {
+      on : 'Stop packet replay',
+      off : 'Start local packet replay'
+    },
+    onChange : on => {
+      playbackGroup.classed('hidden', !on);
+      if (replayStatus) {
+        playbackBtn.off();
+        replayStatus.stop();
+        replayStatus = undefined;
+      } else {
+        playbackBtn.on();
+        replayStatus = replay({
+          lines: cap.split('\n'),
+          cb: p => {
+            packetGroupsPerSec.tick(1);
+            packetsPerSec.tick(p.length);
+            for (var s of p) {
+              var packet = parsePacket(s);
+              mapPacket(packet);
+            }
+          },
+          onFinish : () => {
+            replayStatus = undefined;
+            playbackBtn.off();
           }
-        },
-        onFinish : () => {
-          replayStatus = undefined;
-          noPlayback();
-        }
-      });
+        });
+      }
     }
   });
 
-
-  const frameCounterBtn = pageControls.getDiv().append('i').classed('fa fa-clock', true).attr('title', 'Show/hide precision frame counter');
-  frameCounterBtn.on('click', () => {
-    const next = !frameCounterBtn.classed('on');
-    frameCounter.show(next);
-    frameCounterBtn.classed('on', next);
+  const frameCounterBtn = pageControls.addButtonIcon({
+    styles : pageCtr.buttonStyles.clock,
+    title : 'Show/hide precision frame counter',
+    onChange : on => frameCounter.show(on)
   });
+
+  const infoButton = pageControls.addButtonIcon({
+    styles : pageCtr.buttonStyles.info,
+    title : 'Show/hide server status',
+    onChange : on => {
+      if (on) {
+        fetchStatusInfo();
+      } else {
+        statusInfoDiv.classed('hidden', true);
+      }
+    }
+  });
+
   function pingStatusInfo() {
     d3.json('api/status')
       .then(
@@ -386,29 +389,19 @@ function initPage() {
       .then(
         response => {
           updateStatusIcons(response);
-          if (!infoButton.classed('on')) {
+          if (!infoButton.isOn()) {
+            statusInfoDiv.classed('hidden', true);
             return;
           }
-          statusInfoDiv.style('display', 'block');
+          statusInfoDiv.classed('hidden', false);
           statusInfoContent.text(JSON.stringify(response, null, 2));
           setTimeout(fetchStatusInfo, 500);
         },
         error => {
-          console.log('Error', error);
+          console.log('Error fetching status info', error);
         });
 
   }
-
-  const infoButton = pageControls.getDiv().append('i').classed('fa fa-circle-info', true).attr('title', 'Show/hide server status');
-  infoButton.on('click', () => {
-    const next = !infoButton.classed('on');
-    infoButton.classed('on', next);
-    if (!next) {
-      statusInfoDiv.style('display', 'none');
-      return;
-    }
-    fetchStatusInfo();
-  });
 
   function setLabelsOnMatrix(m, setup) {
     m

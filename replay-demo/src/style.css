@@ -35,8 +35,13 @@ div.fps .value {
 
 
 div.status-info {
+	display: block;
 	font-family: monospace;
 	color:  white;
+}
+
+div.status-info.hidden {
+	display : none;
 }
 
 div.matrix-container {

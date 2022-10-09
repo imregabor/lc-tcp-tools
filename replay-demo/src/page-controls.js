@@ -59,7 +59,47 @@ function addLinkIcon(d3sel, opts) {
   };
   ret.unknown();
   return ret;
+}
 
+function addButtonIcon(d3sel, opts) {
+  const icon = d3sel.append('i')
+      .classed('fa', true)
+      .classed(opts.styles.common, true);
+
+  if (opts.title) {
+    icon.attr('title', opts.title);
+  }
+
+  const ret = {
+    isOn : () => icon.classed('on'),
+    on : () => {
+      icon
+          .classed(opts.styles.off, false)
+          .classed(opts.styles.on, true)
+          .classed('on', true);
+      if (opts.titles) {
+        icon.attr('title', opts.titles.on);
+      }
+    },
+    off : () => {
+      icon
+          .classed(opts.styles.on, false)
+          .classed(opts.styles.off, true)
+          .classed('on', false);
+      if (opts.titles) {
+        icon.attr('title', opts.titles.off);
+      }
+    }
+  };
+  ret.off();
+  icon.on('click', () => {
+    const toOn = !icon.classed('on');
+    toOn ? ret.on() : ret.off();
+    if (opts.onChange) { opts.onChange(toOn); }
+    if (opts.onToOn) { opts.onToOn(); }
+    if (opts.onToOff) { opts.onToOff(); }
+  });
+  return ret;
 }
 
 export function addTo(d3sel) {
@@ -67,10 +107,33 @@ export function addTo(d3sel) {
 
   const ret = {
     addLinkIcon : opts => addLinkIcon(div, opts),
-    getDiv : () => div
+    addButtonIcon : opts => addButtonIcon(div, opts),
+    getDiv : () => div,
+    sep : () => {
+      div.append('span').classed('sep', true);
+      return ret;
+    }
   };
 
   return ret;
+}
+
+export const buttonStyles = {
+  info : {
+    common : 'fa-circle-info',
+    on : '',
+    off : ''
+  },
+  playStop : {
+    common : '',
+    on : 'fa-solid fa-circle-stop',
+    off : 'fa-regular fa-circle-play'
+  },
+  clock : {
+    common : 'fa-clock',
+    on : 'fa-solid',
+    off : 'fa-regular'
+  }
 }
 
 export const iconStyles = {
