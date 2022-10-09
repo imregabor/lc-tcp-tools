@@ -349,6 +349,7 @@ function initPage() {
             }
           },
           onFinish : () => {
+            playbackGroup.classed('hidden', true);
             replayStatus = undefined;
             playbackBtn.off();
           }
