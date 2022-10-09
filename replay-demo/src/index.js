@@ -12,7 +12,7 @@ import addFrameCounter from './add-frame-counter.js';
 import attachPerfCounter from './add-perf-counter.js';
 import replay from './replay.js';
 import * as pageCtr from './page-controls.js';
-
+import * as apiClient from './api-client.js';
 
 /* See https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Georgia11&t=addMatrix
 
@@ -238,12 +238,6 @@ function mapPacket(packet) {
                                                     Ybmmmd'
 */
 
-function sendSinglePacket(packet) {
-  // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
-  d3.text('/api/sendPacket?bus=' + packet.bus + '&address=' + packet.addr + '&data=' + packet.value, {
-    method : 'POST'
-  });
-}
 
 function initPage() {
   const body = d3.select('body');
@@ -256,7 +250,7 @@ function initPage() {
   const fpsv = fpsdiv.append('span').classed('value', true);
   fps = attachPerfCounter(fpsv);
 
-  const playbackGroup = fpsdiv.append('div').classed('counter-group', true);
+  const playbackGroup = fpsdiv.append('div').classed('counter-group', true).classed('hidden', true);
   playbackGroup.append('span').classed('label', true).text('Playback:');
   pbv = playbackGroup.append('span').classed('value', true);
 
@@ -377,17 +371,11 @@ function initPage() {
   });
 
   function pingStatusInfo() {
-    d3.json('api/status')
-      .then(
-        response => {
-          updateStatusIcons(response);
-        }
-      );
+    apiClient.getStatusInfo(updateStatusIcons);
   }
 
   function fetchStatusInfo() {
-    d3.json('api/status')
-      .then(
+    apiClient.getStatusInfo(
         response => {
           updateStatusIcons(response);
           if (!infoButton.isOn()) {
@@ -400,7 +388,8 @@ function initPage() {
         },
         error => {
           console.log('Error fetching status info', error);
-        });
+        }
+    );
 
   }
 
@@ -422,7 +411,7 @@ function initPage() {
     seph: 0.1,
     // padh: 0.2,
     hover : (x, y, v) => {
-      sendSinglePacket(setup.linear24.toWire(x, y, v));
+      apiClient.sendSinglePacket(setup.linear24.toWire(x, y, v));
     }
   } )
     .call(m => { setLabelsOnMatrix(m, setup.linear24); return m; })
@@ -438,7 +427,7 @@ function initPage() {
     cols: 7,
     rows: 5,
     hover : (x, y, v) => {
-      sendSinglePacket(setup.matrix35.toWire(x, y, v));
+      apiClient.sendSinglePacket(setup.matrix35.toWire(x, y, v));
     }})
     .call(m => { setLabelsOnMatrix(m, setup.matrix35); return m; })
 
@@ -473,54 +462,24 @@ function initPage() {
 
   r();
 
-
-
-  //const ws = new WebSocket('ws://localhost:8080');
-  // See https://stackoverflow.com/questions/10406930/how-to-construct-a-websocket-uri-relative-to-the-page-uri
-  var windowLocation = window.location;
-  var wsUri;
-  if (windowLocation.protocol === 'https:') {
-    wsUri = 'wss:';
-  } else {
-    wsUri = 'ws:';
-  }
-  wsUri += '//' + windowLocation.host + '/';
-
-  const ws = new WebSocket(wsUri);
-
-  ws.onopen = e => { 
-    console.log('WS link onopen', e); 
-    wsLinkIcon.ok();
-  }
-
-  ws.onclose = e => {
-    console.log('WS link onclose', e)
-    wsLinkIcon.err();
-
-  }
-
-  ws.onerror = e => {
-   console.log('WS link onerror', e) 
-   wsLinkIcon.err();
-  }
-
-  ws.onmessage = e => { 
-    var lines = e.data.split('\n');
-
-    var pgs = 0;
-    for (var s of lines) {
-      if (s.startsWith('S')) {
-        pgs++;
-        mapPacket(parsePacket(s));
-      } else if (s.startsWith('# status change')) {
-        pingStatusInfo();
-      }
-    }
-    if (pgs > 0) {
+  apiClient.openWsLink({
+    onUp : () => {
+      wsLinkIcon.ok();
+    },
+    onDown : () => {
+      wsLinkIcon.err();
+    },
+    onPackets : packets => {
       packetGroupsPerSec.tick(1);
-      packetsPerSec.tick(pgs);
+      packetsPerSec.tick(packets.length);
+      for (const packet of packets) {
+        mapPacket(parsePacket(packet));
+      }
+    },
+    onStatusChange : () => {
+      pingStatusInfo();
     }
-  }
+  });
 
   function periodicStatusInfo() {
     pingStatusInfo();
