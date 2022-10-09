@@ -6,6 +6,9 @@ module.exports = {
   devtool: 'source-map',
   plugins: [
     new HtmlWebpackPlugin({
+      // see https://gauger.io/fonticon/
+      // and https://stackoverflow.com/questions/37298215/add-favicon-with-react-and-webpack
+      favicon: './src/favicon.png',
       title: 'Output Management',
     }),
   ],
