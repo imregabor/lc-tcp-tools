@@ -13,7 +13,7 @@ div.matrix-dot-outer {
 }
 
 div.matrix-container.highlighting div.matrix-dot-outer {
-  border: 1px solid #555;
+  outline: 1px solid #555;
 }
 
 div.matrix-dot {

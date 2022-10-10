@@ -24,9 +24,10 @@ import * as d3 from 'd3';
 
  */
 
-function addToggle(parentD3, faClass) {
+function addToggle(parentD3, faClass, faOnClass) {
   const icon = parentD3.append('i').classed('fa', true).classed(faClass, true);
-  var toggleClassOn, toggleClass;
+
+  var toggleClassOn, toggleClass, onClick;
   function updateToggleClass() {
     if (!toggleClass || !toggleClassOn) {
       return;
@@ -44,12 +45,25 @@ function addToggle(parentD3, faClass) {
       updateToggleClass();
       return ret;
     },
-    isOn : () => icon.classed('on')
+    isOn : () => icon.classed('on'),
+    onClick : callback => { onClick = callback; return ret; }
   };
   icon.on('click', () => {
     const next = !ret.isOn();
     icon.classed('on', next);
+    if (faOnClass) {
+      if (next) {
+        icon.classed(faClass, false);
+        icon.classed(faOnClass, true);
+      } else {
+        icon.classed(faOnClass, false);
+        icon.classed(faClass, true);
+      }
+    }
     updateToggleClass();
+    if (onClick) {
+      onClick(next);
+    }
   });
   return ret;
 }
@@ -58,7 +72,7 @@ function addControls(containerDivD3) {
   const ctrls = containerDivD3.append('div').classed('controls', true);
   const ret = {
     getDiv : () => ctrls,
-    addToggle : faClass => addToggle(ctrls, faClass),
+    addToggle : (faClass, faOnClass) => addToggle(ctrls, faClass, faOnClass),
     addSep : () => { ctrls.append('span').classed('sep', true); return ret; }
   };
   return ret;
@@ -119,6 +133,8 @@ export function addMatrix(parentD3, opts) {
 
   controls.addSep();
 
+
+
   var ctrls = controls.getDiv();
 
 
@@ -129,7 +145,16 @@ export function addMatrix(parentD3, opts) {
 
   controls.addSep();
 
-  var lightupButton = ctrls.append('i').classed('fa-regular fa-lightbulb', true).attr('title', 'Light up on hover');
+  var lighupOnHover = false;
+  controls.addToggle('fa-regular fa-lightbulb', 'fa-solid fa-lightbulb')
+    .title('Light up on hover')
+    .toggleClassOn(cnt, 'highlighting')
+    .onClick(on => {
+      lighupOnHover = on;
+      if (!on) {
+        ddivs.classed('mark', false);
+      }
+    });
 
   ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-270', true).attr('title', 'Light up left block on hover');
   ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-90', true).attr('title', 'Light up left block on hover');
@@ -137,21 +162,8 @@ export function addMatrix(parentD3, opts) {
   ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-180', true).attr('title', 'Light up bottom block on hover');
 
 
-  var lighupOnHover = false;
 
 
-  lightupButton.on('click', () => {
-    const toOn = !lightupButton.classed('on');
-    cnt.classed('highlighting', toOn);
-    lighupOnHover = toOn;
-    lightupButton
-      .classed('fa-regular', !toOn)
-      .classed('fa-solid', toOn)
-      .classed('on', toOn);
-    if (!toOn) {
-      ddivs.classed('mark', false);
-    }
-  });
 
   var dotOuterDivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
     .classed('matrix-dot-outer', true)
