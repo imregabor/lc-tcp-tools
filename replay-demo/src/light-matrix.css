@@ -74,7 +74,7 @@ div.matrix-container .controls i {
 }
 
 
-div.matrix-container .controls i:hover {
+div.matrix-container .controls i:not(.hide-icon):hover {
   color:  #c0c0c0;
 }
 
@@ -83,18 +83,24 @@ div.matrix-container .controls i.on {
   opacity: 1.0;
 }
 
-div.matrix-container .controls i.on:hover {
+div.matrix-container .controls i.hide-icon {
+  opacity: 0.2;
+  cursor: default;
+}
+
+div.matrix-container .controls i.on:not(.hide-icon):hover {
   color:  #a3dca3;
 }
 
 
-div.matrix-container .controls i:active {
+div.matrix-container .controls i:active:not(.hide-icon) {
   color:  #ffffff;
 }
 
-div.matrix-container .controls i.on:active {
+div.matrix-container .controls i.on:active:not(.hide-icon) {
   color:  #daf1da;
 }
+
 
 
 div.matrix-container .container-label {

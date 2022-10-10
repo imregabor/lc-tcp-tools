@@ -27,7 +27,9 @@ import * as d3 from 'd3';
 function addToggle(parentD3, faClass, faOnClass) {
   const icon = parentD3.append('i').classed('fa', true).classed(faClass, true);
 
-  var toggleClassOn, toggleClass, onClick;
+  var toggleClassOn, toggleClass, hideWith
+  var titleText = '';
+  const onClicks = [];
   function updateToggleClass() {
     if (!toggleClass || !toggleClassOn) {
       return;
@@ -36,6 +38,7 @@ function addToggle(parentD3, faClass, faOnClass) {
   }
   const ret = {
     title : title => {
+      titleText = title;
       icon.attr('title', title);
       return ret;
     },
@@ -46,9 +49,25 @@ function addToggle(parentD3, faClass, faOnClass) {
       return ret;
     },
     isOn : () => icon.classed('on'),
-    onClick : callback => { onClick = callback; return ret; }
+    isOff : () => !icon.classed('on'),
+    onClick : callback => { onClicks.push(callback); return ret; },
+    hideWith : iconApi => {
+      hideWith = iconApi;
+      iconApi.onClick(on => {
+        icon
+            .classed('hide-icon', !on)
+            .attr('title', on?titleText:'');
+      });
+      icon
+        .classed('hide-icon', hideWith.isOff())
+        .attr('title', hideWith.isOn()?titleText:'');
+      return ret;
+    }
   };
   icon.on('click', () => {
+    if (hideWith && hideWith.isOff()) {
+      return;
+    }
     const next = !ret.isOn();
     icon.classed('on', next);
     if (faOnClass) {
@@ -61,8 +80,8 @@ function addToggle(parentD3, faClass, faOnClass) {
       }
     }
     updateToggleClass();
-    if (onClick) {
-      onClick(next);
+    for (const callback of onClicks) {
+      callback(next);
     }
   });
   return ret;
@@ -76,6 +95,72 @@ function addControls(containerDivD3) {
     addSep : () => { ctrls.append('span').classed('sep', true); return ret; }
   };
   return ret;
+}
+
+function removeHighlight(dots) {
+  for (var dot of dots) {
+    dot.toHighlight = false;
+  }
+}
+
+function setHighlight(dots, toggles, x, y) {
+  const b_u = toggles.blockUp.isOn();
+  const b_d = toggles.blockDown.isOn();
+  const b_l = toggles.blockLeft.isOn();
+  const b_r = toggles.blockRight.isOn();
+  const l_u = toggles.lineUp.isOn();
+  const l_d = toggles.lineDown.isOn();
+  const l_l = toggles.lineLeft.isOn();
+  const l_r = toggles.lineRight.isOn();
+  for (var dot of dots) {
+    const xs = Math.sign(dot.x - x);
+    const ys = Math.sign(dot.y - y);
+    var s = false;
+
+    if (xs == -1 && ys == -1) {
+      s = b_l || b_u;
+    } else if (xs == -1 && ys == 0) {
+      s = b_l || b_u || b_d || l_l;
+    } else if (xs == -1 && ys == 1) {
+      s = b_l || b_d;
+    } else if (xs == 0 && ys == -1) {
+      s = b_l || b_r || b_u || l_u;
+    } else if (xs == 0 && ys == 0) {
+      s = true;
+    } else if (xs == 0 && ys == 1) {
+      s = b_l || b_r || b_d || l_d;
+    } else if (xs == 1 && ys == -1) {
+      s = b_r || b_u;
+    } else if (xs == 1 && ys == 0) {
+      s = b_r || b_d || b_u || l_r;
+    } else if (xs == 1 && ys == 1) {
+      s = b_r || b_d;
+    }
+
+    dot.toHighlight = s;
+  }
+}
+
+function bindHighlight(sel) {
+  sel.classed('mark', d => d.toHighlight);
+}
+
+function sendHighlightUpdates(dots, sendSingle) {
+  for (var dot of dots) {
+    if (dot.toHighlight) {
+      if (dot.lastHighlightSent == 1) {
+        continue;
+      }
+      dot.lastHighlightSent = 1;
+      sendSingle(dot.x, dot.y, 1);
+    } else {
+      if (dot.lastHighlightSent == 0) {
+        continue;
+      }
+      dot.lastHighlightSent = 0;
+      sendSingle(dot.x, dot.y, 0);
+    }
+  }
 }
 
 export function addMatrix(parentD3, opts) {
@@ -100,12 +185,24 @@ export function addMatrix(parentD3, opts) {
   for (var y = 0; y < opts.rows; y++) {
     for (var x = 0; x < opts.cols; x++) {
       var dot = {
+        // Position and metadata
         x : x,
         y : y,
         i : toIndex(x, y),
+        infoText: x + ':' + y,
+
+        // Current value
         v: 0,
+
+        // Value target
         t: 0,
-        infoText: x + ':' + y
+
+        // Should send higlight
+        toHighlight : false,
+
+        // last sent value due to highlight
+        lastHighlightSent: 0
+
       }
       dots.push(dot);
     }
@@ -146,7 +243,8 @@ export function addMatrix(parentD3, opts) {
   controls.addSep();
 
   var lighupOnHover = false;
-  controls.addToggle('fa-regular fa-lightbulb', 'fa-solid fa-lightbulb')
+  var offTimeout = undefined;
+  const lightupIcon = controls.addToggle('fa-regular fa-lightbulb', 'fa-solid fa-lightbulb')
     .title('Light up on hover')
     .toggleClassOn(cnt, 'highlighting')
     .onClick(on => {
@@ -156,14 +254,33 @@ export function addMatrix(parentD3, opts) {
       }
     });
 
-  ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-270', true).attr('title', 'Light up left block on hover');
-  ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-90', true).attr('title', 'Light up left block on hover');
-  ctrls.append('i').classed('fa-solid fa-arrows-up-to-line', true).attr('title', 'Light up top block on hover');
-  ctrls.append('i').classed('fa-solid fa-arrows-up-to-line fa-rotate-180', true).attr('title', 'Light up bottom block on hover');
+  const hoverToggles = {
+    blockLeft : controls.addToggle('fa-solid fa-arrows-up-to-line fa-rotate-270')
+      .title('Light up left block on hover')
+      .hideWith(lightupIcon),
+    blockUp: controls.addToggle('fa-solid fa-arrows-up-to-line')
+      .title('Light up top block on hover')
+      .hideWith(lightupIcon),
+    blockRight : controls.addToggle('fa-solid fa-arrows-up-to-line fa-rotate-90')
+      .title('Light up right block on hover')
+      .hideWith(lightupIcon),
+    blockDown : controls.addToggle('fa-solid fa-arrows-up-to-line fa-rotate-180')
+      .title('Light up bottom block on hover')
+      .hideWith(lightupIcon),
 
-
-
-
+    lineUp : controls.addToggle('fa-solid fa-arrow-up')
+      .title('Light up line above hover')
+      .hideWith(lightupIcon),
+    lineDown : controls.addToggle('fa-solid fa-arrow-down')
+      .title('Light up line below hover')
+      .hideWith(lightupIcon),
+    lineLeft : controls.addToggle('fa-solid fa-arrow-left')
+      .title('Light up line left to hover')
+      .hideWith(lightupIcon),
+    lineRight : controls.addToggle('fa-solid fa-arrow-right')
+      .title('Light up line right to hover')
+      .hideWith(lightupIcon)
+  }
 
   var dotOuterDivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
     .classed('matrix-dot-outer', true)
@@ -184,19 +301,40 @@ export function addMatrix(parentD3, opts) {
     if (!lighupOnHover) {
       return;
     }
-    d3.select(e.target).classed('mark', true);
-    if (opts.hover) {
-      opts.hover(d.x, d.y, 1.0);
+    setHighlight(dots, hoverToggles, d.x, d.y);
+    bindHighlight(dotOuterDivs);
+    if (offTimeout) {
+      clearTimeout(offTimeout);
+      offTimeout = undefined;
     }
+
+    // d3.select(e.target).classed('mark', true);
+    if (opts.hover) {
+      // opts.hover(d.x, d.y, 1.0);
+      sendHighlightUpdates(dots, opts.hover);
+    }
+
   });
   dotOuterDivs.on('mouseleave', (e, d) => {
     if (!lighupOnHover) {
       return;
     }
-    d3.select(e.target).classed('mark', false);
-    if (opts.hover) {
-      opts.hover(d.x, d.y, 0.0);
+    if (offTimeout) {
+      clearTimeout(offTimeout);
+      offTimeout = undefined;
     }
+    offTimeout = setTimeout(() => {
+      removeHighlight(dots);
+      bindHighlight(dotOuterDivs);
+
+      // d3.select(e.target).classed('mark', false);
+
+      if (opts.hover) {
+        // opts.hover(d.x, d.y, 0.0);
+        sendHighlightUpdates(dots, opts.hover);
+      }
+    }, 100);
+
   });
 
   var infoTexts = ddivs.append('div').classed('info-detail', true);
