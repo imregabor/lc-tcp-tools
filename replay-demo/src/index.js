@@ -225,8 +225,11 @@ function initPage() {
           setTimeout(fetchStatusInfo, 500);
         },
         error => {
+          statusInfoDiv.classed('hidden', false);
+          statusInfoContent.text("Error fetching status info " + error);
           updateStatusIconsErr(error);
           console.log('Error fetching status info', error);
+          setTimeout(fetchStatusInfo, 500);
         }
     );
 
