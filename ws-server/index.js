@@ -1,27 +1,25 @@
 "use strict";
 
-
-const ws = require('ws');
 const express = require('express');
 const openFwdConn = require('./tcp-forwarding-connection.js');
 const openListeningSrv = require('./tcp-listening-server.js');
+const openWsSrv = require('./websocket-server.js');
 const lowLevel = require('./lowlevel.js');
 const net = require('net');
 const network = require('./network.js');
 
+
+const starttime = Date.now();
 const listeningPort = 12345;
-
-
+const fwdPort = 23;
 const fwdHost = '192.168.10.101';
 // const fwdHost = 'localhost';
 // const host = '192.168.10.101';
-const fwdPort = 23;
-
-const app = express();
-
 const expressPort = 3000
 
-const starttime = Date.now();
+
+
+const app = express();
 
 
 const fwdConn = openFwdConn({
@@ -35,15 +33,19 @@ const listeningSrv = openListeningSrv({
   log : m => console.log('[LST srv]', m)
 });
 
+const wsSrv = openWsSrv({
+  log : m => console.log('[WS srv] ', m)
+});
+
 
 app.use(express.static('../replay-demo/dist'));
-
 
 app.get('/api/status', (req, res) => {
   res.json({
     uptime : Date.now() - starttime,
     fwdConnStatus : fwdConn.getStatus(),
-    listeningSrvStatus : listeningSrv.getStatus()
+    listeningSrvStatus : listeningSrv.getStatus(),
+    wsSrvStatus : wsSrv.getStatus()
   });
 });
 
@@ -52,10 +54,7 @@ app.post('/api/sendToAll', (req, res) => {
     console.log('sendToAll ' + req.query.data);
     const messages = lowLevel.singleDataToAllBusesAndAddresses(req.query.data);
     fwdConn.write(messages);
-    if (sock) {
-      // Send on WebSocket
-      sock.send(messages);
-    }
+    wsSrv.broadcast(messages);
     res.status(200).send();
   } catch (e) {
     console.log(e);
@@ -71,13 +70,9 @@ app.post('/api/sendPacket', (req, res) => {
       req.query.data
     );
 
-    console.log('sendPacket ' + message);
-
+    // console.log('sendPacket ' + message);
     fwdConn.write(message);
-    if (sock) {
-      // Send on WebSocket
-      sock.send(message);
-    }
+    wsSrv.broadcast(message);
     res.status(200).send();
   } catch (e) {
     console.log(e);
@@ -88,11 +83,7 @@ app.post('/api/sendPacket', (req, res) => {
 
 
 
-// const wss = new ws.Server({ port: 8080 });
-// see https://masteringjs.io/tutorials/express/websockets
-const wss = new ws.Server({ noServer: true });
 
-var sock;
 
 console.log('# TCP server / web socket server')
 console.log('#')
@@ -102,41 +93,23 @@ for(const a of network.getLocalIPv4Interfaces()) {
 }
 
 
-wss.on('connection', function connection(ws, req) {
-  console.log('WebSocket connection from ' +  req.socket.remoteAddress);
-
-  ws.on('message', function message(data) {
-    console.log('received: %s', data);
-  });
-
-  sock = ws;
-  ws.send('something');
-});
 
 
 // see https://masteringjs.io/tutorials/express/websockets
 const expressServer = app.listen(expressPort, () => {
   console.log('xpress server listening on port ' + expressPort);
 })
-expressServer.on('upgrade', (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, socket => {
-    wss.emit('connection', socket, request);
-  });
-});
 
+wsSrv.addToExpressServer(expressServer);
 
 listeningSrv.onData(d => {
   // console.log(d.toString());
-  if (sock) {
-    // Send on WebSocket
-    sock.send(d.toString());
-  }
-
+  wsSrv.broadcast(d.toString());
   fwdConn.write(d.toString());
 });
 
-listeningSrv.onStatusChange(() => { if (sock) { sock.send('# status change\n');}});
-fwdConn.onStatusChange(() => { if (sock) { sock.send('# status change\n');}});
+listeningSrv.onStatusChange(() => wsSrv.broadcast('# status change\n'));
+fwdConn.onStatusChange(() => wsSrv.broadcast('# status change\n'));
 
 
 

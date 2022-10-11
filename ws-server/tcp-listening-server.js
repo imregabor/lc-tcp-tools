@@ -88,14 +88,14 @@ function open(opts) {
           continue;
         }
         const c = activeConnections[ci].socket;
-        const u = Date.now() - activeConnections[ci].connectedTime;
+        const uptime = Date.now() - activeConnections[ci].connectedTime;
         status.activeConnectionCount++;
         status.activeConnections.push({
           bytesRead : c.bytesRead,
           bytesWritten : c.bytesWritten,
           remote : c.remoteAddress + ':' + c.remotePort +' (' + c.remoteFamily + ')',
           readyState : c.readyState,
-          uptime : u
+          uptime : uptime
         });
       }
       return status;
