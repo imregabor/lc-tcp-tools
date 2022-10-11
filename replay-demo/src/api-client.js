@@ -16,9 +16,8 @@ export function sendSinglePacket(packet) {
   // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
   d3.text('/api/sendPacket?bus=' + packet.bus + '&address=' + packet.addr + '&data=' + packet.value, {
     method : 'POST'
-  });
+  }).then(() => {}, () => {});
 }
-
 
 export function openWsLink(opts) {
 
@@ -33,25 +32,8 @@ export function openWsLink(opts) {
   }
   wsUri += '//' + windowLocation.host + '/';
 
-  const ws = new WebSocket(wsUri);
 
-  if (opts.onUp) {
-    ws.onopen = e => {
-      opts.onUp();
-    }
-  }
-
-  if (opts.onDown) {
-    ws.onclose = e => {
-      opts.onDown();
-    }
-
-    ws.onerror = e => {
-      opts.onDown();
-    }
-  }
-
-  ws.onmessage = e => {
+  function handleMessage(e) {
     var lines = e.data.split('\n');
     var packets = [];
     for (var s of lines) {
@@ -70,4 +52,32 @@ export function openWsLink(opts) {
     }
   }
 
+  var wsReconnectTimeout;
+  function handleClose() {
+
+    if (opts.onDown) { opts.onDown(); }
+    if (!wsReconnectTimeout) {
+      wsReconnectTimeout = setTimeout(() => {
+        wsReconnectTimeout = undefined;
+        open();
+      }, 1000);
+    }
+  }
+
+  var ws;
+  function open() {
+    if (opts.onConnecting) {
+      opts.onConnecting();
+    }
+    ws = new WebSocket(wsUri);
+
+    if (opts.onUp) {
+      ws.onopen = e => {
+        opts.onUp();
+      }
+    }
+    ws.onclose = handleClose;
+    ws.onmessage = handleMessage;
+  }
+  open();
 }

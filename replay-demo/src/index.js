@@ -310,6 +310,10 @@ function initPage() {
       wsLinkIcon.err();
       pingStatusInfo();
     },
+    onConnecting : () => {
+      wsLinkIcon.warn();
+      pingStatusInfo();
+    },
     onPackets : packets => {
       packetGroupsPerSec.tick(1);
       packetsPerSec.tick(packets.length);
