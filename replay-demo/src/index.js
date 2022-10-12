@@ -13,6 +13,7 @@ import replay from './replay.js';
 import * as pageCtr from './page-controls.js';
 import * as apiClient from './api-client.js';
 import * as lightMatrix from './light-matrix.js';
+import qrOverlay from './qr-overlay.js';
 
 var m1;
 var m2;
@@ -93,8 +94,8 @@ function initPage() {
   // page controls + status -------------------
   const pageControls = pageCtr.addTo(fpsdiv);
 
-  const wsLinkIcon = pageControls.addLinkIcon({
-    styles : pageCtr.iconStyles.link,
+  const wsLinkIcon = pageControls.addStatusIcon({
+    styles : pageCtr.statusIconStyles.link,
     titles : {
       unknown : 'WS link is in unknown state',
       warn : 'WS link is connecting',
@@ -103,8 +104,8 @@ function initPage() {
     }
   }).unknown();
 
-  const restApiIcon = pageControls.addLinkIcon({
-    styles : pageCtr.iconStyles.network,
+  const restApiIcon = pageControls.addStatusIcon({
+    styles : pageCtr.statusIconStyles.network,
     titles : {
       unknown : 'REST API availability is unknown',
       warn : 'REST API availability is unknown',
@@ -114,8 +115,8 @@ function initPage() {
   }).unknown();
 
 
-  const srvListeningIcon = pageControls.addLinkIcon({
-    styles : pageCtr.iconStyles.ear,
+  const srvListeningIcon = pageControls.addStatusIcon({
+    styles : pageCtr.statusIconStyles.ear,
     titles : {
       unknown: 'Server listening connection is in unknown state',
       warn: 'Server listening connection is in unknown state',
@@ -124,8 +125,8 @@ function initPage() {
     }
   }).unknown();
 
-  const srvFwdConnIcon = pageControls.addLinkIcon({
-    styles : pageCtr.iconStyles.plug,
+  const srvFwdConnIcon = pageControls.addStatusIcon({
+    styles : pageCtr.statusIconStyles.plug,
     titles : {
       unknown : 'Server forwarding connection is in unknown state',
       warn : 'Server forwarding connection is in unknown state',
@@ -150,14 +151,29 @@ function initPage() {
     }
   }
 
+  pageControls.addButtonIcon({
+    style : pageCtr.buttonIconStyles.send,
+    title : 'Send to mobile',
+    onClick : () => {
+      apiClient.getServerUrls(urls => {
+        const overlay = qrOverlay();
+        for (const url of urls) {
+          overlay.add(url.url, url.name, url.url);
+        }
+
+
+      });
+    }
+  });
+
   function updateStatusIconsErr(statusInfo) {
     restApiIcon.err();
     srvListeningIcon.unknown();
     srvFwdConnIcon.unknown();
   }
 
-  const playbackBtn = pageControls.addButtonIcon({
-    styles : pageCtr.buttonStyles.playStop,
+  const playbackBtn = pageControls.addToggleIcon({
+    styles : pageCtr.toggleIconStyles.playStop,
     titles : {
       on : 'Stop packet replay',
       off : 'Start local packet replay'
@@ -190,14 +206,14 @@ function initPage() {
     }
   });
 
-  const frameCounterBtn = pageControls.addButtonIcon({
-    styles : pageCtr.buttonStyles.clock,
+  const frameCounterBtn = pageControls.addToggleIcon({
+    styles : pageCtr.toggleIconStyles.clock,
     title : 'Show/hide precision frame counter',
     onChange : on => frameCounter.show(on)
   });
 
-  const infoButton = pageControls.addButtonIcon({
-    styles : pageCtr.buttonStyles.info,
+  const infoButton = pageControls.addToggleIcon({
+    styles : pageCtr.toggleIconStyles.info,
     title : 'Show/hide server status',
     onChange : on => {
       if (on) {

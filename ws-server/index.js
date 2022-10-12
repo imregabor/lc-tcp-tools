@@ -40,6 +40,14 @@ const wsSrv = openWsSrv({
 
 app.use(express.static('../replay-demo/dist'));
 
+app.get('/api/restApiListeningAddresses', (req, res) => {
+  const ret = network.getLocalIPv4Interfaces();
+  for (const i of ret) {
+    i.url = 'http://' + i.address + ':' + expressPort + '/index.html';
+  }
+  res.json(ret);
+});
+
 app.get('/api/status', (req, res) => {
   res.json({
     uptime : Date.now() - starttime,

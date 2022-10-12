@@ -7,7 +7,7 @@ import './fa.js';
  * Page control and status feedback icons.
  */
 
-function addLinkIcon(d3sel, opts) {
+function addStatusIcon(d3sel, opts) {
   const icon = d3sel.append('i')
       .classed('fa fa-fw stat', true)
       .classed(opts.styles.common, true);
@@ -64,6 +64,18 @@ function addLinkIcon(d3sel, opts) {
 function addButtonIcon(d3sel, opts) {
   const icon = d3sel.append('i')
       .classed('fa', true)
+      .classed(opts.style, true);
+  if (opts.title) {
+    icon.attr('title', opts.title);
+  }
+  if (opts.onClick) {
+    icon.on('click', opts.onClick);
+  }
+}
+
+function addToggleIcon(d3sel, opts) {
+  const icon = d3sel.append('i')
+      .classed('fa', true)
       .classed(opts.styles.common, true);
 
   if (opts.title) {
@@ -106,8 +118,9 @@ export function addTo(d3sel) {
   const div = d3sel.append('div').classed('page-controls', true);
 
   const ret = {
-    addLinkIcon : opts => addLinkIcon(div, opts),
+    addStatusIcon : opts => addStatusIcon(div, opts),
     addButtonIcon : opts => addButtonIcon(div, opts),
+    addToggleIcon : opts => addToggleIcon(div, opts),
     getDiv : () => div,
     sep : () => {
       div.append('span').classed('sep', true);
@@ -118,7 +131,11 @@ export function addTo(d3sel) {
   return ret;
 }
 
-export const buttonStyles = {
+export const buttonIconStyles = {
+  send : 'fa-solid fa-paper-plane'
+}
+
+export const toggleIconStyles = {
   info : {
     common : 'fa-circle-info',
     on : '',
@@ -136,7 +153,7 @@ export const buttonStyles = {
   }
 }
 
-export const iconStyles = {
+export const statusIconStyles = {
   link : {
     common : 'fa-link-slash',
     ok : 'fa-link',

@@ -8,7 +8,7 @@ import * as d3 from 'd3';
 
 
 export function getStatusInfo(result, error) {
-  d3.json('api/status')
+  d3.json('/api/status')
     .then(result, error);
 }
 
@@ -17,6 +17,11 @@ export function sendSinglePacket(packet) {
   d3.text('/api/sendPacket?bus=' + packet.bus + '&address=' + packet.addr + '&data=' + packet.value, {
     method : 'POST'
   }).then(() => {}, () => {});
+}
+
+export function getServerUrls(result, error) {
+  d3.json('/api/restApiListeningAddresses')
+    .then(result, error);
 }
 
 export function openWsLink(opts) {

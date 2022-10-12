@@ -1,0 +1,28 @@
+div.qr-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: white;
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+div.qr-overlay div.qr-item {
+  color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-label-1 {
+  font-size: 200%;
+}
+
+.qr-label-2 {
+  font-family: monospace;
+}
