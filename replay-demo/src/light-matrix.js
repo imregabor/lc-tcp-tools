@@ -460,7 +460,7 @@ export function addMatrix(parentD3, opts) {
   }
 
   // See https://stackoverflow.com/questions/27908339/js-touch-equivalent-for-mouseenter
-  dotOuterDivs.on('pointerdown', function(e) { this.releasePointerCapture(e.pointerId); });
+  cnt.selectAll('div').on('pointerdown', function(e) { this.releasePointerCapture(e.pointerId); });
   dotOuterDivs.on('mouseenter', highlightEnter);
   dotOuterDivs.on('pointerenter', highlightEnter);
   dotOuterDivs.on('mouseleave', highlightLeave);
