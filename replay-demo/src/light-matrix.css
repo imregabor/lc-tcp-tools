@@ -12,6 +12,9 @@ div.matrix-dot-outer {
   position: absolute;
 }
 
+div.matrix-container.highlighting {
+  touch-action: none;
+}
 div.matrix-container.highlighting div.matrix-dot-outer {
   outline: 1px solid #555;
 }

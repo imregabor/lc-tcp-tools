@@ -420,7 +420,7 @@ export function addMatrix(parentD3, opts) {
 
   setLayout(cnt, layout);
 
-  dotOuterDivs.on('mouseenter', (e, d) => {
+  function highlightEnter(e, d) {
     if (!lighupOnHover) {
       return;
     }
@@ -436,9 +436,9 @@ export function addMatrix(parentD3, opts) {
       // opts.hover(d.x, d.y, 1.0);
       sendHighlightUpdates(dots, opts.hover);
     }
+  }
 
-  });
-  dotOuterDivs.on('mouseleave', (e, d) => {
+  function highlightLeave(e, d) {
     if (!lighupOnHover) {
       return;
     }
@@ -457,8 +457,15 @@ export function addMatrix(parentD3, opts) {
         sendHighlightUpdates(dots, opts.hover);
       }
     }, 100);
+  }
 
-  });
+  // See https://stackoverflow.com/questions/27908339/js-touch-equivalent-for-mouseenter
+  dotOuterDivs.on('pointerdown', function(e) { this.releasePointerCapture(e.pointerId); });
+  dotOuterDivs.on('mouseenter', highlightEnter);
+  dotOuterDivs.on('pointerenter', highlightEnter);
+  dotOuterDivs.on('mouseleave', highlightLeave);
+  dotOuterDivs.on('pointerleave', highlightLeave);
+
 
   var infoTexts = ddivs.append('div').classed('info-detail', true);
   function bindInfoText() {
