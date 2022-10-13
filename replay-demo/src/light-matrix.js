@@ -24,6 +24,21 @@ import * as d3 from 'd3';
 
  */
 
+function addButton(parentD3, faClass) {
+  const icon = parentD3.append('i').classed('fa', true).classed(faClass, true);
+  const ret = {
+    title : title => {
+      icon.attr('title', title);
+      return ret;
+    },
+    onClick : callback => {
+      icon.on('click', callback);
+      return ret;
+    }
+  };
+  return ret;
+}
+
 function addToggle(parentD3, faClass, faOnClass) {
   const icon = parentD3.append('i').classed('fa', true).classed(faClass, true);
 
@@ -92,6 +107,7 @@ function addControls(containerDivD3) {
   const ret = {
     getDiv : () => ctrls,
     addToggle : (faClass, faOnClass) => addToggle(ctrls, faClass, faOnClass),
+    addButton : (faClass) => addButton(ctrls, faClass),
     addSep : () => { ctrls.append('span').classed('sep', true); return ret; }
   };
   return ret;
@@ -113,8 +129,8 @@ function setHighlight(dots, toggles, x, y) {
   const l_l = toggles.lineLeft.isOn();
   const l_r = toggles.lineRight.isOn();
   for (var dot of dots) {
-    const xs = Math.sign(dot.x - x);
-    const ys = Math.sign(dot.y - y);
+    const xs = Math.sign(dot.rx - x);
+    const ys = Math.sign(dot.ry - y);
     var s = false;
 
     if (xs == -1 && ys == -1) {
@@ -163,6 +179,55 @@ function sendHighlightUpdates(dots, sendSingle) {
   }
 }
 
+function setLayout(cnt, layout, doTransition) {
+  var labels;
+  if (doTransition) {
+    labels = cnt.selectAll('.container-label.top,.container-label.right,.container-label.bottom,.container-label.left');
+    labels.transition().duration(10).style('opacity', 0);
+  }
+
+  var cntT = cnt;
+  if (doTransition) { cntT = cntT.transition().duration(400); }
+  cntT
+    .style('width', (layout.cols * (layout.dotSizeH + layout.dotSeparationH) + 2 * layout.containerPaddingH - layout.dotSeparationH) + 'px')
+    .style('height', (layout.rows * (layout.dotSizeV + layout.dotSeparationV) + 2 * layout.containerPaddingV - layout.dotSeparationV) + 'px');
+
+  var outerT = cnt.selectAll('.matrix-dot-outer')
+  if (doTransition) { outerT = outerT.transition().duration(400); }
+  outerT
+    .style('width', (layout.dotSizeH + layout.dotSeparationH) + 'px')
+    .style('height', (layout.dotSizeV + layout.dotSeparationV) + 'px')
+    .style('left', d => (d.rx * (layout.dotSizeH + layout.dotSeparationH) + layout.containerPaddingH - layout.halfDotSeparationH) + 'px')
+    .style('top', d => (d.ry * (layout.dotSizeV + layout.dotSeparationV) + layout.containerPaddingV - layout.halfDotSeparationV) + 'px');
+
+  var dotT = cnt.selectAll('.matrix-dot')
+  if (doTransition) { dotT = dotT.transition().duration(400); }
+  dotT
+    .style('width', layout.dotSizeH + 'px')
+    .style('height', layout.dotSizeV + 'px')
+    .style('left', layout.halfDotSeparationH + 'px')
+    .style('top', layout.halfDotSeparationV + 'px');
+
+  cnt.selectAll('.container-label.top').text(layout.labels[0]);
+  cnt.selectAll('.container-label.right').text(layout.labels[1]);
+  cnt.selectAll('.container-label.bottom').text(layout.labels[2]);
+  cnt.selectAll('.container-label.left').text(layout.labels[3]);
+
+  if (doTransition) {
+    labels.transition().delay(150).duration(200).style('opacity', 1);
+  }
+}
+
+function rotateLayoutGeometry(layout) {
+  var i;
+  i = layout.rows;               layout.rows =               layout.cols;               layout.cols = i;
+  i = layout.containerPaddingH ; layout.containerPaddingH =  layout.containerPaddingV;  layout.containerPaddingV = i;
+  i = layout.dotSeparationH;     layout.dotSeparationH =     layout.dotSeparationV;     layout.dotSeparationV = i;
+  i = layout.halfDotSeparationH; layout.halfDotSeparationH = layout.halfDotSeparationV; layout.halfDotSeparationV = i;
+  i = layout.dotSizeH;            layout.dotSizeH =          layout.dotSizeV;           layout.dotSizeV = i;
+
+}
+
 export function addMatrix(parentD3, opts) {
   const containerPaddingH = (opts.padh ? opts.padh : 1.0) * 30;
   const containerPaddingV = (opts.padv ? opts.padv : 1.0) * 30;
@@ -177,6 +242,21 @@ export function addMatrix(parentD3, opts) {
     return row * opts.cols + col;
   }
 
+  const layout = {
+    rows : opts.rows,
+    cols : opts.cols,
+    containerPaddingH : containerPaddingH,
+    containerPaddingV : containerPaddingV,
+    dotSeparationH : dotSeparationH,
+    dotSeparationV : dotSeparationV,
+    halfDotSeparationH : halfDotSeparationH,
+    halfDotSeparationV : halfDotSeparationV,
+    dotSizeH : dotSizeH,
+    dotSizeV : dotSizeV,
+    labels : [ 'top', 'right', 'bottom', 'left' ]
+  };
+
+
   const vToColor = chroma
     .scale(['#300000', '#d41111', '#eded5e', '#ffffe6', '#ffffff'])
     .correctLightness();
@@ -186,10 +266,14 @@ export function addMatrix(parentD3, opts) {
     for (var x = 0; x < opts.cols; x++) {
       var dot = {
         // Position and metadata
-        x : x,
+        x : x, // original position
         y : y,
         i : toIndex(x, y),
         infoText: x + ':' + y,
+
+        // position to render
+        rx : x,
+        ry : y,
 
         // Current value
         v: 0,
@@ -209,36 +293,81 @@ export function addMatrix(parentD3, opts) {
   }
 
   var cnt = parentD3.append('div')
-    .classed('matrix-container', true)
-    .style('width', (opts.cols * ( dotSizeH + dotSeparationH) + 2 * containerPaddingH - dotSeparationH) + 'px')
-    .style('height', (opts.rows * (dotSizeV + dotSeparationV) + 2 * containerPaddingV - dotSeparationV) + 'px');
+    .classed('matrix-container', true);
 
 
   // labels ===========================================================================
 
-  var topLabel = cnt.append('span').classed('container-label top', true).text('top label');
-  var bottomLabel = cnt.append('span').classed('container-label bottom', true).text('bottom label');
-  var leftLabel = cnt.append('span').classed('container-label left', true).text('left label');
-  var rightLabel = cnt.append('span').classed('container-label right', true).text('right label');
-  var titleLabel = cnt.append('span').classed('container-label title', true).text('title label');
+  var topLabel = cnt.append('span').classed('container-label top', true);
+  var bottomLabel = cnt.append('span').classed('container-label bottom', true);
+  var leftLabel = cnt.append('span').classed('container-label left', true);
+  var rightLabel = cnt.append('span').classed('container-label right', true);
+  var titleLabel = cnt.append('span').classed('container-label title', true);
 
   // controls =========================================================================
   var controls = addControls(cnt);
   controls.addToggle('fa-circle-info')
-    .title('Show/hide address/direction annotations')
-    .toggleClassOn(cnt, 'show-info');
+      .title('Show/hide address/direction annotations')
+      .toggleClassOn(cnt, 'show-info');
 
   controls.addSep();
 
-
-
-  var ctrls = controls.getDiv();
-
-
-  ctrls.append('i').classed('fa fa-rotate-right', true).attr('title', 'Rotate display right');
-  ctrls.append('i').classed('fa fa-rotate-left', true).attr('title', 'Rotate display left');
-  ctrls.append('i').classed('fa fa-left-right', true).attr('title', 'Flip display horizontally');
-  ctrls.append('i').classed('fa fa-up-down', true).attr('title', 'Flip display vertically');
+  controls.addButton('fa-rotate-right')
+      .title('Rotate display right')
+      .onClick(() => {
+          for (const d of dots) {
+            const orx = d.rx;
+            const ory = d.ry;
+            d.rx = layout.rows - ory - 1;
+            d.ry = orx;
+          }
+          rotateLayoutGeometry(layout);
+          var i = layout.labels[3];
+          layout.labels[3] = layout.labels[2];
+          layout.labels[2] = layout.labels[1];
+          layout.labels[1] = layout.labels[0];
+          layout.labels[0] = i;
+          setLayout(cnt, layout, true);
+      });
+  controls.addButton('fa-rotate-left')
+      .title('Rotate display left')
+      .onClick(() => {
+          for (const d of dots) {
+            const orx = d.rx;
+            const ory = d.ry;
+            d.rx = ory;
+            d.ry = layout.cols - orx -1;
+          }
+          rotateLayoutGeometry(layout);
+          var i = layout.labels[0];
+          layout.labels[0] = layout.labels[1];
+          layout.labels[1] = layout.labels[2];
+          layout.labels[2] = layout.labels[3];
+          layout.labels[3] = i;
+          setLayout(cnt, layout, true);
+      });
+  controls.addButton('fa-left-right')
+      .title('Flip display horizontally')
+      .onClick(() => {
+          for (const d of dots) {
+            d.rx = layout.cols - d.rx - 1;
+          }
+          var i = layout.labels[1];
+          layout.labels[1] = layout.labels[3];
+          layout.labels[3] = i;
+          setLayout(cnt, layout, true);
+      });
+  controls.addButton('fa-up-down')
+      .title('Flip display vertically')
+      .onClick(() => {
+          for (const d of dots) {
+            d.ry = layout.rows - d.ry - 1;
+          }
+          var i = layout.labels[0];
+          layout.labels[0] = layout.labels[2];
+          layout.labels[2] = i;
+          setLayout(cnt, layout, true);
+      });
 
   controls.addSep();
 
@@ -283,25 +412,19 @@ export function addMatrix(parentD3, opts) {
   }
 
   var dotOuterDivs = cnt.selectAll('.matrix-dot').data(dots).enter().append('div')
-    .classed('matrix-dot-outer', true)
-    .style('width', (dotSizeH + dotSeparationH) + 'px')
-    .style('height', (dotSizeV + dotSeparationV) + 'px')
-    .style('left', d => (d.x * (dotSizeH + dotSeparationH) + containerPaddingH - halfDotSeparationH) + 'px')
-    .style('top', d => (d.y * (dotSizeV + dotSeparationV) + containerPaddingV - halfDotSeparationV) + 'px')
+    .classed('matrix-dot-outer', true);
 
   var ddivs = dotOuterDivs.append('div')
     .classed('matrix-dot', true)
-    .style('width', dotSizeH + 'px')
-    .style('height', dotSizeV + 'px')
-    .style('left', halfDotSeparationH + 'px')
-    .style('top', halfDotSeparationV + 'px')
     .attr('title', d => 'Index: ' + d.i);
+
+  setLayout(cnt, layout);
 
   dotOuterDivs.on('mouseenter', (e, d) => {
     if (!lighupOnHover) {
       return;
     }
-    setHighlight(dots, hoverToggles, d.x, d.y);
+    setHighlight(dots, hoverToggles, d.rx, d.ry);
     bindHighlight(dotOuterDivs);
     if (offTimeout) {
       clearTimeout(offTimeout);
@@ -359,10 +482,10 @@ export function addMatrix(parentD3, opts) {
   var ret = {
     call : f => f(ret),
     titleLabelText : t => { titleLabel.text(t); return ret; },
-    topLabelText : t => { topLabel.text(t); return ret; },
-    bottomLabelText : t => { bottomLabel.text(t); return ret; },
-    leftLabelText : t => { leftLabel.text(t); return ret; },
-    rightLabelText : t => { rightLabel.text(t); return ret; },
+    topLabelText : t => { topLabel.text(t); layout.labels[0] = t; return ret; },
+    bottomLabelText : t => { bottomLabel.text(t); layout.labels[2] = t; return ret; },
+    leftLabelText : t => { leftLabel.text(t); layout.labels[3] = t; return ret; },
+    rightLabelText : t => { rightLabel.text(t); layout.labels[1] = t; return ret; },
     infoText : (x, y, text) => { dots[ toIndex(x, y) ].infoText = text; bindInfoText(); return ret; },
     setValue : function(x, y, v) {
       if (v < 0) {
