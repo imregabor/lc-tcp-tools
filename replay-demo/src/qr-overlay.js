@@ -6,7 +6,15 @@ import QRCode from 'qrcode';
 
 export default function show() {
   const div = d3.select('body').append('div').classed('qr-overlay', true);
+
   div.on('click', () => div.remove());
+  d3.select('body').on('keydown', e => {
+    if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') {
+      d3.select('body').on('keydown', null);
+      div.remove();
+    }
+  });
+
   const ret = {
     add : (qr, label1, label2) => {
       const item = div.append('div').classed('qr-item', true);
@@ -34,5 +42,4 @@ export default function show() {
     }
   };
   return ret;
-
 }
