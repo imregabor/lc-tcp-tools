@@ -22,4 +22,13 @@ function getLocalIPv4Interfaces() {
   return ret;
 }
 
+function restApiListeningAddresses(protocol, port) {
+  const ret =  getLocalIPv4Interfaces();
+  for (const i of ret) {
+    i.url = protocol + '://' + i.address + ':' + port + '/index.html';
+  }
+  return ret;
+}
+
 module.exports.getLocalIPv4Interfaces = getLocalIPv4Interfaces;
+module.exports.restApiListeningAddresses = restApiListeningAddresses;

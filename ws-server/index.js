@@ -7,7 +7,7 @@ const openWsSrv = require('./websocket-server.js');
 const lowLevel = require('./lowlevel.js');
 const net = require('net');
 const network = require('./network.js');
-
+const qr = require('qrcode');
 
 const starttime = Date.now();
 const listeningPort = 12345;
@@ -41,10 +41,7 @@ const wsSrv = openWsSrv({
 app.use(express.static('../replay-demo/dist'));
 
 app.get('/api/restApiListeningAddresses', (req, res) => {
-  const ret = network.getLocalIPv4Interfaces();
-  for (const i of ret) {
-    i.url = 'http://' + i.address + ':' + expressPort + '/index.html';
-  }
+  const ret = network.restApiListeningAddresses('http', expressPort);
   res.json(ret);
 });
 
@@ -119,6 +116,17 @@ listeningSrv.onData(d => {
 listeningSrv.onStatusChange(() => wsSrv.broadcast('# status change\n'));
 fwdConn.onStatusChange(() => wsSrv.broadcast('# status change\n'));
 
+async function generateQrCodes() {
+  var s = '\n\n\nListening REST API address(es):\n\n';
+  for(const a of network.restApiListeningAddresses('http', expressPort)) {
+    const qrstring = await qr.toString(a.url, { errorCorrectionLevel: 'H' });
+    s = s + a.name + ': ' + a.url + '\n' + qrstring + '\n\n';
+  }
+  s = s + '\n\n\n';
+  return s;
+}
 
+generateQrCodes()
+  .then(s => console.log(s));
 
 
