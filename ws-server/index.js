@@ -45,6 +45,13 @@ function dispatchMessage(message) {
   wsSrv.broadcast(message);
 }
 
+const effectsMachine = effects.createEffectsMachine({
+  send : () => {
+    const message = currentSetup.toMessage();
+    dispatchMessage(message);
+  }
+});
+
 
 app.use(express.static('../replay-demo/dist'));
 
@@ -77,50 +84,6 @@ app.post('/api/setSingleCoord', (req, res) => {
 });
 
 
-var effectInterval;
-function effectChaseOn(m) {
-  const dims = m.getDimensions();
-  var p = 0;
-  return () => {
-    const state = m.getState();
-    for (var i = 0; i < dims.size; i++) {
-      if (state[i] > 0.05) {
-        state[i] -= 0.05;
-      } else {
-        state[i] -= 0;
-      }
-    }
-    state[p] = 1.0;
-    p = (p + 1) % dims.size;
-  }
-}
-
-function effectBreatheOn(m) {
-  const dims = m.getDimensions();
-  var p = 0;
-  var d = 0.1;
-  return () => {
-    const state = m.getState();
-    p = p + d;
-    if (p >= 0.999999) {
-      p = 1.0;
-      d = -d;
-    } else if (p < 0.000001) {
-      p = 0.0;
-      d = -d;
-    }
-    for (var i = 0; i < dims.size; i++) {
-      state[i] = p;
-    }
-  }
-}
-
-function makeEffectsStop() {
-  if (effectInterval) {
-    clearInterval(effectInterval);
-    effectInterval = undefined;
-  }
-}
 
 app.post('/api/scene', (req, res) => {
   const m = req.query.m;
@@ -143,28 +106,27 @@ app.post('/api/scene', (req, res) => {
 
 app.post('/api/effect', (req, res) => {
   const e = req.query.e;
-  makeEffectsStop();
+  const m = req.query.m;
+  try {
+    var mods = currentSetup.getModulesByName(m);
 
-
-  var m1e, m2e;
-  if (e === "chase") {
-    m1e = effectChaseOn(currentSetup.modules.m1);
-    m2e = effectChaseOn(currentSetup.modules.m2);
-  } else if (e === "breathe") {
-    m1e = effectBreatheOn(currentSetup.modules.m1);
-    m2e = effectBreatheOn(currentSetup.modules.m2);
+    if (e === 'stop') {
+      for (var mod of mods) {
+        effectsMachine.stop(mod);
+      }
+    } else {
+      var effect = effects.getEffectByName(e);
+      for (var mod of mods) {
+        effectsMachine.start(mod, effect);
+      }
+    }
+    res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
   }
 
-  if (m1e || m2e) {
-    effectInterval = setInterval(() => {
-      m1e();
-      m2e();
-      const message = currentSetup.toMessage();
-      dispatchMessage(message);
-    }, 20);
-  }
 
-  res.status(200).send();
 });
 
 
@@ -221,16 +183,13 @@ app.post('/api/sendPacket', (req, res) => {
     );
 
     // console.log('sendPacket ' + message);
-    fwdConn.write(message);
-    wsSrv.broadcast(message);
+    dispatchMessage(message);
     res.status(200).send();
   } catch (e) {
     console.log(e);
     res.status(400).send(e);
   }
 });
-
-
 
 
 

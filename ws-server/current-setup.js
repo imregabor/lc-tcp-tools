@@ -87,6 +87,7 @@ function stateToPackets35(state, packets) {
 }
 
 function createMatrix(opts) {
+  const name = opts.name;
   const rows = opts.dimensions.rows;
   const cols = opts.dimensions.cols;
   const size = rows * cols;
@@ -121,12 +122,14 @@ function createMatrix(opts) {
       }
     },
     getState : () => state,
+    getName : () => name,
     getDimensions : () => { return { size : size, cols : cols, rows : rows}; }
   };
   return ret;
 }
 
 const m1 = createMatrix({
+  name : 'm1',
   dimensions : {
     cols : 24,
     rows : 1
@@ -134,6 +137,7 @@ const m1 = createMatrix({
 });
 
 const m2 = createMatrix({
+  name : 'm2',
   dimensions : {
     cols : 7,
     rows : 5
