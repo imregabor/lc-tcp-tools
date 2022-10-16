@@ -13,6 +13,19 @@ function parse(value) {
   }
 }
 
+function parseBulk10(v) {
+  const ret = [];
+  for (var i = 0; i < v.length; i++) {
+    var value = parseInt(v.charAt(i)) / 9;
+    if (! (value >= 0)) {
+      value = 0;
+    } else if (value > 1) {
+      value = 1;
+    }
+    ret.push(value);
+  }
+  return ret;
+}
 
 function singlePacketToMessage(b, a, d) {
   const bus = parse(b);
@@ -92,5 +105,6 @@ function singleDataToAllBusesAndAddresses(d) {
   return ret;
 }
 
+module.exports.parseBulk10 = parseBulk10;
 module.exports.singlePacketToMessage = singlePacketToMessage;
 module.exports.singleDataToAllBusesAndAddresses = singleDataToAllBusesAndAddresses;

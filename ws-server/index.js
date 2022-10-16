@@ -66,10 +66,27 @@ app.post('/api/setSingleCoord', (req, res) => {
     const message = currentSetup.toMessage();
     fwdConn.write(message);
     wsSrv.broadcast(message);
-
     res.status(200).send();
   }
 });
+
+app.post('/api/setBulk10', (req, res) => {
+  const m1 = req.query.m1;
+  const m2 = req.query.m2;
+
+  if (m1) {
+    currentSetup.modules.m1.setBulk(lowLevel.parseBulk10(m1));
+  }
+  if (m2) {
+    currentSetup.modules.m2.setBulk(lowLevel.parseBulk10(m2));
+  }
+
+  const message = currentSetup.toMessage();
+  fwdConn.write(message);
+  wsSrv.broadcast(message);
+  res.status(200).send();
+});
+
 
 app.get('/api/restApiListeningAddresses', (req, res) => {
   const ret = network.restApiListeningAddresses('http', expressPort);

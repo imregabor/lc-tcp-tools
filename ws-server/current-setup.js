@@ -108,7 +108,7 @@ function createMatrix(opts) {
       if (! (pos >= 0 && pos < size)) {
         return;
       }
-      if (v < 0) {
+      if (!(v >= 0)) {
         v = 0;
       } else if (v > 1) {
         v = 1;
@@ -117,7 +117,7 @@ function createMatrix(opts) {
     },
     setBulk : (v) => {
       for (var i = 0; i < v.length && i < size; i++) {
-        setSingle(i, v[i]);
+        ret.setSingle(i, v[i]);
       }
     },
     getState : () => state
