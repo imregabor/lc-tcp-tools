@@ -8,6 +8,7 @@ const lowLevel = require('./lowlevel.js');
 const net = require('net');
 const network = require('./network.js');
 const qr = require('qrcode');
+const currentSetup = require('./current-setup.js');
 
 const starttime = Date.now();
 const listeningPort = 12345;
@@ -39,6 +40,36 @@ const wsSrv = openWsSrv({
 
 
 app.use(express.static('../replay-demo/dist'));
+
+app.get('/api/currentState', (req, res) => {
+  const ret = currentSetup.toMessage();
+  res.set('Content-Type', 'text/plain').send(ret);
+});
+
+app.post('/api/setSingleCoord', (req, res) => {
+  const m = req.query.m;
+  const x = +req.query.x;
+  const y = +req.query.y;
+  const v = +req.query.v;
+  var err = '';
+  if (m === 'm1') {
+    currentSetup.modules.m1.setSingleCoord(x, y, v);
+  } else if (m === 'm2') {
+    currentSetup.modules.m2.setSingleCoord(x, y, v);
+  } else {
+    err = 'Unknown module ' + m;
+  }
+  if (err) {
+    console.log(err);
+    res.status(400).send(err);
+  } else {
+    const message = currentSetup.toMessage();
+    fwdConn.write(message);
+    wsSrv.broadcast(message);
+
+    res.status(200).send();
+  }
+});
 
 app.get('/api/restApiListeningAddresses', (req, res) => {
   const ret = network.restApiListeningAddresses('http', expressPort);
