@@ -39,6 +39,7 @@ const wsSrv = openWsSrv({
 });
 
 
+
 app.use(express.static('../replay-demo/dist'));
 
 app.get('/api/currentState', (req, res) => {
@@ -69,6 +70,107 @@ app.post('/api/setSingleCoord', (req, res) => {
     res.status(200).send();
   }
 });
+
+
+var effectInterval;
+function effectChaseOn(m) {
+  const dims = m.getDimensions();
+  var p = 0;
+  return () => {
+    const state = m.getState();
+    for (var i = 0; i < dims.size; i++) {
+      if (state[i] > 0.05) {
+        state[i] -= 0.05;
+      } else {
+        state[i] -= 0;
+      }
+    }
+    state[p] = 1.0;
+    p = (p + 1) % dims.size;
+  }
+}
+
+function effectBreatheOn(m) {
+  const dims = m.getDimensions();
+  var p = 0;
+  var d = 0.1;
+  return () => {
+    const state = m.getState();
+    p = p + d;
+    if (p >= 0.999999) {
+      p = 1.0;
+      d = -d;
+    } else if (p < 0.000001) {
+      p = 0.0;
+      d = -d;
+    }
+    for (var i = 0; i < dims.size; i++) {
+      state[i] = p;
+    }
+  }
+}
+
+function makeEffectsStop() {
+  if (effectInterval) {
+    clearInterval(effectInterval);
+    effectInterval = undefined;
+  }
+}
+
+app.post('/api/scene', (req, res) => {
+  const m = req.query.m;
+  const s = req.query.s;
+
+  var mod;
+  if (m === 'm1') {
+    mod = currentSetup.modules.m1;
+  } else if (m === 'm2') {
+    mod = currentSetup.modules.m2;
+  } else {
+    res.status(400).send('Unknown module ' + m);
+    return;
+  }
+
+  if (m && (s === 'on' || s === 'off')) {
+    const v = (s === 'on') ? 1.0 : 0.0;
+    mod.getState().fill(v);
+    const message = currentSetup.toMessage();
+    fwdConn.write(message);
+    wsSrv.broadcast(message);
+    res.status(200).send();
+  } else {
+    res.status(400).send('Unknown scene ' + s);
+  }
+
+});
+
+app.post('/api/effect', (req, res) => {
+  const e = req.query.e;
+  makeEffectsStop();
+
+
+  var m1e, m2e;
+  if (e === "chase") {
+    m1e = effectChaseOn(currentSetup.modules.m1);
+    m2e = effectChaseOn(currentSetup.modules.m2);
+  } else if (e === "breathe") {
+    m1e = effectBreatheOn(currentSetup.modules.m1);
+    m2e = effectBreatheOn(currentSetup.modules.m2);
+  }
+
+  if (m1e || m2e) {
+    effectInterval = setInterval(() => {
+      m1e();
+      m2e();
+      const message = currentSetup.toMessage();
+      fwdConn.write(message);
+      wsSrv.broadcast(message);
+    }, 20);
+  }
+
+  res.status(200).send();
+});
+
 
 app.post('/api/setBulk10', (req, res) => {
   const m1 = req.query.m1;

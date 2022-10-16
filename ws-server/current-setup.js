@@ -120,7 +120,8 @@ function createMatrix(opts) {
         ret.setSingle(i, v[i]);
       }
     },
-    getState : () => state
+    getState : () => state,
+    getDimensions : () => { return { size : size, cols : cols, rows : rows}; }
   };
   return ret;
 }
