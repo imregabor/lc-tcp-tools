@@ -160,6 +160,19 @@ function toMessage() {
   return msg;
 }
 
+function getModulesByName(name) {
+  if (name === 'm1') {
+    return [ m1 ];
+  } else if (name === 'm2') {
+    return [ m2 ];
+  } else if (name === 'all') {
+    return [ m1, m2 ];
+  } else {
+    throw "Unknown module name " + name;
+  }
+}
+
+module.exports.getModulesByName = getModulesByName;
 module.exports.toMessage = toMessage;
 module.exports.modules = {
   m1 : m1,

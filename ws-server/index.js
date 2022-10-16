@@ -9,6 +9,7 @@ const net = require('net');
 const network = require('./network.js');
 const qr = require('qrcode');
 const currentSetup = require('./current-setup.js');
+const effects = require('./effects.js');
 
 const starttime = Date.now();
 const listeningPort = 12345;
@@ -39,6 +40,11 @@ const wsSrv = openWsSrv({
 });
 
 
+function dispatchMessage(message) {
+  fwdConn.write(message);
+  wsSrv.broadcast(message);
+}
+
 
 app.use(express.static('../replay-demo/dist'));
 
@@ -65,8 +71,7 @@ app.post('/api/setSingleCoord', (req, res) => {
     res.status(400).send(err);
   } else {
     const message = currentSetup.toMessage();
-    fwdConn.write(message);
-    wsSrv.broadcast(message);
+    dispatchMessage(message);
     res.status(200).send();
   }
 });
@@ -121,27 +126,19 @@ app.post('/api/scene', (req, res) => {
   const m = req.query.m;
   const s = req.query.s;
 
-  var mod;
-  if (m === 'm1') {
-    mod = currentSetup.modules.m1;
-  } else if (m === 'm2') {
-    mod = currentSetup.modules.m2;
-  } else {
-    res.status(400).send('Unknown module ' + m);
-    return;
-  }
-
-  if (m && (s === 'on' || s === 'off')) {
-    const v = (s === 'on') ? 1.0 : 0.0;
-    mod.getState().fill(v);
+  try {
+    var mods = currentSetup.getModulesByName(m);
+    var scene = effects.getSceneByName(s);
+    for (var mod of mods) {
+      scene(mod);
+    }
     const message = currentSetup.toMessage();
-    fwdConn.write(message);
-    wsSrv.broadcast(message);
+    dispatchMessage(message);
     res.status(200).send();
-  } else {
-    res.status(400).send('Unknown scene ' + s);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
   }
-
 });
 
 app.post('/api/effect', (req, res) => {
@@ -163,8 +160,7 @@ app.post('/api/effect', (req, res) => {
       m1e();
       m2e();
       const message = currentSetup.toMessage();
-      fwdConn.write(message);
-      wsSrv.broadcast(message);
+      dispatchMessage(message);
     }, 20);
   }
 
@@ -184,8 +180,7 @@ app.post('/api/setBulk10', (req, res) => {
   }
 
   const message = currentSetup.toMessage();
-  fwdConn.write(message);
-  wsSrv.broadcast(message);
+  dispatchMessage(message);
   res.status(200).send();
 });
 
