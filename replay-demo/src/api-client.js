@@ -19,6 +19,21 @@ export function sendBulk10(module, bulk10) {
   }).then(() => {}, () => {});
 }
 
+export function sendScene(module, scene) {
+  // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
+  d3.text('/api/scene?m=' + module + '&s=' + scene, {
+    method : 'POST'
+  }).then(() => {}, () => {});
+}
+
+export function sendEffect(module, effect) {
+  // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
+  d3.text('/api/effect?m=' + module + '&e=' + effect, {
+    method : 'POST'
+  }).then(() => {}, () => {});
+}
+
+
 export function sendSinglePacket(packet) {
   // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
   d3.text('/api/sendPacket?bus=' + packet.bus + '&address=' + packet.addr + '&data=' + packet.value, {

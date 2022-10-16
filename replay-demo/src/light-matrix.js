@@ -392,6 +392,43 @@ export function addMatrix(parentD3, opts) {
 
   controls.addSep();
 
+  controls.addButton('fa-solid fa-toggle-off')
+      .title('Set scene OFF')
+      .onClick(() => {
+        opts.sendEffect('stop');
+        opts.sendScene('off');
+      });
+  controls.addButton('fa-solid fa-toggle-on')
+      .title('Set scene ON')
+      .onClick(() => {
+        opts.sendEffect('stop');
+        opts.sendScene('on');
+      });
+
+
+  controls.addSep();
+
+  controls.addButton('fa-regular fa-sun')
+      .title('Set BREATHE effect')
+      .onClick(() => {
+        opts.sendEffect('breathe');
+      });
+
+  controls.addButton('fa-solid fa-signal')
+      .title('Set CHASE effect')
+      .onClick(() => {
+        opts.sendEffect('chase');
+      });
+
+  controls.addButton('fa-solid fa-car')
+      .title('Set RIDER effect')
+      .onClick(() => {
+        opts.sendEffect('rider');
+      });
+
+
+  controls.addSep();
+
   var lighupOnHover = false;
   var offTimeout = undefined;
   var updateTimeout = undefined;

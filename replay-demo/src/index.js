@@ -273,6 +273,12 @@ function initPage() {
     },
     sendBulk10 : bulk10 => {
       apiClient.sendBulk10('m1', bulk10);
+    },
+    sendEffect : e => {
+      apiClient.sendEffect('m1', e);
+    },
+    sendScene : s => {
+      apiClient.sendScene('m1', s);
     }
   })
     .call(m => { setLabelsOnMatrix(m, setup.linear24); return m; })
@@ -292,6 +298,12 @@ function initPage() {
     },
     sendBulk10 : bulk10 => {
       apiClient.sendBulk10('m2', bulk10);
+    },
+    sendEffect : e => {
+      apiClient.sendEffect('m2', e);
+    },
+    sendScene : s => {
+      apiClient.sendScene('m2', s);
     }
   })
     .call(m => { setLabelsOnMatrix(m, setup.matrix35); return m; })
