@@ -179,6 +179,27 @@ function sendHighlightUpdates(dots, sendSingle) {
   }
 }
 
+function sendHighlightUpdatesBulk(dots, sendBulk10) {
+  var bulk = '';
+  var sentAnything = false;
+  for (var dot of dots) {
+    if (dot.toHighlight) {
+      sentAnything = sentAnything || (dot.lastHighlightSent != 1);
+      dot.lastHighlightSent = 1;
+      bulk = bulk + '9';
+    } else if (dot.lastHighlightSent >= 0.1) {
+      dot.lastHighlightSent = dot.lastHighlightSent - 0.1;
+      bulk = bulk + Math.round(dot.lastHighlightSent * 9);
+      sentAnything = true;
+    } else {
+      dot.lastHighlightSent = 0;
+      bulk = bulk + '0';
+    }
+  }
+  sendBulk10(bulk);
+  return sentAnything;
+}
+
 function setLayout(cnt, layout, doTransition) {
   var labels;
   if (doTransition) {
@@ -373,6 +394,7 @@ export function addMatrix(parentD3, opts) {
 
   var lighupOnHover = false;
   var offTimeout = undefined;
+  var updateTimeout = undefined;
   const lightupIcon = controls.addToggle('fa-regular fa-lightbulb', 'fa-solid fa-lightbulb')
     .title('Light up on hover')
     .toggleClassOn(cnt, 'highlighting')
@@ -420,6 +442,15 @@ export function addMatrix(parentD3, opts) {
 
   setLayout(cnt, layout);
 
+  function pingUpdate() {
+
+    updateTimeout = undefined;
+    const updatedAnything = sendHighlightUpdatesBulk(dots, opts.sendBulk10);
+    if (updatedAnything) {
+      updateTimeout = setTimeout(pingUpdate, 50);
+    }
+  }
+
   function highlightEnter(e, d) {
     if (!lighupOnHover) {
       return;
@@ -432,7 +463,9 @@ export function addMatrix(parentD3, opts) {
     }
 
     // d3.select(e.target).classed('mark', true);
-    if (opts.hover) {
+    if (opts.sendBulk10) {
+      if (!updateTimeout) { pingUpdate(); }
+    } else if (opts.hover) {
       // opts.hover(d.x, d.y, 1.0);
       sendHighlightUpdates(dots, opts.hover);
     }
@@ -451,8 +484,9 @@ export function addMatrix(parentD3, opts) {
       bindHighlight(dotOuterDivs);
 
       // d3.select(e.target).classed('mark', false);
-
-      if (opts.hover) {
+      if (opts.sendBulk10) {
+        if (!updateTimeout) { pingUpdate(); }
+      } else if (opts.hover) {
         // opts.hover(d.x, d.y, 0.0);
         sendHighlightUpdates(dots, opts.hover);
       }

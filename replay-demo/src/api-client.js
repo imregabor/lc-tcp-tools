@@ -12,6 +12,13 @@ export function getStatusInfo(result, error) {
     .then(result, error);
 }
 
+export function sendBulk10(module, bulk10) {
+  // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
+  d3.text('/api/setBulk10?' + module + '=' + bulk10, {
+    method : 'POST'
+  }).then(() => {}, () => {});
+}
+
 export function sendSinglePacket(packet) {
   // see https://bitcoden.com/answers/send-post-request-in-d3-with-d3-fetch
   d3.text('/api/sendPacket?bus=' + packet.bus + '&address=' + packet.addr + '&data=' + packet.value, {

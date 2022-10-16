@@ -270,8 +270,11 @@ function initPage() {
     // padh: 0.2,
     hover : (x, y, v) => {
       apiClient.sendSinglePacket(setup.linear24.toWire(x, y, v));
+    },
+    sendBulk10 : bulk10 => {
+      apiClient.sendBulk10('m1', bulk10);
     }
-  } )
+  })
     .call(m => { setLabelsOnMatrix(m, setup.linear24); return m; })
     ;
 
@@ -286,7 +289,11 @@ function initPage() {
     rows: 5,
     hover : (x, y, v) => {
       apiClient.sendSinglePacket(setup.matrix35.toWire(x, y, v));
-    }})
+    },
+    sendBulk10 : bulk10 => {
+      apiClient.sendBulk10('m2', bulk10);
+    }
+  })
     .call(m => { setLabelsOnMatrix(m, setup.matrix35); return m; })
 
     ;
