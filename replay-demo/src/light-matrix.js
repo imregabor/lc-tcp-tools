@@ -119,7 +119,7 @@ function removeHighlight(dots) {
   }
 }
 
-function setHighlight(dots, toggles, x, y) {
+function setHighlight(dots, toggles, x, y, append) {
   const b_u = toggles.blockUp.isOn();
   const b_d = toggles.blockDown.isOn();
   const b_l = toggles.blockLeft.isOn();
@@ -153,7 +153,7 @@ function setHighlight(dots, toggles, x, y) {
       s = b_r || b_d;
     }
 
-    dot.toHighlight = s;
+    dot.toHighlight = append ? (dot.toHighlight || s) : s;
   }
 }
 
@@ -187,6 +187,7 @@ function sendHighlightUpdatesBulk(dots, sendBulk10) {
       sentAnything = sentAnything || (dot.lastHighlightSent != 1);
       dot.lastHighlightSent = 1;
       bulk = bulk + '9';
+      dot.toHighlight = false;
     } else if (dot.lastHighlightSent >= 0.1) {
       dot.lastHighlightSent = dot.lastHighlightSent - 0.1;
       bulk = bulk + Math.round(dot.lastHighlightSent * 9);
@@ -432,6 +433,8 @@ export function addMatrix(parentD3, opts) {
   var lighupOnHover = false;
   var offTimeout = undefined;
   var updateTimeout = undefined;
+  var lastHoverPosition;
+
   const lightupIcon = controls.addToggle('fa-regular fa-lightbulb', 'fa-solid fa-lightbulb')
     .title('Light up on hover')
     .toggleClassOn(cnt, 'highlighting')
@@ -492,7 +495,25 @@ export function addMatrix(parentD3, opts) {
     if (!lighupOnHover) {
       return;
     }
-    setHighlight(dots, hoverToggles, d.rx, d.ry);
+
+    setHighlight(dots, hoverToggles, d.rx, d.ry, true);
+    if (lastHoverPosition) {
+      const deltaX = d.rx - lastHoverPosition.x;
+      const deltaY = d.ry - lastHoverPosition.y;
+      if ((Math.abs(deltaX) > 1) || (Math.abs(deltaY) > 1)) {
+        // lets interpolate
+        const l = (Math.abs(deltaX) + Math.abs(deltaY)) * 2;
+        for (var i = 0; i <= l; i++) {
+          const ix = Math.round(lastHoverPosition.x + deltaX * i / l);
+          const iy = Math.round(lastHoverPosition.y + deltaY * i / l);
+          setHighlight(dots, hoverToggles, ix, iy, true);
+        }
+
+      }
+    }
+
+    lastHoverPosition = { x: d.rx, y: d.ry };
+
     bindHighlight(dotOuterDivs);
     if (offTimeout) {
       clearTimeout(offTimeout);
@@ -519,6 +540,7 @@ export function addMatrix(parentD3, opts) {
     offTimeout = setTimeout(() => {
       removeHighlight(dots);
       bindHighlight(dotOuterDivs);
+      lastHoverPosition = undefined;
 
       // d3.select(e.target).classed('mark', false);
       if (opts.sendBulk10) {
