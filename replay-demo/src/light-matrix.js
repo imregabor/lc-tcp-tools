@@ -116,10 +116,11 @@ function addControls(containerDivD3) {
 function removeHighlight(dots) {
   for (var dot of dots) {
     dot.toHighlight = false;
+    dot.stayHighlightOn = false;
   }
 }
 
-function setHighlight(dots, toggles, x, y, append) {
+function setHighlight(dots, toggles, x, y, stayOn) {
   const b_u = toggles.blockUp.isOn();
   const b_d = toggles.blockDown.isOn();
   const b_l = toggles.blockLeft.isOn();
@@ -153,12 +154,13 @@ function setHighlight(dots, toggles, x, y, append) {
       s = b_r || b_d;
     }
 
-    dot.toHighlight = append ? (dot.toHighlight || s) : s;
+    dot.toHighlight = dot.toHighlight || s;
+    dot.stayHighlightOn = stayOn && s;
   }
 }
 
 function bindHighlight(sel) {
-  sel.classed('mark', d => d.toHighlight);
+  sel.classed('mark', d => d.stayHighlightOn);
 }
 
 function sendHighlightUpdates(dots, sendSingle) {
@@ -187,7 +189,7 @@ function sendHighlightUpdatesBulk(dots, sendBulk10) {
       sentAnything = sentAnything || (dot.lastHighlightSent != 1);
       dot.lastHighlightSent = 1;
       bulk = bulk + '9';
-      dot.toHighlight = false;
+      dot.toHighlight = dot.stayHighlightOn;
     } else if (dot.lastHighlightSent >= 0.1) {
       dot.lastHighlightSent = dot.lastHighlightSent - 0.1;
       bulk = bulk + Math.round(dot.lastHighlightSent * 9);
@@ -506,7 +508,7 @@ export function addMatrix(parentD3, opts) {
         for (var i = 0; i <= l; i++) {
           const ix = Math.round(lastHoverPosition.x + deltaX * i / l);
           const iy = Math.round(lastHoverPosition.y + deltaY * i / l);
-          setHighlight(dots, hoverToggles, ix, iy, true);
+          setHighlight(dots, hoverToggles, ix, iy, false);
         }
 
       }
