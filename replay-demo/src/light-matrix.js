@@ -401,6 +401,12 @@ export function addMatrix(parentD3, opts) {
         opts.sendEffect('stop');
         opts.sendScene('off');
       });
+  controls.addButton('fa-solid fa-arrow-up-right-dots')
+      .title('Set scene GRADIENT')
+      .onClick(() => {
+        opts.sendEffect('stop');
+        opts.sendScene('gradient');
+      });
   controls.addButton('fa-solid fa-toggle-on')
       .title('Set scene ON')
       .onClick(() => {

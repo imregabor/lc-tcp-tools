@@ -8,6 +8,14 @@ function off(matrix) {
   matrix.getState().fill(0.0);
 }
 
+function gradient(matrix) {
+  const state = matrix.getState();
+  for (var i = 0; i < state.length; i++) {
+    state[i] = i / (state.length - 1);
+  }
+}
+
+
 function effectChaseOn(m) {
   const dims = m.getDimensions();
   var p = 0;
@@ -94,6 +102,8 @@ function getSceneByName(name) {
     return on;
   } else if (name === 'off') {
     return off;
+  } else if (name === 'gradient') {
+    return gradient;
   } else {
     throw "Unknown scene name " + name;
   }
@@ -151,7 +161,8 @@ module.exports.getSceneByName = getSceneByName;
 module.exports.getEffectByName = getEffectByName;
 module.exports.scenes = {
   on : on,
-  off : off
+  off : off,
+  gradient : gradient
 }
 module.exports.effects = {
   chase : effectChaseOn,
