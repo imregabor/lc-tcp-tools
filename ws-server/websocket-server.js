@@ -4,6 +4,7 @@ const ws = require('ws');
 
 function open(opts) {
   const log = opts.log ? opts.log : console.log;
+  const messageOnNewConnection = opts.messageOnNewConnection;
 
   // const wss = new ws.Server({ port: 8080 });
   // see https://masteringjs.io/tutorials/express/websockets
@@ -37,7 +38,9 @@ function open(opts) {
       delete activeConnections[connectionId];
     });
 
-    //ws.send('something');
+    if (messageOnNewConnection) {
+      ws.send(messageOnNewConnection());
+    }
   });
 
 

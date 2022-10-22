@@ -36,7 +36,8 @@ const listeningSrv = openListeningSrv({
 });
 
 const wsSrv = openWsSrv({
-  log : m => console.log('[WS srv] ', m)
+  log : m => console.log('[WS srv] ', m),
+  messageOnNewConnection : () => currentSetup.toMessage()
 });
 
 
