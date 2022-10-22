@@ -146,6 +146,39 @@ app.post('/api/setBulk10', (req, res) => {
   res.status(200).send();
 });
 
+app.post('/api/setBulk100', (req, res) => {
+  const m1 = req.query.m1;
+  const m2 = req.query.m2;
+
+  if (m1) {
+    currentSetup.modules.m1.setBulk(lowLevel.parseBulk100(m1));
+  }
+  if (m2) {
+    currentSetup.modules.m2.setBulk(lowLevel.parseBulk100(m2));
+  }
+
+  const message = currentSetup.toMessage();
+  dispatchMessage(message);
+  res.status(200).send();
+});
+
+app.post('/api/setBulkFF', (req, res) => {
+  const m1 = req.query.m1;
+  const m2 = req.query.m2;
+
+  if (m1) {
+    currentSetup.modules.m1.setBulk(lowLevel.parseBulkFF(m1));
+  }
+  if (m2) {
+    currentSetup.modules.m2.setBulk(lowLevel.parseBulkFF(m2));
+  }
+
+  const message = currentSetup.toMessage();
+  dispatchMessage(message);
+  res.status(200).send();
+});
+
+
 
 app.get('/api/restApiListeningAddresses', (req, res) => {
   const ret = network.restApiListeningAddresses('http', expressPort);

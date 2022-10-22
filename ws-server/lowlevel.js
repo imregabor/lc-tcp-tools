@@ -27,6 +27,34 @@ function parseBulk10(v) {
   return ret;
 }
 
+function parseBulk100(v) {
+  const ret = [];
+  for (var i = 0; i < v.length - 1; i+=2) {
+    var value = parseInt(v.substring(i, i + 2)) / 99;
+    if (! (value >= 0)) {
+      value = 0;
+    } else if (value > 1) {
+      value = 1;
+    }
+    ret.push(value);
+  }
+  return ret;
+}
+
+function parseBulkFF(v) {
+  const ret = [];
+  for (var i = 0; i < v.length - 1; i+=2) {
+    var value = parseInt(v.substring(i, i + 2), 16) / 0xFF;
+    if (! (value >= 0)) {
+      value = 0;
+    } else if (value > 1) {
+      value = 1;
+    }
+    ret.push(value);
+  }
+  return ret;
+}
+
 function singlePacketToMessage(b, a, d) {
   const bus = parse(b);
   const address = parse(a);
@@ -106,5 +134,7 @@ function singleDataToAllBusesAndAddresses(d) {
 }
 
 module.exports.parseBulk10 = parseBulk10;
+module.exports.parseBulk100 = parseBulk100;
+module.exports.parseBulkFF = parseBulkFF;
 module.exports.singlePacketToMessage = singlePacketToMessage;
 module.exports.singleDataToAllBusesAndAddresses = singleDataToAllBusesAndAddresses;
