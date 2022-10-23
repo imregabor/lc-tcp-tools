@@ -361,6 +361,18 @@ function initPage() {
     },
     onStatusChange : () => {
       pingStatusInfo();
+    },
+    onJson : d => {
+      if (d.e === 'scene' && d.v) {
+        for (var m of d.m) {
+          if (m === 'm1') {
+            m1.flashSceneButton(d.v);
+          } else if (m === 'm2') {
+            m2.flashSceneButton(d.v);
+          }
+
+        }
+      }
     }
   });
 

@@ -96,14 +96,29 @@ function getEffectByName(name) {
   }
 }
 
+const scenes = {
+  on : {
+    apply : on,
+    id : 'on'
+  },
+  off : {
+    apply : off,
+    id : 'off'
+  },
+  gradient : {
+    apply : gradient,
+    id : 'gradient'
+  }
+}
+
 
 function getSceneByName(name) {
   if (name === 'on') {
-    return on;
+    return scenes.on;
   } else if (name === 'off') {
-    return off;
+    return scenes.off;
   } else if (name === 'gradient') {
-    return gradient;
+    return scenes.gradient;
   } else {
     throw "Unknown scene name " + name;
   }
@@ -159,11 +174,7 @@ function createEffectsMachine(opts) {
 module.exports.createEffectsMachine = createEffectsMachine;
 module.exports.getSceneByName = getSceneByName;
 module.exports.getEffectByName = getEffectByName;
-module.exports.scenes = {
-  on : on,
-  off : off,
-  gradient : gradient
-}
+module.exports.scenes = scenes;
 module.exports.effects = {
   chase : effectChaseOn,
   rider : effectRiderOn,

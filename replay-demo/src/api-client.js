@@ -70,6 +70,10 @@ export function openWsLink(opts) {
         if (opts.onStatusChange) {
           opts.onStatusChange();
         };
+      } else if (s.startsWith('{')) {
+        if (opts.onJson) {
+          opts.onJson(JSON.parse(s));
+        }
       }
     }
     if (packets.length > 0) {

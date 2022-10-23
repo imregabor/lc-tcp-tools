@@ -34,6 +34,12 @@ function addButton(parentD3, faClass) {
     onClick : callback => {
       icon.on('click', callback);
       return ret;
+    },
+    flash : () => {
+      icon.classed('button-flash', true);
+      setTimeout(() => {
+        icon.classed('button-flash', false);
+      }, 100);
     }
   };
   return ret;
@@ -395,19 +401,19 @@ export function addMatrix(parentD3, opts) {
 
   controls.addSep();
 
-  controls.addButton('fa-solid fa-toggle-off')
+  const sceneOffButton = controls.addButton('fa-solid fa-toggle-off')
       .title('Set scene OFF')
       .onClick(() => {
         opts.sendEffect('stop');
         opts.sendScene('off');
       });
-  controls.addButton('fa-solid fa-arrow-up-right-dots')
+  const sceneGradientButton = controls.addButton('fa-solid fa-arrow-up-right-dots')
       .title('Set scene GRADIENT')
       .onClick(() => {
         opts.sendEffect('stop');
         opts.sendScene('gradient');
       });
-  controls.addButton('fa-solid fa-toggle-on')
+  const sceneOnButton = controls.addButton('fa-solid fa-toggle-on')
       .title('Set scene ON')
       .onClick(() => {
         opts.sendEffect('stop');
@@ -609,6 +615,15 @@ export function addMatrix(parentD3, opts) {
     },
     render : function() {
       render();
+    },
+    flashSceneButton : s => {
+      if (s === 'off') {
+        sceneOffButton.flash();
+      } else if (s === 'gradient') {
+        sceneGradientButton.flash();
+      } else if (s === 'on') {
+        sceneOnButton.flash();
+      }
     },
     cols: () => opts.cols,
     rows: () => opts.rows

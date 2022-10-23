@@ -94,10 +94,11 @@ app.post('/api/scene', (req, res) => {
     var mods = currentSetup.getModulesByName(m);
     var scene = effects.getSceneByName(s);
     for (var mod of mods) {
-      scene(mod);
+      scene.apply(mod);
     }
     const message = currentSetup.toMessage();
     dispatchMessage(message);
+    wsSrv.broadcastJson({ e : 'scene', m : mods.map(m => m.getName()), v : scene.id });
     res.status(200).send();
   } catch (e) {
     console.log(e);

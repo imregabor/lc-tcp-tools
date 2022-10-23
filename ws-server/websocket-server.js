@@ -83,6 +83,10 @@ function open(opts) {
         activeConnections[ci].messageCount++;
         activeConnections[ci].socket.send(message);
       }
+    },
+    broadcastJson : json => {
+      const message = JSON.stringify(json);
+      ret.broadcast(message);
     }
   };
   return ret;

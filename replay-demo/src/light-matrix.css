@@ -73,11 +73,26 @@ div.matrix-container .controls:hover i {
 }
 
 div.matrix-container .controls i {
+  display: inline-block;
+  z-index: 2000;
   color:  #808080;
   cursor: pointer;
   margin-right: 0.5em;
   opacity: 0.5;
+  outline: 0px solid rgba(1, 1, 1, 0);
+  border-radius : 10px;
+  background-color: 0px solid rgba(1, 1, 1, 0);
+
+  transition: outline-width 0.1s, background-color 0.1s, outline-color 0.1s;
 }
+
+div.matrix-container .controls i.button-flash {
+  background-color: white;
+  border-color: white;
+  border-radius : 10px;
+  outline: 10px solid white;
+}
+
 
 
 div.matrix-container .controls i:not(.hide-icon):hover {
