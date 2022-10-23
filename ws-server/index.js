@@ -35,16 +35,6 @@ const listeningSrv = openListeningSrv({
   log : m => console.log('[LST srv]', m)
 });
 
-const wsSrv = openWsSrv({
-  log : m => console.log('[WS srv] ', m),
-  messageOnNewConnection : () => currentSetup.toMessage()
-});
-
-
-function dispatchMessage(message) {
-  fwdConn.write(message);
-  wsSrv.broadcast(message);
-}
 
 const effectsMachine = effects.createEffectsMachine({
   send : () => {
@@ -52,6 +42,28 @@ const effectsMachine = effects.createEffectsMachine({
     dispatchMessage(message);
   }
 });
+
+const wsSrv = openWsSrv({
+  log : m => console.log('[WS srv] ', m),
+  messagesOnNewConnection : () => {
+    const m = [];
+    m.push(currentSetup.toMessage());
+    const activeEffects = effectsMachine.getActiveEffects();
+    for (const e of activeEffects) {
+      e.e = 'effect';
+      e.m = [ e.m ];
+      m.push(e);
+    }
+
+    return m;
+  }
+});
+
+
+function dispatchMessage(message) {
+  fwdConn.write(message);
+  wsSrv.broadcast(message);
+}
 
 
 app.use(express.static('../replay-demo/dist'));
@@ -116,11 +128,13 @@ app.post('/api/effect', (req, res) => {
       for (var mod of mods) {
         effectsMachine.stop(mod);
       }
+      wsSrv.broadcastJson({ e : 'effect', m : mods.map(m => m.getName()), v : e });
     } else {
       var effect = effects.getEffectByName(e);
       for (var mod of mods) {
         effectsMachine.start(mod, effect);
       }
+      wsSrv.broadcastJson({ e : 'effect', m : mods.map(m => m.getName()), v : e });
     }
     res.status(200).send();
   } catch (e) {

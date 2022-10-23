@@ -24,7 +24,9 @@ import * as d3 from 'd3';
 
  */
 
-function addButton(parentD3, faClass) {
+ // Button toggle state is coordinated externally, typically through server state
+
+ function addButton(parentD3, faClass) {
   const icon = parentD3.append('i').classed('fa', true).classed(faClass, true);
   const ret = {
     title : title => {
@@ -40,7 +42,17 @@ function addButton(parentD3, faClass) {
       setTimeout(() => {
         icon.classed('button-flash', false);
       }, 100);
+    },
+    on : () => icon.classed('on', true),
+    off : () => icon.classed('on', false),
+    isOn : () => icon.classed('on'),
+    setTo : (toOn, flashOnChange) => {
+      if (ret.isOn() !== !!toOn) {
+        ret.flash();
+      }
+      toOn ? ret.on() : ret.off();
     }
+
   };
   return ret;
 }
@@ -423,19 +435,19 @@ export function addMatrix(parentD3, opts) {
 
   controls.addSep();
 
-  controls.addButton('fa-regular fa-sun')
+  const effectBreatheButton = controls.addButton('fa-regular fa-sun')
       .title('Set BREATHE effect')
       .onClick(() => {
         opts.sendEffect('breathe');
       });
 
-  controls.addButton('fa-solid fa-signal')
+  const effectChaseButton = controls.addButton('fa-solid fa-signal')
       .title('Set CHASE effect')
       .onClick(() => {
         opts.sendEffect('chase');
       });
 
-  controls.addButton('fa-solid fa-car')
+  const effectRiderButton = controls.addButton('fa-solid fa-car')
       .title('Set RIDER effect')
       .onClick(() => {
         opts.sendEffect('rider');
@@ -624,6 +636,11 @@ export function addMatrix(parentD3, opts) {
       } else if (s === 'on') {
         sceneOnButton.flash();
       }
+    },
+    setEffectButton : s => {
+      effectChaseButton.setTo(s === 'chase', true);
+      effectRiderButton.setTo(s === 'rider', true);
+      effectBreatheButton.setTo(s === 'breathe', true);
     },
     cols: () => opts.cols,
     rows: () => opts.rows

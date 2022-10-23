@@ -4,7 +4,7 @@ const ws = require('ws');
 
 function open(opts) {
   const log = opts.log ? opts.log : console.log;
-  const messageOnNewConnection = opts.messageOnNewConnection;
+  const messagesOnNewConnection = opts.messagesOnNewConnection;
 
   // const wss = new ws.Server({ port: 8080 });
   // see https://masteringjs.io/tutorials/express/websockets
@@ -38,8 +38,16 @@ function open(opts) {
       delete activeConnections[connectionId];
     });
 
-    if (messageOnNewConnection) {
-      ws.send(messageOnNewConnection());
+    if (messagesOnNewConnection) {
+      const messagesToSend = messagesOnNewConnection();
+      for (const m of messagesToSend) {
+        // see https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
+        if (typeof m === 'string' || m instanceof String) {
+          ws.send(m);
+        } else {
+          ws.send(JSON.stringify(m));
+        }
+      }
     }
   });
 

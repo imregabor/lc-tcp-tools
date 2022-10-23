@@ -370,7 +370,15 @@ function initPage() {
           } else if (m === 'm2') {
             m2.flashSceneButton(d.v);
           }
-
+        }
+      }
+      if (d.e === 'effect' && d.v) {
+        for (var m of d.m) {
+          if (m === 'm1') {
+            m1.setEffectButton(d.v);
+          } else if (m === 'm2') {
+            m2.setEffectButton(d.v);
+          }
         }
       }
     }

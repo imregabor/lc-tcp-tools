@@ -31,7 +31,8 @@ function effectChaseOn(m) {
       }
       state[p] = 1.0;
       p = (p + 1) % dims.size;
-    }
+    },
+    getId : () => 'chase'
   };
 }
 
@@ -56,7 +57,8 @@ function effectRiderOn(m) {
         fwd = true;
       }
       p+= fwd ? 1 : -1;
-    }
+    },
+    getId : () => 'rider'
   };
 }
 
@@ -79,7 +81,8 @@ function effectBreatheOn(m) {
       for (var i = 0; i < dims.size; i++) {
         state[i] = p;
       }
-    }
+    },
+    getId : () => 'breathe'
   }
 }
 
@@ -167,7 +170,21 @@ function createEffectsMachine(opts) {
 
   return {
     start : (module, effect) => startEffect(module, effect),
-    stop : module => stopEffect(module)
+    stop : module => stopEffect(module),
+    getActiveEffects : () => {
+      const ret = [];
+      for (const e in runningEffects) {
+        if (!runningEffects.hasOwnProperty(e)) {
+          continue;
+        }
+        const effect = runningEffects[e];
+        if (!effect) {
+          continue;
+        }
+        ret.push({ m : e, v : effect.getId() });
+      }
+      return ret;
+    }
   };
 }
 
