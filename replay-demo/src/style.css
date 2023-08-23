@@ -22,6 +22,19 @@ div.fps div.counter-group.hidden {
 }
 
 
+div.fps a.modelink {
+	margin-right: 1em;
+	color:  #b0b0b0;
+}
+
+div.fps a.modelink:hover {
+	color:  #000000;
+}
+
+div.fps a.modelink:active {
+	color:  #a3dca3
+}
+
 
 div.fps .label {
 	margin-right: 0.5em;

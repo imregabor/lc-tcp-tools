@@ -1,0 +1,82 @@
+div.ul-ctrl {
+  position: absolute;
+  left: 20px;
+  top:  20px;
+  padding: 10px;
+  border-radius: 5px;
+  border:  1px solid rgba(255,255,255,0.4);
+  background-color: rgba(255,255,255,0.3);
+}
+
+div.ll-ctrl {
+  position: absolute;
+  left: 20px;
+  bottom:  20px;
+  padding: 10px;
+  border-radius: 5px;
+  /* border:  1px solid rgba(255,255,255,0.4); */
+  background-color: rgba(255,255,255,0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+div.ll-ctrl-row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 10px;
+}
+
+div.ll-ctrl-c1 {
+  width: 6em;
+  line-height: 1.6em;
+}
+
+div.ll-ctrl-c2 {
+  color: white;
+}
+
+div.keyhelp {
+  background-color: #666;
+  border:  1px solid #aaa;
+  width: 1.5em;
+  height: 1.5em;
+  /* padding:  0.5em; */
+  border-radius: 5px;
+  text-align: center;
+  font-family: monospace;
+  color:  white;
+  display: inline-block;
+  margin-right: 0.5em;
+  line-height: 1.5em;
+}
+div.keyhelp.m {
+  margin-left: calc(2.1em + 2px);
+}
+
+div.keyhelp i {
+  font-size: 80%;
+}
+
+div.keyhelp.w {
+  width:  3em;
+}
+
+
+div.ul-ctrl:hover {
+  background-color: rgba(255,255,255,0.8);
+  border:  1px solid rgba(255,255,255,1.0);
+}
+
+a.modelink {
+  color:  #b0b0b0;
+  text-decoration: none;
+}
+
+a.modelink:hover {
+  color:  #000000;
+}
+
+a.modelink:active {
+  color:  #a3dca3
+}
+

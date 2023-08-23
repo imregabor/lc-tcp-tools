@@ -1,0 +1,60 @@
+body {
+  margin: 0;
+}
+
+div.scene {
+  /* border: 1px solid black; */
+  width:  1600px;
+  height: 1200px;
+  overflow: hidden;
+  /* transform-style: preserve-3d; */
+
+}
+
+div.scene-container {
+  /* https://developer.mozilla.org/en-US/docs/Web/CSS/transform-style */
+  /* transform-style: preserve-3d; */
+  transform-style: preserve-3d;
+  perspective: 1500px;
+  width: 0;
+  height: 0;
+}
+
+div.scene-container2 {
+  /* https://developer.mozilla.org/en-US/docs/Web/CSS/transform-style */
+  transform-style: preserve-3d;
+  width: 0;
+  height: 0;
+}
+
+div.model-container {
+  position: absolute;
+  transform-style: preserve-3d;
+
+  width: 0;
+  height: 0;
+}
+
+div.matrix35-container {
+  position: absolute;
+  transform-style: preserve-3d;
+
+  width: 0;
+  height: 0;
+}
+
+
+div.element {
+  transform-origin: 0 0;
+  position: absolute;
+  transition: filter 0.2s;
+}
+
+div.element:hover {
+  filter:  brightness(1.1);
+  transition: filter 0.0s;
+}
+
+div.lamp {
+  outline:  10px solid yellow;
+}
