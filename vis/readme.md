@@ -5,6 +5,14 @@ Notes
 
 Note <https://stackoverflow.com/questions/38511612/does-analysernode-update-its-current-frequency-data-continuously>
 
+### FFT frequency domain floats
+
+FFT calculation in Chromium: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/modules/webaudio/RealtimeAnalyser.cpp#185>
+Conversion to decibels: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/modules/webaudio/RealtimeAnalyser.cpp#209>
+Underlying utility: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/audio/AudioUtilities.cpp#43>
+
+Note that FFT bin magnitude is converted into dB by above using `20 * log10f(linear);`
+
 
 ## dB - intensity transformation
 
