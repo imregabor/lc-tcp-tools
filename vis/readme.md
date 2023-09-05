@@ -5,6 +5,9 @@ Notes
 
 Note <https://stackoverflow.com/questions/38511612/does-analysernode-update-its-current-frequency-data-continuously>
 
+According to above and to Chromium sources FFT is calculated on-demand, over the most recent samples available in the input buffer, 
+see <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/modules/webaudio/RealtimeAnalyser.cpp#151> 
+
 ### FFT frequency domain floats
 
 FFT calculation in Chromium: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/modules/webaudio/RealtimeAnalyser.cpp#185>
