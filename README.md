@@ -32,6 +32,8 @@ Contents
 
 TODO
 ----
+ - Use Math expressions in `vis/readme.md`, see
+   https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions
  - Handle multiple WS connection from Node side
  - Check if WS connection is still alive
  - ~~Linear arrays:~~
