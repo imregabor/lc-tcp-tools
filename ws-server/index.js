@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const express = require('express');
 const openFwdConn = require('./tcp-forwarding-connection.js');
@@ -14,7 +14,8 @@ const effects = require('./effects.js');
 const starttime = Date.now();
 const listeningPort = 12345;
 const fwdPort = 23;
-const fwdHost = '192.168.10.101';
+// const fwdHost = '192.168.10.101';
+const fwdHost = '192.168.10.102';
 // const fwdHost = 'localhost';
 // const host = '192.168.10.101';
 const expressPort = 3000
@@ -67,6 +68,9 @@ function dispatchMessage(message) {
 
 
 app.use(express.static('../replay-demo/dist'));
+
+app.use('/vis/data', express.static('../vis/data'));
+app.use('/vis', express.static('../vis/dist'));
 
 app.get('/api/currentState', (req, res) => {
   const ret = currentSetup.toMessage();

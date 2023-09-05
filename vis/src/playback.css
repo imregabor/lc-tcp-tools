@@ -1,0 +1,21 @@
+.playback-controls {
+  margin-bottom: 1em;
+}
+
+.playback-controls input {
+  margin-right: 1em;
+  margin-bottom: 1em;
+
+}
+
+.playback-controls .message {
+  border:  1px solid #e0e0e0;
+  background-color: #f8f8f8;
+  padding: 4px;
+  font-family: monospace;
+  color: #666;
+}
+
+.playback-controls span {
+  margin-right: 1em;
+}

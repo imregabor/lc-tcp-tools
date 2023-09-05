@@ -1,4 +1,5 @@
-"use strict";
+'use strict';
+
 import _ from 'lodash';
 import * as d3 from 'd3';
 import './style.css';
@@ -70,6 +71,11 @@ export function initPage() {
   fpsdiv
       .append('a').classed('modelink', true).attr('href', '#3d').attr('title', 'Switch to 3D')
       .append('i').classed('fa fa-cube', true);
+
+  fpsdiv
+     .append('a').classed('modelink', true).attr('href', 'vis').attr('title', 'Switch to effect machine')
+     .append('i').classed('fa fa-music', true);
+
 
   fpsdiv.append('span').classed('label', true).text('Rendering FPS:');
   const fpsv = fpsdiv.append('span').classed('value', true);

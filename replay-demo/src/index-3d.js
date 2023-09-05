@@ -15,8 +15,9 @@ export function initPage() {
 
   // upper left control div
   const ulcd = d3.select('body').append('div').classed('ul-ctrl', true);
-  ulcd.append('a').classed('modelink', true).attr('href', '#2d').attr('title', 'Switch to 2D').text('2D')
-      //.append('i').classed('fa fa-square', true);
+  ulcd.append('a').classed('modelink', true).attr('href', '#2d').attr('title', 'Switch to 2D').text('2D');
+  ulcd.append('a').classed('modelink', true).attr('href', 'vis').attr('title', 'Switch to effect machine')
+    .append('i').classed('fa fa-music', true);
 
 
   const llcd = d3.select('body').append('div').classed('ll-ctrl', true);

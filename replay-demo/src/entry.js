@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 import * as i2d from './index-2d.js';
 import * as i3d from './index-3d.js';

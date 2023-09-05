@@ -1,3 +1,6 @@
 /replay-demo/node_modules
 /replay-demo/dist
+/vis/node_modules
+/vis/dist
 /ws-server/node_modules
+
