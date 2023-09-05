@@ -10,11 +10,11 @@ see <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/m
 
 ### FFT frequency domain floats
 
-FFT calculation in Chromium: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/modules/webaudio/RealtimeAnalyser.cpp#185>
-Conversion to decibels: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/modules/webaudio/RealtimeAnalyser.cpp#209>
-Underlying utility: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/audio/AudioUtilities.cpp#43>
+ - FFT calculation in Chromium: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/modules/webaudio/RealtimeAnalyser.cpp#185>
+ - Conversion to decibels: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/modules/webaudio/RealtimeAnalyser.cpp#209>
+ - Underlying utility: <https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/platform/audio/AudioUtilities.cpp#43>
 
-Note that FFT bin magnitude is converted into dB by above using `20 * log10f(linear);`
+Note that FFT bin magnitude is converted into dB by above using `20 * log10f(linear)`
 
 
 ## dB - intensity transformation
@@ -26,9 +26,9 @@ from <https://personalpages.manchester.ac.uk/staff/richard.baker/BasicAcoustics/
    `dB IL = 10 log_10 ( I / 10^-12 )` thus
    `I = 10^-12 * 10 ^ (dB IL / 10) = 10 ^ (-12 + dB IL / 10)`
 
-If we add two unrelated sounds of the same intensity together, it is equivalent to a 3 dB increase in the total sound pressure level.
-Adding 2 ^ n intensities will increase 3n dB
-Adding k FFT band equal intensities will increase 3 log_2(k)
+If we add two unrelated sounds of the same intensity together, it is equivalent to a `3 dB` increase in the total sound pressure level.
+Adding `2 ^ n` intensities will increase `3n dB`
+Adding k bands with equal intensities will increase `3log_2(k)`
 
 ## Exponential decay
 
