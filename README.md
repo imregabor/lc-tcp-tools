@@ -7,10 +7,14 @@ This is a scratchpad for the LC project tools, heavily under construction.
 Contents
 --------
 
-  - `replay-demo`: browser based visualization of capture contents
-  
-  - `ws-server`: node.js tool to forward TCP traffic from effects computer (or replay tool) to
-    websocet based server
+  - `ws-server/`: `node.js` server for forwarding TCP traffic from effects computer (or replay tool) to
+    websocet based server, serving `replay-demo` and `vis` compiled pages, 
+
+  - `replay-demo/`: browser based visualization of captured state from `ws-server` with limited
+    manual interactions
+
+  - `vis/`: browser based real time effects using Web Audio. Data is forwarded to `ws-server`
+    for routing to the hardvare or for browser based display
 
   - `packet-dump.js`: node.js tool to capture TCP traffic from effects computer with timestamps
   
@@ -28,7 +32,13 @@ Contents
     from ["RetroFuture Dirty"](https://www.youtube.com/watch?v=WV8AcJU-_yU) by Kevin MacLeod. Note that
     the song played multiple times.
 
+Getting started
+---------------
 
+ - Compile `replay-demo/` (see <replay-demo/readme.md>)
+ - Compile `vis/` (see <vis/readme.md>)
+ - Launch `ws-server` (see <ws-server/readme.md>)
+ - Point browser to <http://localhost:3000>
 
 TODO
 ----
