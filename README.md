@@ -35,8 +35,8 @@ Contents
 Getting started
 ---------------
 
- - Compile `replay-demo/` (see <replay-demo/readme.md>)
- - Compile `vis/` (see <vis/readme.md>)
+ - Compile `replay-demo/` (see [`replay-demo/README.md`](replay-demo/README.md>)
+ - Compile `vis/` (see [`vis/README.md`](vis/README.md))
  - Launch `ws-server` see [`ws-server/README.md`](ws-server/README.md))
  - Point browser to <http://localhost:3000>
 
