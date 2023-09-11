@@ -1,7 +1,20 @@
-Notes
-=====
+Getting started
+---------------
 
-## Web audio analysernode
+Make sure that `node.js` is installed.
+
+```
+cd vis/
+npm ci
+npm run build
+```
+
+After compilation launch Node server in `../ws-server`.
+
+Notes
+-----
+
+### Web audio analysernode
 
 Note <https://stackoverflow.com/questions/38511612/does-analysernode-update-its-current-frequency-data-continuously>
 
