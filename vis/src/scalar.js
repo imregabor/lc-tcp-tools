@@ -1,6 +1,9 @@
 'use strict';
 
 import './scalar.css';
+import * as u from './util.js';
+import * as d3 from 'd3';
+
 
 export default function addTo(parentD3, label) {
   const d = parentD3.append('div').classed('display-scalar', true);
@@ -13,16 +16,48 @@ export default function addTo(parentD3, label) {
   const maxSpan  = d.append('span').classed('limit max', true);
 
   const canvas2d = canvas.node().getContext('2d');
-  const cw = 800;
+
+  var cw = 800;
   var ch = 64;
 
-  const buff = [];
-  const buffRangeLow = [];
-  const buffRangeHigh = [];
-  var buffSize = 0;
+  //const buff = [];
+  //const buffRangeLow = [];
+  //const buffRangeHigh = [];
+  //var buffSize = 0;
+
+  var vals;
+  var rlows;
+  var rhighs;
+  var wraparound; // wrap around happened: all data in buffers are valid
+  var seekpos; // position for seeking
+  var onseek; // seek callback
+
 
   var lastValue = undefined;
-  var cx = 0;
+  var nextCx = 0; // next X value to store
+  var lastCx = 0; // last X value plotted
+
+  function updateCanvasSize(x, y) {
+    cw = x;
+    ch = y;
+    canvas.attr('width', cw);
+    canvas.attr('height', ch);
+    vals = new Array(cw);
+    if (rlows) {
+      rlows = new Array(cw);
+      rhighs = new Array(cw);
+    }
+
+    if (seekpos) {
+      seekpos = new Array(cw);
+    }
+    nextCx = 0;
+    lastCx = 0;
+  }
+  updateCanvasSize(cw, ch);
+
+
+
 
   var min = 0;
   var initialMin = 0;
@@ -32,17 +67,48 @@ export default function addTo(parentD3, label) {
   var showRange = false;
 
   function updateLimits() {
-    minSpan.text(min);
-    maxSpan.text(max);
+    if (wraparound) {
+      lastCx = (nextCx + 1) % cw;
+    } else {
+      lastCx = 0;
+    }
+    if (min === 0 && max === 0) {
+      minSpan.text('');
+      maxSpan.text('');
+    } else {
+      minSpan.text(u.niceRound(min));
+      maxSpan.text(u.niceRound(max));
+    }
   }
 
   const ret = {
+    onSeek : callback => {
+      onseek = callback;
+      seekpos = new Array(cw);
+      canvas.on('click', e => {
+        const x = Math.round(d3.pointer(e, canvas.node())[0]);
+        if (x < 0 || x >= cw) {
+          return;
+        }
+        if (!wraparound && x >= lastCx) {
+          // not yet filled
+          return;
+        }
+
+        canvas2d.fillStyle = 'green';
+        canvas2d.fillRect(x, 0, 1, ch);
+        onseek(seekpos[x]);
+      });
+      return ret;
+    },
     autoScale : () => {
       autoScale = true;
       return ret;
     },
     showRange : () => {
       showRange = true;
+      rlows = new Array(cw);
+      rhighs = new Array(cw);
       return ret;
     },
     ch : v => {
@@ -63,30 +129,44 @@ export default function addTo(parentD3, label) {
       updateLimits();
       return ret;
     },
-    add : (v, rlow, rhigh) => {
+    add : (v, rlow, rhigh, pos) => {
       lastValue = v;
-      if (buffSize < buff.length) {
-        buff[buffSize] = v;
-        if (showRange) {
-          buffRangeLow[buffSize] = rlow;
-          buffRangeHigh[buffSize] = rhigh;
-        }
-      } else {
-        buff.push(v);
-        buffRangeLow.push(rlow);
-        buffRangeHigh.push(rhigh);
+      vals[nextCx] = v;
+      if (onseek) {
+        seekpos[nextCx] = pos;
       }
+      if (showRange) {
+        rlows[nextCx] = rlow;
+        rhighs[nextCx] = rhigh;
+      }
+      nextCx = (nextCx + 1) % cw;
+      if (nextCx === 0) {
+        wraparound = true;
+      }
+      if (nextCx === lastCx) {
+        lastCx = (lastCx + 1) % cw;
+      }
+
       if (autoScale) {
         var r = false;
 
-        while (v < min) {
-          min = min - (initialMax - initialMin);
+        if (v < min) {
           r = true;
+          if (v < 0) {
+            min = v * 2;
+          } else {
+            min = v / 2;
+          }
         }
 
-        while (v > max) {
-          max = max + (initialMax - initialMin);
+        if (v > max) {
           r = true;
+          if (v > 0) {
+            max = v * 2;
+          } else {
+            min = v / 2;
+          }
+
         }
         if (r) {
           ret.clear();
@@ -95,8 +175,7 @@ export default function addTo(parentD3, label) {
         }
       }
 
-      buffSize++;
-      if (buffSize >= 100) {
+      if (Math.abs(lastCx - nextCx) > 200) {
         ret.render();
       }
     },
@@ -108,13 +187,13 @@ export default function addTo(parentD3, label) {
         vSpan.text(lastValue);
       }
 
-      for (var i = 0; i < buffSize; i++) {
-        canvas2d.clearRect((cx + 20) % cw, 0, 1, ch);
+      while(lastCx !== nextCx) {
+        canvas2d.clearRect((lastCx + 20) % cw, 0, 1, ch);
 
 
         if (showRange) {
-          var rly = ch - 1 - ch * (buffRangeLow[i] - min) / (max - min);
-          var rhy = ch - 1 - ch * (buffRangeHigh[i] - min) / (max - min);
+          var rly = ch - 1 - ch * (rlows[lastCx] - min) / (max - min);
+          var rhy = ch - 1 - ch * (rhighs[lastCx] - min) / (max - min);
           if (rly < 0) {
             rly = 0;
           }
@@ -129,13 +208,13 @@ export default function addTo(parentD3, label) {
           }
           if (rly >= 0 && rhy >= 0 && rly < ch && rhy < ch) {
             canvas2d.fillStyle = '#eee';
-            canvas2d.fillRect(cx, Math.min(rly, rhy), 1, Math.abs(rhy - rly) + 1);
+            canvas2d.fillRect(lastCx, Math.min(rly, rhy), 1, Math.abs(rhy - rly) + 1);
           }
         }
 
 
         canvas2d.fillStyle = 'black';
-        var y0 = ch - 1 - ch * (buff[i] - min) / (max - min);
+        var y0 = ch - 1 - ch * (vals[lastCx] - min) / (max - min);
         if (y0 < 0) {
           y0 = 0;
         }
@@ -143,12 +222,12 @@ export default function addTo(parentD3, label) {
           y0 = ch - 1;
         }
         if (y0 >= 0 && y0 < ch) {
-          canvas2d.fillRect(cx, y0, 1, 1);
+          canvas2d.fillRect(lastCx, y0, 1, 1);
         }
 
-        cx = (cx + 1) % cw;
+        lastCx = (lastCx + 1) % cw;
+
       }
-      buffSize = 0;
     },
     clear : () => {
       canvas2d.clearRect(0, 0, cw, ch);
@@ -156,8 +235,11 @@ export default function addTo(parentD3, label) {
     reset : () => {
       lastValue = undefined;
       canvas2d.clearRect(0, 0, cw, ch);
-      buffSize = 0;
-      cx = 0;
+
+      nextCx = 0;
+      lastCx = 0;
+      wraparound = false;
+
       min = initialMin;
       max = initialMax;
       updateLimits();

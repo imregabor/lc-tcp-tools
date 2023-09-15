@@ -96,6 +96,7 @@ export default function newVuMeter(channels) {
     },
 
     reset : () => {
+      min = 0;
       max = 0;
       on = 0;
       totalDt = 0;

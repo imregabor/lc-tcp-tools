@@ -10,16 +10,34 @@ const network = require('./network.js');
 const qr = require('qrcode');
 const currentSetup = require('./current-setup.js');
 const effects = require('./effects.js');
+const commandLineArgs = require('command-line-args')
+
+// see https://www.npmjs.com/package/command-line-args
+const cliOpts = [
+  { name : 'mp3srv', type : String, multiple : true }
+];
+const options = commandLineArgs(cliOpts)
+
+if (options.mp3srv) {
+  for (var s of options.mp3srv) {
+    if (!s.startsWith('http://') && !s.startsWith('https://')) {
+      throw new Error(`MP3 server url does not start with "http://" or "https://": ${s}`)
+    }
+    if (s.endsWith('/')) {
+      throw new Error(`MP3 server url ends with "/": ${s}`)
+    }
+  }
+}
+
 
 const starttime = Date.now();
 const listeningPort = 12345;
 const fwdPort = 23;
-// const fwdHost = '192.168.10.101';
-const fwdHost = '192.168.10.102';
+const fwdHost = '192.168.10.101';
+// const fwdHost = '192.168.10.102';
 // const fwdHost = 'localhost';
 // const host = '192.168.10.101';
 const expressPort = 3000
-
 
 
 const app = express();
@@ -66,8 +84,16 @@ function dispatchMessage(message) {
   wsSrv.broadcast(message);
 }
 
-
 app.use(express.static('../replay-demo/dist'));
+
+app.get('/vis/settings', (req, res) => {
+  const ret = {
+  };
+  if (options.mp3srv) {
+    ret.mp3srv = options.mp3srv;
+  }
+  res.json(ret);
+});
 
 app.use('/vis/data', express.static('../vis/data'));
 app.use('/vis', express.static('../vis/dist'));
@@ -99,8 +125,6 @@ app.post('/api/setSingleCoord', (req, res) => {
     res.status(200).send();
   }
 });
-
-
 
 app.post('/api/scene', (req, res) => {
   const m = req.query.m;
@@ -206,12 +230,16 @@ app.get('/api/restApiListeningAddresses', (req, res) => {
 });
 
 app.get('/api/status', (req, res) => {
-  res.json({
+  const ret = {
     uptime : Date.now() - starttime,
     fwdConnStatus : fwdConn.getStatus(),
     listeningSrvStatus : listeningSrv.getStatus(),
     wsSrvStatus : wsSrv.getStatus()
-  });
+  };
+  if (options.mp3srv) {
+    ret.mp3srv = options.mp3srv;
+  }
+  res.json(ret);
 });
 
 app.post('/api/sendToAll', (req, res) => {

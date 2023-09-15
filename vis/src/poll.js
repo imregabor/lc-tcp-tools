@@ -7,12 +7,13 @@ export function animationLoop(callback, scale) {
 
   var n = 0;
   function f() {
-    requestAnimationFrame(f);
+
     n++;
     if (n >= scale) {
       callback();
       n = 0;
     }
+    requestAnimationFrame(f);
   }
   f();
 }

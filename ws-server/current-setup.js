@@ -12,6 +12,7 @@ function wireValueToIntensity(wireValue) {
 }
 
 function intensityToWireValue(intensity) {
+  intensity = intensity * intensity;
   if (intensity < 0) {
     return 2;
   } else if (intensity > 1) {

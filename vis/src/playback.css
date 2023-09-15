@@ -14,8 +14,121 @@
   padding: 4px;
   font-family: monospace;
   color: #666;
+  margin-bottom: 5px;
 }
 
 .playback-controls span {
   margin-right: 1em;
+}
+
+/* Modal overlay to hide page */
+.modal-bg {
+  position: absolute;
+  backdrop-filter:  blur(4px);
+  /* background:  rgba(255, 255, 255, 0.95); */
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  cursor: pointer;
+}
+
+/* Dialog background */
+.modal-dg {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 50px;
+  margin-bottom: 250px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 60%;
+  background: #f8f8f8;
+  box-shadow: 0 0 30px rgba(0,0,0,0.1);
+  cursor: auto;
+}
+
+.modal-dg h1 {
+  display: block;
+  position: relative;
+  background-color: #ddd;
+  color: #666;
+  padding: 20px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  left: -20px;
+  top: -20px;
+  width: 100%;
+  margin: 0;
+}
+
+.modal-dg h1 i {
+  float: right;
+  user-select: none;
+  cursor: pointer;
+  color: #bbb;
+}
+
+.modal-dg h1 i:hover {
+  color: #444;
+}
+
+.modal-dg .src {
+  margin-bottom: 10px;
+}
+
+.modal-dg .src input {
+  width: calc( 100% - 3em );
+}
+
+.modal-dg .src i {
+  float:  right;
+  cursor: pointer;
+  color:  #bbb;
+}
+
+.modal-dg .src i:hover {
+  color:  #444;
+}
+
+.modal-dg .src i.disabled {
+  display: none;
+}
+
+.playback-player {
+  margin-bottom: 5px;
+  margin-right: 5px;
+
+}
+
+audio {
+  width: 500px;
+  height: 32px;
+}
+
+.playback-extra-controls {
+  user-select: none;
+  display: inline-block;
+  margin-left:  16px;
+  height: 32px;
+  background-color: #eee;
+  vertical-align: top;
+  text-align: center;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-radius: 32px;
+  line-height: 32px;
+}
+
+.playback-extra-controls i {
+  cursor: pointer;
+  color: #bbb;
+  border-radius: 8px;
+  border: 4px solid #eee;
+}
+
+.playback-extra-controls i:hover {
+  color: #444;
+  background-color: #ccc;
+  border: 4px solid #ccc;
 }
