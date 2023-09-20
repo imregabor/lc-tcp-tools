@@ -33,7 +33,7 @@ cd <MEDIA_DIRECTORY>
 cd <MP3_DIRECTORY>
 
 # generate index file
-python <BASE_DIR>/lc-tcp-tools/mp3-srv/generate-index-mp3-json.py) > index-mp3.json
+python <BASE_DIR>/lc-tcp-tools/mp3-srv/generate-index-mp3-json.py > index-mp3.json
 
 # or under cygwin use
 python $(cygpath -w <BASE_DIR>/lc-tcp-tools/mp3-srv/generate-index-mp3-json.py) > index-mp3.json

@@ -29,7 +29,7 @@ echo "MP3BASEDIR: ${MP3BASEDIR}"
 mkdir -p "${MP3BASEDIR}"
 
 while read line ; do
-  MP3=$(echo "./mp3/${line}" | sed -e 's/mp4$/mp3/' | sed -e 's/mkv$/mp3/' | sed -e 's/webm$/mp3/' sed -e 's/m4a$/mp3/')
+  MP3=$(echo "./mp3/${line}" | sed -e 's/mp4$/mp3/' | sed -e 's/mkv$/mp3/' | sed -e 's/webm$/mp3/' | sed -e 's/m4a$/mp3/')
   echo
   echo
   echo "Checking ${line}"
