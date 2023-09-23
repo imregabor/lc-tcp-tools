@@ -76,4 +76,4 @@ while read line ; do
   fi
   echo
 
-done < <(find -type f -wholename '*.mp4' -o -wholename '*.mkv' -o -wholename '*.webm' -o -wholename '*.mp3' -o -wholename '*.m4a' | grep -v '^./mp3')
+done < <(find -type f -wholename '*.mp4' -o -wholename '*.mkv' -o -wholename '*.webm' -o -wholename '*.mp3' -o -wholename '*.m4a' | grep -v '^./mp3/')
