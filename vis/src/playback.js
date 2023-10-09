@@ -60,7 +60,14 @@ function loadMp3Index() {
 }
 
 
-
+function formatSize(size) {
+  if (size > 1024 * 1024) {
+    return Math.round(10 * size / (1024 * 1024)) / 10 + ' MiB';
+  } else if (size > 1024) {
+    return Math.round(10 * size / 1024) / 10 + ' KiB';
+  }
+  return size + ' B';
+}
 
 
 
@@ -96,7 +103,7 @@ export function chooseMp3() {
       var visibles = 0;
       var hiddens = 0;
       // See https://riptutorial.com/d3-js/example/27637/using--this--with-an-arrow-function
-      lstd.selectAll('a').each((d, i, nodes) => {
+      lstd.selectAll('.list-entry').each((d, i, nodes) => {
         if (d3.select(nodes[i]).style('display') === 'none') {
           hiddens++;
         } else {
@@ -114,7 +121,7 @@ export function chooseMp3() {
 
     function dosrc(q) {
       clri.classed('disabled', q === '');
-      lstd.selectAll('a')
+      lstd.selectAll('.list-entry')
         .style('display', d => {
           if (q === '') {
             return '';
@@ -125,16 +132,23 @@ export function chooseMp3() {
     }
 
     const lstd = m2.append('div').classed('lst', true);
-    lstd.selectAll('a').data(mp3index.mp3s).enter().append('a')
-        .attr('href', '#')
-        .text(d => d.filename)
+    const entries = lstd.selectAll('.list-entry').data(mp3index.mp3s).enter().append('div')
+        .classed('list-entry', true)
         .on('click', (e, d) => {
           console.log(d)
           event.preventDefault();
           m1.remove();
           resolve(`${d.url}`);
         })
-        .append('br');
+
+    entries.append('span')
+        .classed('t1', true)
+        .text(d => d.filename);
+
+    entries.append('span')
+        .classed('t2', true)
+        .text(d => formatSize(d.size) + ' ' + d.ext + ' (' + d.dirs.join('/') + ')');
+
     updateMp3Count();
 
     // resolve(`${mp3srv}/${mp3index.mp3s[123].url}`);

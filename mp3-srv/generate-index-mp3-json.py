@@ -20,6 +20,7 @@ for root, dirs, files in os.walk('.'):
   for file in files:
     if not file.endswith('.mp3'):
       continue
+    basename, ext = os.path.splitext(file)
 
     mp3ct += 1
 
@@ -36,8 +37,10 @@ for root, dirs, files in os.walk('.'):
 
 
     mp3infos.append({
-      'filename' : file,
+      'filename' : basename,
+      'ext' : ext[1:],
       'url' : purl,
+      'size' : size,
       'dirs' : dirs[:-1]
     })
 
