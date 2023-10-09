@@ -35,7 +35,7 @@ if (options.help) {
   ];
   const usage = commandLineUsage(usageDef);
   console.log(usage);
-  process.exit();
+  return;
 }
 
 if (options.mp3srv) {
