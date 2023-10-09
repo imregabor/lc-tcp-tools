@@ -79,6 +79,8 @@ export function chooseMp3() {
 
     m2.append('h1').text('Pick an mp3').append('i').classed('fa fa-times', true).on('click', cancel);
 
+    const hi = m2.append('div').classed('header-info', true).append('span');
+
     const srcd = m2.append('div').classed('src', true);
     const srci = srcd.append('input').attr('type', 'text').on('input', e => {
       const v = srci.node().value;
@@ -90,6 +92,26 @@ export function chooseMp3() {
       dosrc('');
     });
 
+    function updateMp3Count() {
+      var visibles = 0;
+      var hiddens = 0;
+      // See https://riptutorial.com/d3-js/example/27637/using--this--with-an-arrow-function
+      lstd.selectAll('a').each((d, i, nodes) => {
+        if (d3.select(nodes[i]).style('display') === 'none') {
+          hiddens++;
+        } else {
+          visibles ++;
+        }
+      });
+      if (hiddens === 0) {
+        hi.text(`Displayed all ${visibles} items`);
+      } else if (visibles !== 0) {
+        hi.text(`Displayed ${visibles} items`);
+      } else {
+        hi.text(`No result found`);
+      }
+    }
+
     function dosrc(q) {
       clri.classed('disabled', q === '');
       lstd.selectAll('a')
@@ -99,6 +121,7 @@ export function chooseMp3() {
           }
           return (d.sortBase.includes(q) || d.filename.includes(q)) ? '' : 'none';
         });
+      updateMp3Count();
     }
 
     const lstd = m2.append('div').classed('lst', true);
@@ -112,6 +135,7 @@ export function chooseMp3() {
           resolve(`${d.url}`);
         })
         .append('br');
+    updateMp3Count();
 
     // resolve(`${mp3srv}/${mp3index.mp3s[123].url}`);
   });
