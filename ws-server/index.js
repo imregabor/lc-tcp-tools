@@ -11,12 +11,32 @@ const qr = require('qrcode');
 const currentSetup = require('./current-setup.js');
 const effects = require('./effects.js');
 const commandLineArgs = require('command-line-args')
+const commandLineUsage = require('command-line-usage')
+
 
 // see https://www.npmjs.com/package/command-line-args
 const cliOpts = [
-  { name : 'mp3srv', type : String, multiple : true }
+  { name : 'mp3srv', type : String, multiple : true, description : 'Specify mp3 servers' },
+  { name : 'help', alias : 'h', type : Boolean, description : 'Print usage help' }
 ];
 const options = commandLineArgs(cliOpts)
+
+if (options.help) {
+  // see https://github.com/75lb/command-line-usage
+  const usageDef = [
+    {
+      header: 'WS server',
+      content: 'Bridge/forward effect stream to TCP router, serve static frontends.'
+    },
+    {
+      header: 'Options',
+      optionList : cliOpts
+    }
+  ];
+  const usage = commandLineUsage(usageDef);
+  console.log(usage);
+  process.exit();
+}
 
 if (options.mp3srv) {
   for (var s of options.mp3srv) {
