@@ -3,12 +3,18 @@
 const ws = require('ws');
 
 function open(opts) {
-  const log = opts.log ? opts.log : console.log;
   const messagesOnNewConnection = opts.messagesOnNewConnection;
+  const path = opts.path ? opts.path : '/';
+  const logTarget = opts.log ? opts.log : console.log;
+  const log = m => logTarget('@ ' + path + ': ' + m);
+
 
   // const wss = new ws.Server({ port: 8080 });
   // see https://masteringjs.io/tutorials/express/websockets
-  const wss = new ws.Server({ noServer: true });
+  const wss = new ws.Server({
+    noServer: true,
+    path : path
+  });
 
   var broadcastMessageCount = 0;
   var connectionCount = 0;
@@ -21,7 +27,7 @@ function open(opts) {
     const connectionId = connectionCount;
     connectionCount++;
 
-    log('WebSocket connection [' + connectionId + '] from ' +  req.socket.remoteAddress);
+    log('connection [' + connectionId + '] from ' +  req.socket.remoteAddress);
     activeConnections[connectionId] = {
       socket : ws,
       connectedTime : Date.now(),
@@ -30,7 +36,7 @@ function open(opts) {
     };
 
     ws.on('message', data => {
-      log('[' + connectionId + '] received: %s', data);
+      log('[' + connectionId + '] received: ' + data.toString());
     });
 
     ws.on('close', () => {
@@ -53,8 +59,12 @@ function open(opts) {
 
 
   const ret = {
-    addToExpressServer : expressServer => {
-      expressServer.on('upgrade', (request, socket, head) => {
+    addToExpressServer : expressApp => {
+      expressApp.on('upgrade', (request, socket, head) => {
+        // not sure if this is the proper way to handle multiple wd endpoints
+        if (request.url !== path) {
+          return;
+        }
         wss.handleUpgrade(request, socket, head, socket => {
           wss.emit('connection', socket, request);
         });
@@ -62,6 +72,7 @@ function open(opts) {
     },
     getStatus : () => {
       const status = {
+        path : path,
         broadcastMessageCount : broadcastMessageCount,
         connectionCount : connectionCount,
         activeConnectionCount : 0,

@@ -350,6 +350,7 @@ export function initPage() {
   r();
 
   apiClient.openWsLink({
+    endpoint : '/ws-api/effects',
     onUp : () => {
       wsLinkIcon.ok();
       pingStatusInfo();

@@ -57,7 +57,11 @@ export function openWsLink(opts) {
   } else {
     wsUri = 'ws:';
   }
-  wsUri += '//' + windowLocation.host + '/';
+  const endpoint = opts.endpoint;
+  if (!endpoint || !endpoint.startsWith('/') || endpoint.endsWith('/')) {
+    throw new Error('Invalid endpoint ', opts.endpoint)
+  }
+  wsUri += '//' + windowLocation.host + opts.endpoint;
 
 
   function handleMessage(e) {

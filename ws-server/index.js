@@ -83,7 +83,8 @@ const effectsMachine = effects.createEffectsMachine({
 });
 
 const wsSrv = openWsSrv({
-  log : m => console.log('[WS srv] ', m),
+  log : m => console.log('[WS srv] ' + m),
+  path : '/ws-api/effects',
   messagesOnNewConnection : () => {
     const m = [];
     m.push(currentSetup.toMessage());
@@ -96,6 +97,12 @@ const wsSrv = openWsSrv({
 
     return m;
   }
+});
+
+
+const ccSrv = openWsSrv({
+  log : m => console.log('[CC srv] ' + m),
+  path : '/ws-api/control'
 });
 
 
@@ -254,7 +261,8 @@ app.get('/api/status', (req, res) => {
     uptime : Date.now() - starttime,
     fwdConnStatus : fwdConn.getStatus(),
     listeningSrvStatus : listeningSrv.getStatus(),
-    wsSrvStatus : wsSrv.getStatus()
+    wsSrvStatus : wsSrv.getStatus(),
+    ccSrvStatus : ccSrv.getStatus()
   };
   if (options.mp3srv) {
     ret.mp3srv = options.mp3srv;
@@ -311,6 +319,7 @@ const expressServer = app.listen(expressPort, () => {
 })
 
 wsSrv.addToExpressServer(expressServer);
+ccSrv.addToExpressServer(expressServer);
 
 listeningSrv.onData(d => {
   // console.log(d.toString());

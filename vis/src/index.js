@@ -2,6 +2,7 @@
 
 import * as d3 from 'd3';
 import * as playback from './playback.js';
+import * as apiclient from './api-client.js';
 import * as poll from './poll.js';
 import scalar from './scalar.js';
 import spectrum from './spectrum.js';
@@ -35,6 +36,11 @@ function calcIntensity(fft, w, out) {
 }
 
 export function initPage() {
+  const wslink = apiclient.openWsLink({
+    endpoint : '/ws-api/control',
+    onJson: o => console.log('Control link message', o)
+  });
+
   const body = d3.select('body');
   body.append('h1').text('Hello');
 
@@ -85,6 +91,7 @@ export function initPage() {
     onStart : pb => {
       lastPb = pb;
       poll1.start();
+      wslink.sendJson({ event : 'START_PLAYBACK', info : pb.getPlaybackInfo() });
     },
     onStop: pb => {
       lastPb = undefined;
@@ -96,6 +103,8 @@ export function initPage() {
       organ24.reset();
       organ35.reset();
       organ7.reset();
+
+      wslink.sendJson({ event : 'STOP_PLAYBACK' });
     }
   });
 

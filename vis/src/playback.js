@@ -250,6 +250,8 @@ export function addSimplePlayback(parentD3, opts) {
   var a;
   var adiv;
 
+  var lastPlaybackInfo;
+
   function audio(url) {
     message(`Start playing from ${decodeURI(url)}`);
     disableButtons();
@@ -282,6 +284,12 @@ export function addSimplePlayback(parentD3, opts) {
 
 
     useAudio = true;
+
+    lastPlaybackInfo = {
+      audio : 'MP3',
+      url : url
+    };
+
     ret.start();
 
   }
@@ -300,10 +308,16 @@ export function addSimplePlayback(parentD3, opts) {
     if (opts.build) {
       opts.build(ret);
     }
+
+    lastPlaybackInfo = {
+      audio : '440Hz sinewave'
+    };
+
     ret.start();
   }
 
   function stop() {
+    lastPlaybackInfo = undefined;
     if (!playing) {
       throw new Error('Not playing');
     }
@@ -364,6 +378,11 @@ export function addSimplePlayback(parentD3, opts) {
           if (opts.build) {
             opts.build(ret);
           }
+          lastPlaybackInfo = {
+            audio : 'MP3 (decoded from buffer)',
+            url : url
+          };
+
           ret.start();
         });
   }
@@ -414,6 +433,12 @@ export function addSimplePlayback(parentD3, opts) {
         return a.node().currentTime;
       }
       return 0;
+    },
+    getPlaybackInfo : () => {
+      if (!playing) {
+        return undefined;
+      }
+      return lastPlaybackInfo;
     },
     seek : t => {
       console.log(t)
