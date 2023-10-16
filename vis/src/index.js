@@ -38,7 +38,15 @@ function calcIntensity(fft, w, out) {
 export function initPage() {
   const wslink = apiclient.openWsLink({
     endpoint : '/ws-api/control',
-    onJson: o => console.log('Control link message', o)
+    onJson: o => {
+      console.log('Control link message', o);
+
+      if (lastPb && o && o.command && o.command === 'STOP_PLAYBACK') {
+        lastPb.ensureStop();
+      } else if (lastPb && o && o.command && o.command === 'SEEK_PLAYBACK' && o.t) {
+        lastPb.seek(o.t);
+      }
+    }
   });
 
   const body = d3.select('body');
@@ -203,9 +211,12 @@ export function initPage() {
         method : 'POST',
       }).then(() => {}, () => {});
     }
-
-
-
+  });
+  poll1.addThrottled(200, () => {
+    const ct = lastPb ? lastPb.getCurrentTime() : 0;
+    if (ct != 0) {
+      wslink.sendJson({ event : 'PLAYBACK_POSITION', position : ct });
+    }
   });
 
   poll.animationLoop(() => {

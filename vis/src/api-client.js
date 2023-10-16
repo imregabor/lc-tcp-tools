@@ -30,7 +30,7 @@ export function openWsLink(opts) {
       console.log('ERROR: expected JSON message:', msg);
     }
     if (opts.onJson) {
-      opts.onJson(JSON.parse(s));
+      opts.onJson(JSON.parse(msg));
     }
   }
 

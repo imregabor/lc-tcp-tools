@@ -300,8 +300,20 @@ app.post('/api/sendPacket', (req, res) => {
   }
 });
 
+app.post('/api/stop-playback', (req, res) => {
+  ccSrv.broadcastJson({ command : 'STOP_PLAYBACK' });
+  res.status(200).send();
+});
 
-
+app.post('/api/seek-playback', (req, res) => {
+  const t = +req.query.t;
+  if (t) {
+    ccSrv.broadcastJson({ command : 'SEEK_PLAYBACK', t : t });
+    res.status(200).send();
+  } else {
+    res.status(400).send('Invalid/no timestamp: ' + req.query.t);
+  }
+});
 
 console.log('# TCP server / web socket server')
 console.log('#')

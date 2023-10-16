@@ -415,6 +415,12 @@ export function addSimplePlayback(parentD3, opts) {
         opts.onStart(ret);
       }
     },
+    ensureStop : () => {
+      if (!playing) {
+        return;
+      }
+      stop();
+    },
     newAnalyserNode : () => {
       if (!audioContext) {
         throw new Error('No audio loaded');
@@ -441,7 +447,7 @@ export function addSimplePlayback(parentD3, opts) {
       return lastPlaybackInfo;
     },
     seek : t => {
-      console.log(t)
+      console.log('Seek to ' + t);
       if (t < 0 || !playing || !useAudio) {
         return;
       }
