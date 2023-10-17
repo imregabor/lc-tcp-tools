@@ -393,6 +393,13 @@ export function addSimplePlayback(parentD3, opts) {
   loadMp3Index();
 
   const ret = {
+    startPlaybackFrom : url => {
+      console.log('Start playback from', url)
+      if (playing) {
+        stop();
+      }
+      audio(url);
+    },
     start : () => {
       if (playing) {
         throw new Error('Already playing');

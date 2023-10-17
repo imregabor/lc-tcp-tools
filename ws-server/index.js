@@ -300,6 +300,16 @@ app.post('/api/sendPacket', (req, res) => {
   }
 });
 
+app.post('/api/start-playback', (req, res) => {
+  const u = req.query.u;
+  if (u) {
+    ccSrv.broadcastJson({ command : 'START_PLAYBACK', url : u });
+    res.status(200).send();
+  } else {
+    res.status(400).send('Invalid/no url: ' + u);
+  }
+});
+
 app.post('/api/stop-playback', (req, res) => {
   ccSrv.broadcastJson({ command : 'STOP_PLAYBACK' });
   res.status(200).send();
