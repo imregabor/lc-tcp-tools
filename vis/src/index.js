@@ -214,8 +214,13 @@ export function initPage() {
   });
   poll1.addThrottled(200, () => {
     const ct = lastPb ? lastPb.getCurrentTime() : 0;
+    const dd = lastPb ? lastPb.getDuration() : 0;
     if (ct != 0) {
-      wslink.sendJson({ event : 'PLAYBACK_POSITION', position : ct });
+      wslink.sendJson({
+        event : 'PLAYBACK_POSITION',
+        position : ct,
+        duration : dd
+      });
     }
   });
 

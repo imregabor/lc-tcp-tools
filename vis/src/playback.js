@@ -440,6 +440,18 @@ export function addSimplePlayback(parentD3, opts) {
       }
       return 0;
     },
+    getDuration : () => {
+      if (!playing) {
+        return 0;
+      }
+      if (useAudio) {
+        const d = a.node().duration;
+        if (d) {
+          return d;
+        }
+      }
+      return 0;
+    },
     getPlaybackInfo : () => {
       if (!playing) {
         return undefined;
