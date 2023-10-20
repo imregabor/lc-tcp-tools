@@ -2,10 +2,25 @@
 
 import * as d3 from 'd3';
 
+
+/** Callback called for each mp3 server address */
+export function getMp3Servers(cb) {
+  fetch("settings")
+    .then(response => response.json())
+    .then(s => {
+      //console.log('Settings from WS server arrived', s);
+      if (s.mp3srv) {
+        for(var s of s.mp3srv) {
+          cb(s);
+        }
+      }
+    });
+}
+
+
 /**
  * WS API related functionalities.
  */
-
 export function openWsLink(opts) {
 
   //const ws = new WebSocket('ws://localhost:8080');
