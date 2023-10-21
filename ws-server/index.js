@@ -10,9 +10,9 @@ const network = require('./network.js');
 const qr = require('qrcode');
 const currentSetup = require('./current-setup.js');
 const effects = require('./effects.js');
-const commandLineArgs = require('command-line-args')
-const commandLineUsage = require('command-line-usage')
-
+const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
+const chalk = require('chalk');
 
 // see https://www.npmjs.com/package/command-line-args
 const cliOpts = [
@@ -353,16 +353,26 @@ listeningSrv.onStatusChange(() => wsSrv.broadcast('# status change\n'));
 fwdConn.onStatusChange(() => wsSrv.broadcast('# status change\n'));
 
 async function generateQrCodes() {
-  var s = '\n\n\nListening REST API address(es):\n\n';
+  var ret = '\n\n\nListening REST API address(es):\n\n';
   for(const a of network.restApiListeningAddresses('http', expressPort)) {
-    const qrstring = await qr.toString(a.url, { errorCorrectionLevel: 'H' });
-    s = s + a.name + ': ' + a.url + '\n' + qrstring + '\n\n';
+    var qrstring = await qr.toString(a.url, {
+      errorCorrectionLevel: 'H',
+      margin : 4
+    });
+
+    ret = ret + a.name + ': ' + a.url + '\n';
+    var qrlines = qrstring.split('\n');
+    for (var qrline of qrlines) {
+      // force white background
+      // '\u2005' is a space character; chalk truncates some trailing normal spaces
+      ret = ret + chalk.black.bgWhite('\u2005' + qrline + '\u2005') + '\n'
+    }
+
+    ret = ret + '\n\n';
   }
-  s = s + '\n\n\n';
-  return s;
+  ret = ret + '\n\n\n';
+  return ret;
 }
 
 generateQrCodes()
   .then(s => console.log(s));
-
-
