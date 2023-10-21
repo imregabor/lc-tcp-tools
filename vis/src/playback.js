@@ -22,6 +22,16 @@ import * as apiClient from './api-client.js';
 export function addSimplePlayback(parentD3, opts) {
 
   const div = parentD3.append('div').classed('playback-controls', true);
+
+  const b0 = div.append('input')
+      .attr('type', 'button')
+      .attr('value', 'Listen')
+      .on('click', () => {
+        ensureAudioContext();
+        b0.remove();
+      });
+
+
   const b1 = div.append('input')
       .attr('type', 'button')
       .attr('value', 'Play Viper')
@@ -84,6 +94,14 @@ export function addSimplePlayback(parentD3, opts) {
   var sampleRate;
   var playing = false;
 
+  function ensureAudioContext() {
+    if (!audioContext) {
+      audioContext = new AudioContext();
+    }
+  }
+
+
+
   function disableButtons() {
     b1.attr('disabled', true);
     b2.attr('disabled', true);
@@ -130,7 +148,8 @@ export function addSimplePlayback(parentD3, opts) {
       a.node().play();
     });
 
-    audioContext = new AudioContext();
+    //audioContext = new AudioContext();
+    ensureAudioContext();
 
     sourceNode = audioContext.createMediaElementSource(a.node());
     sourceNode.connect(audioContext.destination);
@@ -157,7 +176,8 @@ export function addSimplePlayback(parentD3, opts) {
     disableButtons();
 
     // A user interaction happened we can create the audioContext
-    audioContext = new AudioContext();
+    // audioContext = new AudioContext();
+    ensureAudioContext();
 
     sourceNode = audioContext.createOscillator();
     sourceNode.connect(audioContext.destination);
@@ -211,7 +231,8 @@ export function addSimplePlayback(parentD3, opts) {
     disableButtons();
 
     // A user interaction happened we can create the audioContext
-    audioContext = new AudioContext();
+    // audioContext = new AudioContext();
+    ensureAudioContext();
 
     message(`Loading audio from ${url}`);
 
@@ -252,6 +273,7 @@ export function addSimplePlayback(parentD3, opts) {
 
 
   const ret = {
+    tryToCreateAudioContext : () => ensureAudioContext(),
     startPlaybackFrom : url => {
       console.log('Start playback from', url)
       if (playing) {
@@ -324,8 +346,9 @@ export function addSimplePlayback(parentD3, opts) {
       }
       return lastPlaybackInfo;
     },
+    isPlaying : () => playing,
     seek : t => {
-      console.log('Seek to ' + t);
+      // console.log('Seek to ' + t);
       if (t < 0 || !playing || !useAudio) {
         return;
       }

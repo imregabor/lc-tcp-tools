@@ -74,7 +74,7 @@ export function initPage() {
   var visComponents = [];
 
   var lastPb; // last playback facade
-  playback.addSimplePlayback(body, {
+  lastPb = playback.addSimplePlayback(body, {
     build : pb => {
       analyserNode = pb.newAnalyserNode();
       analyserNode.fftSize = 4096;
@@ -104,7 +104,7 @@ export function initPage() {
       wslink.sendJson({ event : 'START_PLAYBACK', info : pb.getPlaybackInfo() });
     },
     onStop: pb => {
-      lastPb = undefined;
+      // lastPb = undefined;
       poll1.stop();
 
       visComponents.forEach(c => c.reset());
@@ -118,6 +118,7 @@ export function initPage() {
     }
   });
 
+
   const buf35 = new Float32Array(35);
   const buf7 = new Float32Array(7);
 
@@ -126,7 +127,10 @@ export function initPage() {
 
   const pd = scalar(body, 'Poll delay').min(10).max(25).ch(20);
   const id0 = scalar(body, 'FFT Intensity').min(0).max(0).ch(120).autoScale();
-  const id1 = scalar(body, 'A-FFT Intensity').min(0).max(0).ch(120).autoScale().showRange().onSeek(p => { if (lastPb) { lastPb.seek(p); }});
+  const id1 = scalar(body, 'A-FFT Intensity').min(0).max(0).ch(120).autoScale().showRange()
+      .onSeek(p => {
+        if (lastPb && lastPb.isPlaying()) { lastPb.seek(p); }
+      });
   const id2 = scalar(body, 'TD intensity').min(0).max(0).ch(120).autoScale();
 
   const sp0 = spectrum(body, 'FFT').unit('dB');
