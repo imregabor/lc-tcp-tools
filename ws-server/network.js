@@ -1,6 +1,8 @@
 "use strict";
 
 const { networkInterfaces } = require('os');
+const http = require('http');
+const chalk = require('chalk');
 
 function getLocalIPv4Interfaces() {
   const ret = [];
@@ -30,5 +32,35 @@ function restApiListeningAddresses(protocol, port) {
   return ret;
 }
 
+function pingUrl(url, desc) {
+  var answ;
+  const options = {
+    method: 'HEAD',
+    timeout: 1000
+  };
+  const req = http.request(url, options, resp => {
+    answ = true;
+    console.log(`${desc} ${url} responded, headers:`);
+    console.log('  ' + JSON.stringify(resp.headers));
+    console.log();
+  });
+  req.on('error', (err) => {
+    answ = true;
+    const msg = `${desc} ${url} check failed: ${err.message}`;
+    console.log(chalk.red(msg));
+    console.log();
+  });
+  req.end();
+  setTimeout(() => {
+    if (answ) {
+      return;
+    }
+    const msg = `${desc} ${url} did not respond in 1s`;
+    console.log(chalk.red(msg));
+    console.log();
+  }, 1000);
+}
+
 module.exports.getLocalIPv4Interfaces = getLocalIPv4Interfaces;
 module.exports.restApiListeningAddresses = restApiListeningAddresses;
+module.exports.pingUrl = pingUrl;

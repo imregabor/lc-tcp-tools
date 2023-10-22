@@ -13,7 +13,6 @@ const effects = require('./effects.js');
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 const chalk = require('chalk');
-const http = require('http');
 
 // see https://www.npmjs.com/package/command-line-args
 const cliOpts = [
@@ -40,35 +39,6 @@ if (options.help) {
 }
 
 if (options.mp3srv) {
-  function checkMp3server(url) {
-    var answ;
-    const options = {
-      method: 'HEAD',
-      timeout: 1000
-    };
-    const req = http.request(url, options, resp => {
-      answ = true;
-      console.log(`MP3 server ${url} responded, headers:`);
-      console.log('  ' + JSON.stringify(resp.headers));
-      console.log();
-    });
-    req.on('error', (err) => {
-      answ = true;
-      const msg = `MP3 server ${url} check failed: ${err.message}`;
-      console.log(chalk.red(msg));
-      console.log();
-    });
-    req.end();
-    setTimeout(() => {
-      if (answ) {
-        return;
-      }
-      const msg = `MP3 server ${url} did not respond in 1s`;
-      console.log(chalk.red(msg));
-      console.log();
-    }, 1000);
-  }
-
   for (var s of options.mp3srv) {
     if (!s.startsWith('http://') && !s.startsWith('https://')) {
       throw new Error(`MP3 server url does not start with "http://" or "https://": ${s}`)
@@ -76,7 +46,7 @@ if (options.mp3srv) {
     if (s.endsWith('/')) {
       throw new Error(`MP3 server url ends with "/": ${s}`)
     }
-    checkMp3server(s);
+    network.pingUrl(s, 'MP3 server');
   }
 }
 
@@ -335,6 +305,8 @@ app.post('/api/start-playback', (req, res) => {
   if (u) {
     ccSrv.broadcastJson({ command : 'START_PLAYBACK', url : u });
     res.status(200).send();
+    // check and just log if ping failed
+    network.pingUrl(u, 'START AUDIO URL');
   } else {
     res.status(400).send('Invalid/no url: ' + u);
   }
