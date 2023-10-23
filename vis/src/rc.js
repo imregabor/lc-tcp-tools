@@ -51,7 +51,7 @@ export function initPage() {
     onJson: o => {
       console.log('Status link message', o);
       if (o && o.event && o.event === 'START_PLAYBACK') {
-        playing();
+        playing(o.info);
       } else if (o && o.event && o.event === 'STOP_PLAYBACK') {
         notPlaying();
       }
@@ -69,16 +69,26 @@ export function initPage() {
   const b4 = addRb(body, 'fa-caret-left', 'Seek back 3s').label('3s');
   const b5 = addRb(body, 'fa-caret-right', 'Seek forward 3s').label('3s');
 
+  const sd = body.append('div').classed('stats', true);
+  const s1 = sd.append('div').classed('stat', true);
+  const s2 = sd.append('div').classed('stat', true);
+
   function notPlaying() {
     b1.disable();
     b2.disable();
     b3.disable();
     b4.disable();
     b5.disable();
+    s1.text('No playback').classed('disabled', true);
+    s2.text('No URL').classed('disabled', true);
   }
 
-  function playing() {
+  function playing(info) {
     b1.enable();
+    s1.text(`Playback: ${info.audio}`).classed('disabled', false);
+    if (info.url) {
+      s2.text(`URL: ${decodeURI(info.url)}`).classed('disabled', false);
+    }
   }
 
   notPlaying();

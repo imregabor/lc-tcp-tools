@@ -11,6 +11,10 @@ module.exports = {
       filename: 'index.html',
       favicon: './src/favicon.png',
       title: 'Web Audio based visualization',
+      meta : {
+        viewport : 'user-scalable=no, width=device-width, initial-scale=1.0',
+        'apple-mobile-web-app-capable' : 'yes'
+      }
     }),
   ],
   module: {

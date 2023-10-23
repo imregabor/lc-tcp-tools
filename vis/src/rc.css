@@ -1,3 +1,10 @@
+body {
+  /* see https://stackoverflow.com/questions/4192277/disable-horizontal-scroll-on-mobile-web */
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .rect-button {
   position: relative;
   border: 1px solid #aaa;
@@ -52,4 +59,22 @@
 
 .rect-button:active:not(.disabled) .xtra-label {
   transform: translate(1px, 1px);
+}
+
+div.stats {
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  display: inline-block;
+  position: relative;
+  height: 40px;
+  vertical-align:top
+}
+
+.stat {
+  min-width: 240px;
+  line-height: 20px;
+}
+
+.stat.disabled {
+  opacity: 0.3;
 }
