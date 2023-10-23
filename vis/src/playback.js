@@ -356,6 +356,19 @@ export function addSimplePlayback(parentD3, opts) {
       a.node().currentTime = t;
 
       return ret;
+    },
+    seekRelative : d => {
+      // console.log('Seek to ' + t);
+      if (!d || !playing || !useAudio) {
+        return;
+      }
+      const t = a.node().currentTime;
+      if (!t) {
+        return;
+      }
+      const nt = t + d;
+      a.node().currentTime = nt;
+      return ret;
     }
   };
   return ret;

@@ -1,0 +1,55 @@
+.rect-button {
+  position: relative;
+  border: 1px solid #aaa;
+  display: inline-block;
+  width: 60px;
+  height: 40px;
+  border-radius: 5px;
+  background-color: #d0d0d0;
+  box-shadow: inset -2px -2px 0px #aaa, inset 2px 2px 0px #eee;
+  margin-right: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.rect-button.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.rect-button:hover:not(.disabled) {
+  background-color: #cacaca;
+}
+
+.rect-button:active:not(.disabled) {
+  background-color: #c8c8c8;
+  box-shadow: inset -1px -1px 0px #aaa, inset 1px 1px 0px #eee;
+}
+
+.rect-button i {
+  color:  #888;
+  font-size: 20px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  text-shadow: 1px 1px 1px white;
+}
+
+.rect-button:active:not(.disabled) i {
+  transform: translate(calc(-50% + 1px), calc(-50% + 1px));
+}
+
+
+.rect-button .xtra-label {
+  position: absolute;
+  font-family: monospace;
+  font-size: 14px;
+  right: 5px;
+  bottom: 4px;
+  color: #666;
+}
+
+.rect-button:active:not(.disabled) .xtra-label {
+  transform: translate(1px, 1px);
+}

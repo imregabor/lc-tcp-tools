@@ -45,6 +45,8 @@ export function initPage() {
         lastPb.ensureStop();
       } else if (lastPb && o && o.command && o.command === 'SEEK_PLAYBACK' && o.t) {
         lastPb.seek(o.t);
+      } else if (lastPb && o && o.command && o.command === 'SEEK_RELATIVE_PLAYBACK' && o.d) {
+        lastPb.seekRelative(o.d);
       } else if (lastPb && o && o.command && o.command === 'START_PLAYBACK' && o.url) {
         lastPb.startPlaybackFrom(o.url);
       }

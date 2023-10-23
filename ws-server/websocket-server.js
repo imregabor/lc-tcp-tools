@@ -8,7 +8,6 @@ function open(opts) {
   const logTarget = opts.log ? opts.log : console.log;
   const log = m => logTarget('@ ' + path + ': ' + m);
 
-
   // const wss = new ws.Server({ port: 8080 });
   // see https://masteringjs.io/tutorials/express/websockets
   const wss = new ws.Server({
@@ -37,6 +36,9 @@ function open(opts) {
 
     ws.on('message', data => {
       log('[' + connectionId + '] received: ' + data.toString());
+      if (opts.onMessage) {
+        opts.onMessage(data.toString());
+      }
     });
 
     ws.on('close', () => {

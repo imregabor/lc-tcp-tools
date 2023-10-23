@@ -101,7 +101,10 @@ const wsSrv = openWsSrv({
 });
 
 const ccSrv = openWsSrv({
-  log : m => console.log('[CC srv] ' + m),
+  log : m => {
+    console.log('[CC srv] ' + m);
+  },
+  onMessage : d => wsSrv.broadcast(d),
   path : '/ws-api/control'
 });
 
@@ -326,6 +329,17 @@ app.post('/api/seek-playback', (req, res) => {
     res.status(400).send('Invalid/no timestamp: ' + req.query.t);
   }
 });
+
+app.post('/api/seek-relative-playback', (req, res) => {
+  const d = +req.query.d;
+  if (d) {
+    ccSrv.broadcastJson({ command : 'SEEK_RELATIVE_PLAYBACK', d : d });
+    res.status(200).send();
+  } else {
+    res.status(400).send('Invalid/no delta: ' + req.query.d);
+  }
+});
+
 
 console.log('# TCP server / web socket server')
 console.log('#')

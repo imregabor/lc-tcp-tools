@@ -17,6 +17,12 @@ export function getMp3Servers(cb) {
     });
 }
 
+export function stopPlayback() {
+  fetch('/api/stop-playback', {
+    method: 'POST'
+  });
+}
+
 
 /**
  * WS API related functionalities.
@@ -38,11 +44,15 @@ export function openWsLink(opts) {
   }
   wsUri += '//' + windowLocation.host + opts.endpoint;
 
+  const expectNonJsonMessages = opts.expectNonJsonMessages;
 
   function handleMessage(e) {
     var msg = e.data;
     if (!msg.startsWith('{')) {
-      console.log('ERROR: expected JSON message:', msg);
+      if (!expectNonJsonMessages) {
+        console.log('ERROR: expected JSON message:', msg);
+      }
+      return;
     }
     if (opts.onJson) {
       opts.onJson(JSON.parse(msg));
