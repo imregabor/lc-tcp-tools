@@ -31,11 +31,13 @@ function open(opts) {
       socket : ws,
       connectedTime : Date.now(),
       alive : true,
-      messageCount : 0
+      rcvCount : 0,
+      sndCount : 0
     };
 
     ws.on('message', data => {
       log('[' + connectionId + '] received: ' + data.toString());
+      activeConnections[connectionId].rcvCount++;
       if (opts.onMessage) {
         opts.onMessage(data.toString());
       }
@@ -88,7 +90,8 @@ function open(opts) {
         const uptime = Date.now() - activeConnections[ci].connectedTime;
         status.activeConnectionCount++;
         status.activeConnections.push({
-          messageCount : activeConnections[ci].messageCount,
+          rcvCount : activeConnections[ci].rcvCount,
+          sndount : activeConnections[ci].sndCount,
           readyState : ws.readyState,
           uptime : uptime
         });
@@ -101,7 +104,7 @@ function open(opts) {
         if (!activeConnections.hasOwnProperty(ci)) {
           continue;
         }
-        activeConnections[ci].messageCount++;
+        activeConnections[ci].sndCount++;
         activeConnections[ci].socket.send(message);
       }
     },
