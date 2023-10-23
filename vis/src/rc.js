@@ -124,5 +124,5 @@ export function initPage() {
 
   notPlaying();
 
-  apiclient.checkPlayback();
+  setTimeout(apiclient.checkPlayback, 1000);
 }

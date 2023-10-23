@@ -122,7 +122,6 @@ export function initPage() {
       organ7.reset();
 
       wslink.sendJson({ event : 'STOP_PLAYBACK' });
-      lastPbInfo = undefined;
     }
   });
 
