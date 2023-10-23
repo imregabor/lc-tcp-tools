@@ -320,6 +320,12 @@ app.post('/api/stop-playback', (req, res) => {
   res.status(200).send();
 });
 
+app.post('/api/check-playback-info', (req, res) => {
+  ccSrv.broadcastJson({ command : 'CHECK_PLAYBACK_INFO' });
+  res.status(200).send();
+});
+
+
 app.post('/api/seek-playback', (req, res) => {
   const t = +req.query.t;
   if (t) {

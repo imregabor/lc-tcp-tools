@@ -67,7 +67,10 @@ export function initPage() {
         notPlaying();
       } else if (o && o.event && o.event === 'PLAYBACK_POSITION') {
         progress(o.info);
+      } else if (o && o.event && o.event === 'PLAYBACK_INFO') {
+        playing(o.info);
       }
+
 
     }
   });
@@ -120,4 +123,6 @@ export function initPage() {
   }
 
   notPlaying();
+
+  apiclient.checkPlayback();
 }

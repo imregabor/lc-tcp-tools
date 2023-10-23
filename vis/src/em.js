@@ -49,6 +49,11 @@ export function initPage() {
         lastPb.seekRelative(o.d);
       } else if (lastPb && o && o.command && o.command === 'START_PLAYBACK' && o.url) {
         lastPb.startPlaybackFrom(o.url);
+      } else if (lastPb && o && o.command && o.command === 'CHECK_PLAYBACK_INFO') {
+        const i = lastPb.getPlaybackInfo();
+        if (i) {
+          wslink.sendJson({ event : 'PLAYBACK_INFO', info : i });
+        }
       }
     }
   });
@@ -117,6 +122,7 @@ export function initPage() {
       organ7.reset();
 
       wslink.sendJson({ event : 'STOP_PLAYBACK' });
+      lastPbInfo = undefined;
     }
   });
 

@@ -29,6 +29,13 @@ export function seekRelativePlayback(d) {
   });
 }
 
+export function checkPlayback() {
+  fetch('/api/check-playback-info', {
+    method: 'POST'
+  });
+}
+
+
 /**
  * WS API related functionalities.
  */
