@@ -226,8 +226,10 @@ export function initPage() {
     if (ct != 0) {
       wslink.sendJson({
         event : 'PLAYBACK_POSITION',
-        position : ct,
-        duration : dd
+        info : {
+          position : ct,
+          duration : dd
+        }
       });
     }
   });

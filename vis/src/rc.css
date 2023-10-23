@@ -1,7 +1,7 @@
 body {
   /* see https://stackoverflow.com/questions/4192277/disable-horizontal-scroll-on-mobile-web */
   overflow-x: hidden;
-  width: 100%;
+  /* width: 100%; */
   box-sizing: border-box;
 }
 
@@ -15,6 +15,7 @@ body {
   background-color: #d0d0d0;
   box-shadow: inset -2px -2px 0px #aaa, inset 2px 2px 0px #eee;
   margin-right: 10px;
+  margin-bottom: 10px;
   cursor: pointer;
   user-select: none;
 }
@@ -61,13 +62,22 @@ body {
   transform: translate(1px, 1px);
 }
 
+div.fw-box {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+
+}
+
 div.stats {
   border: 1px solid #aaa;
   border-radius: 5px;
   display: inline-block;
   position: relative;
-  height: 40px;
-  vertical-align:top
+  /* height: 40px; */
+  vertical-align:top;
+  flex-grow: 100;
+  margin-bottom: 10px;
 }
 
 .stat {

@@ -23,6 +23,11 @@ export function stopPlayback() {
   });
 }
 
+export function seekRelativePlayback(d) {
+  fetch(`/api/seek-relative-playback?d=${+d}`, {
+    method: 'POST'
+  });
+}
 
 /**
  * WS API related functionalities.
