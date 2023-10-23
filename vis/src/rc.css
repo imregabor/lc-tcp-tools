@@ -5,6 +5,19 @@ body {
   box-sizing: border-box;
 }
 
+i.hbicon {
+  position: absolute;
+  right: 5px;
+  top:  5px;
+  color:  #ddd;
+  transition: color 0.5s ease-in-out;
+}
+
+i.hbicon.pinged {
+  color: #a1d99b;
+  transition: color 0.1s ease-in-out;
+}
+
 .rect-button {
   position: relative;
   border: 1px solid #aaa;

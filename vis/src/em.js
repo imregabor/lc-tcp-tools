@@ -239,6 +239,12 @@ export function initPage() {
     }
   });
 
+  setInterval(() => {
+    wslink.sendJson({
+        event : 'HEARTBEAT'
+      });
+  }, 2000);
+
   poll.animationLoop(() => {
     // if (lastPb) { console.log(lastPb.getCurrentTime()); }
     visComponents.forEach(c => c.render());

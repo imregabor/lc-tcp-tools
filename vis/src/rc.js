@@ -69,13 +69,17 @@ export function initPage() {
         progress(o.info);
       } else if (o && o.event && o.event === 'PLAYBACK_INFO') {
         playing(o.info);
+      } else if (o && o.event && o.event === 'HEARTBEAT') {
+        heartbeat();
       }
-
 
     }
   });
 
   const body = d3.select('body');
+  const hbi = body.append('i')
+    .classed('fa fa-circle hbicon', true)
+    .attr('title', 'Heartbeat from player');
   body.append('h1').text('Remote controller');
 
   const ct1 = body.append('div').classed('fw-box', true);
@@ -96,6 +100,11 @@ export function initPage() {
 
   const pd = body.append('div').classed('fw-box', true);
   const p1 = pd.append('div').classed('stat', true);
+
+  function heartbeat() {
+    hbi.classed('pinged', true);
+    setTimeout(() => hbi.classed('pinged', false), 300);
+  }
 
   function notPlaying() {
     b1.disable();
