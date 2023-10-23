@@ -29,6 +29,13 @@ export function seekRelativePlayback(d) {
   });
 }
 
+export function seekPlayback(t) {
+  fetch(`/api/seek-playback?t=${+t}`, {
+    method: 'POST'
+  });
+}
+
+
 export function checkPlayback() {
   fetch('/api/check-playback-info', {
     method: 'POST'

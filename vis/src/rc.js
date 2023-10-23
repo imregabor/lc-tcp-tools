@@ -100,6 +100,16 @@ export function initPage() {
 
   const pd = body.append('div').classed('fw-box', true);
   const p1 = pd.append('div').classed('stat', true);
+  const po = pd.append('div').classed('pbar-o', true).on('click', e => {
+    if (!lastDuration || po.classed('disabled')) {
+      return;
+    }
+    const poNode = po.node();
+    const x = Math.round(d3.pointer(e, poNode)[0]);
+    const w = poNode.clientWidth;
+    apiclient.seekPlayback(lastDuration * x / w);
+  });
+  const pi = po.append('div').classed('pbar-i', true);
 
   function heartbeat() {
     hbi.classed('pinged', true);
@@ -112,9 +122,13 @@ export function initPage() {
     b3.disable();
     b4.disable();
     b5.disable();
+
     s1.text('No playback').classed('disabled', true);
     s2.text('No URL').classed('disabled', true);
     p1.text('No progress').classed('disabled', true);
+    po.classed('disabled', true);
+    pi.style('width', 0);
+    lastDuration = 0;
   }
 
   function playing(info) {
@@ -125,10 +139,15 @@ export function initPage() {
     }
   }
 
+  var lastDuration;
   function progress(info) {
+    lastDuration = info.duration;
     b4.enable();
     b5.enable();
     p1.text(`${formatTime(info.position)} / ${formatTime(info.duration)}`).classed('disabled', false);
+    po.classed('disabled', false);
+    const w = Math.round(100 * info.position / info.duration) + '%';
+    pi.style('width', w);
   }
 
   notPlaying();

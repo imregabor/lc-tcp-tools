@@ -94,10 +94,35 @@ div.stats {
 }
 
 .stat {
-  min-width: 240px;
+  min-width: 180px;
   line-height: 20px;
 }
 
 .stat.disabled {
   opacity: 0.3;
+}
+
+div.pbar-o {
+  min-width: 400px;
+  min-height: 20px;
+  flex-grow: 100;
+  border:  1px solid #aaa;
+  background-color: #eee;
+  border-radius: 5px;
+  position: relative;
+  cursor: crosshair;
+}
+
+div.pbar-o.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+div.pbar-i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width:  30%;
+  background-color:  steelblue;
 }
