@@ -90,7 +90,7 @@ export function openWsLink(opts) {
       return;
     }
     if (ws.readyState !== 1) {
-      console.log('WS not OPEN, readyState = ' + ws.readyState + ', cannot send', i)
+      console.log('WS not OPEN, readyState = ' + ws.readyState + ', cannot send', o)
       return;
     }
     ws.send(message);
@@ -108,7 +108,8 @@ export function openWsLink(opts) {
         opts.onUp();
       }
     }
-    ws.onclose = handleClose;
+    ws.onclose = () => { console.log('WS close'); handleClose(); };
+    ws.onerror = () => { console.log('WS error'); handleClose(); };
     ws.onmessage = handleMessage;
   }
   open();
