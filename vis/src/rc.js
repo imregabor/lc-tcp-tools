@@ -47,6 +47,10 @@ function addRb(parentD3, faClass, title) {
     },
     disable : () => ret.enabled(false),
     enable : () => ret.enabled(true),
+    addIconClass : c => {
+      icon.classed(c, true);
+      return ret;
+    },
     onClick : h => {
       click = h;
       return ret;
@@ -88,10 +92,12 @@ export function initPage() {
 
   const ct1 = body.append('div').classed('fw-box', true);
   const b1 = addRb(ct1, 'fa-stop', 'Stop playback')
+    .addIconClass('red')
     .onClick(() => apiClient.stopPlayback());
   const b2 = addRb(ct1, 'fa-pause', 'Pause playback')
     .onClick(() => apiClient.pausePlayback());
   const b3 = addRb(ct1, 'fa-play', 'Resume playback')
+    .addIconClass('green')
     .onClick(() => apiClient.resumePlayback());
   const b4 = addRb(ct1, 'fa-caret-left', 'Seek back 3s')
     .label('3s')

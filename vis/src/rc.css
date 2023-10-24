@@ -61,6 +61,13 @@ i.hbicon.pinged {
   transform: translate(calc(-50% + 1px), calc(-50% + 1px));
 }
 
+.rect-button:not(.disabled) i.red {
+  color: #da0b0b;
+}
+
+.rect-button:not(.disabled) i.green {
+  color: #34b234;
+}
 
 .rect-button .xtra-label {
   position: absolute;
