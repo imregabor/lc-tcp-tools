@@ -23,6 +23,12 @@ export function stopPlayback() {
   });
 }
 
+export function startPlayback(url) {
+  fetch(`/api/start-playback?u=${url}`, {
+    method: 'POST'
+  });
+}
+
 export function seekRelativePlayback(d) {
   fetch(`/api/seek-relative-playback?d=${+d}`, {
     method: 'POST'

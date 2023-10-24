@@ -15,7 +15,7 @@ function formatSize(size) {
 }
 
 export function loadMp3ListFromServer(srv) {
-  fetch(`${srv}/index-mp3.json`)
+  return fetch(`${srv}/index-mp3.json`)
     .then(response => response.json())
     .then(l => {
       //console.log(`MP3 index from "${srv}" received`, l)
@@ -44,22 +44,7 @@ export function loadMp3ListFromServer(srv) {
     })
 }
 
-
-export function chooseMp3() {
-  return new Promise((resolve, reject) => {
-    const body = d3.select('body');
-
-    function cancel() {
-        event.stopPropagation();
-        m1.remove();
-        reject();
-    }
-
-    const m1 = body.append('div').classed('modal-bg', true).on('click', cancel);
-    const m2 = m1.append('div').classed('modal-dg', true).on('click', () => event.stopPropagation());
-
-    m2.append('h1').text('Pick an mp3').append('i').classed('fa fa-times', true).on('click', cancel);
-
+export function addItemsTo(m2, select) {
     const hi = m2.append('div').classed('header-info', true).append('span');
 
     const srcd = m2.append('div').classed('src', true);
@@ -111,8 +96,7 @@ export function chooseMp3() {
         .on('click', (e, d) => {
           console.log(d)
           event.preventDefault();
-          m1.remove();
-          resolve(`${d.url}`);
+          select(`${d.url}`);
         })
 
     entries.append('span')
@@ -125,6 +109,28 @@ export function chooseMp3() {
 
     updateMp3Count();
 
-    // resolve(`${mp3srv}/${mp3index.mp3s[123].url}`);
+}
+
+export function chooseMp3() {
+  return new Promise((resolve, reject) => {
+    const body = d3.select('body');
+
+    function cancel() {
+      event.stopPropagation();
+      m1.remove();
+      reject();
+    }
+
+    function select(url) {
+      m1.remove();
+      resolve(url);
+    }
+
+    const m1 = body.append('div').classed('modal-bg', true).on('click', cancel);
+    const m2 = m1.append('div').classed('modal-dg', true).on('click', () => event.stopPropagation());
+
+    m2.append('h1').text('Pick an mp3').append('i').classed('fa fa-times', true).on('click', cancel);
+
+    addItemsTo(m2, select);
   });
 }

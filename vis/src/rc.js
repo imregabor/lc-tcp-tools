@@ -1,9 +1,10 @@
 'use strict';
 
 import * as d3 from 'd3';
-import * as apiclient from './api-client.js';
+import * as apiClient from './api-client.js';
 import './rc.css';
 import '@fortawesome/fontawesome-free/css/all.css'
+import * as mp3dialog from './mp3-select-dialog.js';
 
 function formatTime(t) {
   t = Math.floor(+t);
@@ -56,7 +57,7 @@ function addRb(parentD3, faClass, title) {
 }
 
 export function initPage() {
-  const wslink = apiclient.openWsLink({
+  const wslink = apiClient.openWsLink({
     endpoint : '/ws-api/effects',
     expectNonJsonMessages : true,
     onJson: o => {
@@ -80,19 +81,18 @@ export function initPage() {
   const hbi = body.append('i')
     .classed('fa fa-circle hbicon', true)
     .attr('title', 'Heartbeat from player');
-  body.append('h1').text('Remote controller');
 
   const ct1 = body.append('div').classed('fw-box', true);
   const b1 = addRb(ct1, 'fa-stop', 'Stop playback')
-    .onClick(() => apiclient.stopPlayback());
+    .onClick(() => apiClient.stopPlayback());
   const b2 = addRb(ct1, 'fa-pause', 'Pause playback');
   const b3 = addRb(ct1, 'fa-play', 'Resume playback');
   const b4 = addRb(ct1, 'fa-caret-left', 'Seek back 3s')
     .label('3s')
-    .onClick(() => apiclient.seekRelativePlayback(-3));
+    .onClick(() => apiClient.seekRelativePlayback(-3));
   const b5 = addRb(ct1, 'fa-caret-right', 'Seek forward 3s')
     .label('3s')
-    .onClick(() => apiclient.seekRelativePlayback(3));
+    .onClick(() => apiClient.seekRelativePlayback(3));
 
   const sd = ct1.append('div').classed('stats', true);
   const s1 = sd.append('div').classed('stat', true);
@@ -107,9 +107,11 @@ export function initPage() {
     const poNode = po.node();
     const x = Math.round(d3.pointer(e, poNode)[0]);
     const w = poNode.clientWidth;
-    apiclient.seekPlayback(lastDuration * x / w);
+    apiClient.seekPlayback(lastDuration * x / w);
   });
   const pi = po.append('div').classed('pbar-i', true);
+
+  const mp3listDiv = body.append('div').classed('modal-dg', true);
 
   function heartbeat() {
     hbi.classed('pinged', true);
@@ -152,5 +154,18 @@ export function initPage() {
 
   notPlaying();
 
-  setTimeout(apiclient.checkPlayback, 1000);
+  setTimeout(apiClient.checkPlayback, 1000);
+
+  apiClient.getMp3Servers(s => {
+    mp3dialog
+        .loadMp3ListFromServer(s)
+        .then(() => {
+          mp3listDiv.selectAll('*').remove();
+          mp3listDiv.append('h1').text('Pick an mp3');
+          mp3dialog.addItemsTo(mp3listDiv, url => {
+            apiClient.startPlayback(url);
+          });
+        });
+  });
+
 }
