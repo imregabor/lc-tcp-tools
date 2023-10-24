@@ -73,7 +73,11 @@ export function initPage() {
       } else if (o && o.event && o.event === 'PLAYBACK_POSITION') {
         progress(o.info);
       } else if (o && o.event && o.event === 'PLAYBACK_INFO') {
-        playing(o.info);
+        if (o.info) {
+          playing(o.info);
+        } else {
+          notPlaying();
+        }
       } else if (o && o.event && o.event === 'HEARTBEAT') {
         heartbeat();
       } else if (o && o.event && o.event === 'PAUSE_PLAYBACK') {

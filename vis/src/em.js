@@ -39,7 +39,7 @@ export function initPage() {
   const wslink = apiclient.openWsLink({
     endpoint : '/ws-api/control',
     onJson: o => {
-      console.log('Control link message', o);
+      console.log('Control link message received', o);
 
       if (lastPb && o && o.command && o.command === 'STOP_PLAYBACK') {
         lastPb.ensureStop();
@@ -53,14 +53,23 @@ export function initPage() {
         lastPb.seekRelative(o.d);
       } else if (lastPb && o && o.command && o.command === 'START_PLAYBACK' && o.url) {
         lastPb.startPlaybackFrom(o.url);
-      } else if (lastPb && o && o.command && o.command === 'CHECK_PLAYBACK_INFO') {
-        const i = lastPb.getPlaybackInfo();
-        if (i) {
-          wslink.sendJson({ event : 'PLAYBACK_INFO', info : i });
-        }
+      } else if (o && o.command && o.command === 'CHECK_PLAYBACK_INFO') {
+        sendPlaybackInfo();
       }
+    },
+    onUp : () => {
+      sendPlaybackInfo();
     }
   });
+
+  function sendPlaybackInfo() {
+    const i = lastPb ? lastPb.getPlaybackInfo() : undefined;
+    if (i) {
+      wslink.sendJson({ event : 'PLAYBACK_INFO', info : i });
+    } else {
+      wslink.sendJson({ event : 'PLAYBACK_INFO' });
+    }
+  }
 
   const body = d3.select('body');
   body.append('h1').text('Hello');
