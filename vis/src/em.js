@@ -43,6 +43,10 @@ export function initPage() {
 
       if (lastPb && o && o.command && o.command === 'STOP_PLAYBACK') {
         lastPb.ensureStop();
+      } else if (lastPb && o && o.command && o.command === 'PAUSE_PLAYBACK') {
+        lastPb.pause();
+      } else if (lastPb && o && o.command && o.command === 'RESUME_PLAYBACK') {
+        lastPb.resume();
       } else if (lastPb && o && o.command && o.command === 'SEEK_PLAYBACK' && o.t) {
         lastPb.seek(o.t);
       } else if (lastPb && o && o.command && o.command === 'SEEK_RELATIVE_PLAYBACK' && o.d) {
@@ -122,6 +126,12 @@ export function initPage() {
       organ7.reset();
 
       wslink.sendJson({ event : 'STOP_PLAYBACK' });
+    },
+    onPause: pb => {
+      wslink.sendJson({ event : 'PAUSE_PLAYBACK' });
+    },
+    onResume: pb => {
+      wslink.sendJson({ event : 'RESUME_PLAYBACK' });
     }
   });
 

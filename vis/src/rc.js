@@ -72,6 +72,10 @@ export function initPage() {
         playing(o.info);
       } else if (o && o.event && o.event === 'HEARTBEAT') {
         heartbeat();
+      } else if (o && o.event && o.event === 'PAUSE_PLAYBACK') {
+        pause();
+      } else if (o && o.event && o.event === 'RESUME_PLAYBACK') {
+        resume();
       }
 
     }
@@ -85,8 +89,10 @@ export function initPage() {
   const ct1 = body.append('div').classed('fw-box', true);
   const b1 = addRb(ct1, 'fa-stop', 'Stop playback')
     .onClick(() => apiClient.stopPlayback());
-  const b2 = addRb(ct1, 'fa-pause', 'Pause playback');
-  const b3 = addRb(ct1, 'fa-play', 'Resume playback');
+  const b2 = addRb(ct1, 'fa-pause', 'Pause playback')
+    .onClick(() => apiClient.pausePlayback());
+  const b3 = addRb(ct1, 'fa-play', 'Resume playback')
+    .onClick(() => apiClient.resumePlayback());
   const b4 = addRb(ct1, 'fa-caret-left', 'Seek back 3s')
     .label('3s')
     .onClick(() => apiClient.seekRelativePlayback(-3));
@@ -118,6 +124,16 @@ export function initPage() {
     setTimeout(() => hbi.classed('pinged', false), 300);
   }
 
+  function pause() {
+    b2.disable();
+    b3.enable();
+  }
+
+  function resume() {
+    b2.enable();
+    b3.disable();
+  }
+
   function notPlaying() {
     b1.disable();
     b2.disable();
@@ -135,9 +151,13 @@ export function initPage() {
 
   function playing(info) {
     b1.enable();
+    b2.enable();
     s1.text(`Playback: ${info.audio}`).classed('disabled', false);
     if (info.url) {
       s2.text(`URL: ${decodeURI(info.url)}`).classed('disabled', false);
+    }
+    if (info.paused) {
+      pause();
     }
   }
 

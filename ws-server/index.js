@@ -320,6 +320,16 @@ app.post('/api/stop-playback', (req, res) => {
   res.status(200).send();
 });
 
+app.post('/api/pause-playback', (req, res) => {
+  ccSrv.broadcastJson({ command : 'PAUSE_PLAYBACK' });
+  res.status(200).send();
+});
+
+app.post('/api/resume-playback', (req, res) => {
+  ccSrv.broadcastJson({ command : 'RESUME_PLAYBACK' });
+  res.status(200).send();
+});
+
 app.post('/api/check-playback-info', (req, res) => {
   ccSrv.broadcastJson({ command : 'CHECK_PLAYBACK_INFO' });
   res.status(200).send();

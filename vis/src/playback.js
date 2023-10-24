@@ -125,15 +125,38 @@ export function addSimplePlayback(parentD3, opts) {
 
   var a;
   var adiv;
-
+  var apaused;
   var lastPlaybackInfo;
+  var astop;
 
   function audio(url) {
     message(`Start playing from ${decodeURI(url)}`);
     disableButtons();
     adiv = div.append('div').classed('playback-player', true)
     a = adiv.append('audio').attr('crossorigin', 'anonymous').attr('controls', true);
+    apaused = false;
+    astop = false;
+
+    a.node().onpause = e => {
+      if (astop) {
+        return;
+      }
+      apaused = true;
+      if (opts.onPause) {
+        opts.onPause(ret);
+      }
+    };
+    a.node().onplay = e => {
+      if (!apaused) {
+        return;
+      }
+      apaused = false;
+      if (opts.onResume) {
+        opts.onResume(ret);
+      }
+    };
     a.attr('src', url);
+
 
     const xctd = adiv.append('div').classed('playback-extra-controls', true);
     xctd.append('i').classed('fa fa-caret-left fa-fw', true).on('click', () => {
@@ -196,10 +219,12 @@ export function addSimplePlayback(parentD3, opts) {
 
   function stop() {
     lastPlaybackInfo = undefined;
+    astop = true;
     if (!playing) {
       throw new Error('Not playing');
     }
     playing = false;
+    apaused = false;
     if (useAudio) {
       useAudio = false;
       a.node().pause();
@@ -344,9 +369,23 @@ export function addSimplePlayback(parentD3, opts) {
       if (!playing) {
         return undefined;
       }
+      lastPlaybackInfo.paused = ret.isPaused();
       return lastPlaybackInfo;
     },
     isPlaying : () => playing,
+    isPaused : () => apaused,
+    pause : () => {
+      if (!playing || !useAudio) {
+        return;
+      }
+      a.node().pause();
+    },
+    resume : () => {
+      if (!playing || !useAudio) {
+        return;
+      }
+      a.node().play();
+    },
     seek : t => {
       // console.log('Seek to ' + t);
       if (t < 0 || !playing || !useAudio) {

@@ -23,6 +23,19 @@ export function stopPlayback() {
   });
 }
 
+export function pausePlayback() {
+  fetch('/api/pause-playback', {
+    method: 'POST'
+  });
+}
+
+export function resumePlayback() {
+  fetch('/api/resume-playback', {
+    method: 'POST'
+  });
+}
+
+
 export function startPlayback(url) {
   fetch(`/api/start-playback?u=${url}`, {
     method: 'POST'
