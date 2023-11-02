@@ -40,4 +40,5 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
+  // stats : 'detailed',
 };

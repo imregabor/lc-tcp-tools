@@ -10,6 +10,10 @@ export function initPage() {
       .text('Effect machine + player');
   body.append('br');
   body.append('a')
+      .attr('href', '#vis2')
+      .text('Effect machine 2 + player');
+  body.append('br');
+  body.append('a')
       .attr('href', '#rc')
       .text('Remote controller');
   body.append('br');

@@ -1,0 +1,92 @@
+svg {
+  border: 1px solid black;
+
+}
+
+.edgeg {
+  stroke: black;
+  stroke-width: 1;
+  fill: none;
+}
+
+.nodeg {
+  cursor: move;
+  pointer-events: visibleFill;
+}
+
+.eoverlayerg {
+  stroke: black;
+  stroke-width: 1;
+  fill: none;
+}
+
+
+rect.box {
+  stroke: black;
+  stroke-width: 1;
+  fill: rgba(0,0,0,0.1);
+
+}
+
+.nodeg:hover rect.box {
+  fill: rgba(0,0,0,0.2);
+}
+
+
+
+text.node-label {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+text.port-label {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+text.param-label {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+text.param-value {
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+
+.portg path {
+  stroke: black;
+  stroke-width: 1px;
+  fill: white;
+}
+
+.portg:hover path {
+  fill: #eee;
+}
+
+.portg.lightgreen path {
+  fill: #b8e0b8;
+  pointer-events: none;
+}
+
+.portg.lightred path {
+  fill: #e0c2b8;
+  pointer-events: none;
+}
+
+.portg.green path {
+  fill: green;
+  pointer-events: none;
+}
+
+.portg.red path {
+  fill: red;
+  pointer-events: none;
+}
+
+path.snapped {
+  stroke-width: 3;
+  stroke: #61d161;
+}
