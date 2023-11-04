@@ -3,6 +3,7 @@
 import * as d3 from 'd3';
 import './em2.css';
 import * as connDrag from './connection-dragging.js';
+import * as notes from './notes.js';
 
 export function initPage() {
   d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
@@ -308,6 +309,9 @@ export function initPage() {
     })
   );
 
+  function hasConnection(nodeData, portData) {
+    return !!edges.find(e => e.n2 == nodeData && e.p2 === portData.portid);
+  }
 
   connDrag.registerListenersOnPorts({
     portsD3 : nodelayerg.selectAll('g.portg'),
@@ -324,10 +328,24 @@ export function initPage() {
       return [x, y];
     },
     connect : (portD3src, portD3dst) => {
+      console.log(portD3src.datum(), portD3dst.datum());
+
+
       const srcPortData = portD3src.datum();
       const srcNodeData = d3.select(portD3src.node().parentNode).datum();
       const dstPortData = portD3dst.datum();
       const dstNodeData = d3.select(portD3dst.node().parentNode).datum();
+
+      if (srcPortData.def.type !== 'out' || dstPortData.def.type !== 'in') {
+        notes.topErr('Connected ports type mismatch')
+        return;
+      }
+
+      if (hasConnection(dstNodeData, dstPortData)) {
+        notes.topErr('Multiple connections to the same destination are not allowed.');
+        return;
+      }
+
       const newEdge = {
         n1: srcNodeData,
         p1: srcPortData.portid,
@@ -336,9 +354,7 @@ export function initPage() {
       };
 
       edges.push(newEdge);
-
-      console.log(edges);
-
+      notes.top('Connection added');
       renderEdges();
     }
   });
