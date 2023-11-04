@@ -1,0 +1,26 @@
+.note-ctr {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  align-items: center;
+}
+
+.note-top {
+  padding: 5px;
+  border: 1px solid #74c476;
+  background: #c7e9c0;
+  color: #238b45;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.note-err {
+  border: 1px solid #fb6a4a;
+  background: #fcbba1;
+  color: #99000d;
+}
