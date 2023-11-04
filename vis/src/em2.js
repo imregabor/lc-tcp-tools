@@ -5,8 +5,8 @@ import './em2.css';
 import * as connDrag from './connection-dragging.js';
 
 export function initPage() {
+  d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
   const body = d3.select('body');
-  body.append('h1').text('Hello');
 
   var idct = 0;
   function newId() {
@@ -14,8 +14,8 @@ export function initPage() {
     return `id-${idct}`;
   }
 
-
-  const svg = body.append('svg').attr('width', 1200).attr('height', 800);
+  const svgdiv = body.append('div').classed('svg-ctr', true);
+  const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
   const maing = svg.append('g');
 
   var nodeTypes = {
