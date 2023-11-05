@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import './em2.css';
 import * as connDrag from './connection-dragging.js';
 import * as notes from './notes.js';
+import * as nodeDefs from './node-definitions.js';
 
 export function initPage() {
   d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
@@ -19,72 +20,7 @@ export function initPage() {
   const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
   const maing = svg.append('g');
 
-  var nodeTypes = {
-    aa : {
-      w : 100,
-      h : 130,
-      title : 'audio analyzer',
-      ports : {
-        tdo : {
-          type : 'out',
-          label : 'time domain',
-          x : 120,
-          y : 40,
-          l : 70
-        },
-        spo : {
-          type : 'out',
-          label : 'spectrum',
-          x : 120,
-          y : 70,
-          l : 70
-        }
-      }
-    },
-    aw : {
-      w : 130,
-      h : 130,
-      title : 'a-weights',
-      ports : {
-        spo : {
-          type : 'out',
-          label : 'spectrum',
-          x : 150,
-          y : 40,
-          l : 70
-        },
-        spi : {
-          type : 'in',
-          label : 'spectrum',
-          x : -20,
-          y : 40,
-          l : 70
-        }
-      }
-    },
-    tde : {
-      w : 70,
-      h : 60,
-      title : 'time domain energy',
-      ports : {
-        tdi : {
-          type : 'in',
-          label : 'TD',
-          x : -20,
-          y : 40,
-          l : 40
-        },
-        eo : {
-          type : 'out',
-          label : 'energy',
-          x : 90,
-          y : 40,
-          l : 40
-        }
-      }
-    }
-  };
-
+  var nodeTypes = nodeDefs.nodeTypes;
 
   var nodes = [
     {
