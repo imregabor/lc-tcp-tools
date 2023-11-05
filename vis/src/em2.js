@@ -26,20 +26,22 @@ export function initPage() {
   const w = bcr.width;
   const h = bcr.height;
   const removeAreaG = uielementsg.append('g').classed('remove-area', true).classed('hidden', true);
+  const removeAreaCx = w / 2;
+  const removeAreaCy = h - 40
   removeAreaG.append('circle')
-      .attr('cx', w / 2)
-      .attr('cy', h - 40)
+      .attr('cx', removeAreaCx)
+      .attr('cy', removeAreaCy)
       .attr('r', 25);
   removeAreaG.append('line')
-      .attr('x1', w / 2 - 10)
-      .attr('y1', h - 40 - 10)
-      .attr('x2', w / 2 + 10)
-      .attr('y2', h - 40 + 10);
+      .attr('x1', removeAreaCx - 10)
+      .attr('y1', removeAreaCy - 10)
+      .attr('x2', removeAreaCx + 10)
+      .attr('y2', removeAreaCy + 10);
   removeAreaG.append('line')
-      .attr('x1', w / 2 + 10)
-      .attr('y1', h - 40 - 10)
-      .attr('x2', w / 2 - 10)
-      .attr('y2', h - 40 + 10);
+      .attr('x1', removeAreaCx + 10)
+      .attr('y1', removeAreaCy - 10)
+      .attr('x2', removeAreaCx - 10)
+      .attr('y2', removeAreaCy + 10);
 
 
 
@@ -242,16 +244,30 @@ export function initPage() {
   nodesg.call(d3.drag()
     .on('start', function(e) {
       removeAreaG.classed('hidden', false);
+      removeAreaG.style('display', undefined);
     })
     .on('end', function(e) {
+      removeAreaG.style('display', 'none');
       removeAreaG.classed('hidden', true);
+      removeAreaG.classed('activated', false);
+      if (d3.select(this).classed('will-delete')) {
+        notes.top('Will delete node')
+      }
     })
     .on('drag', function(e) {
       e.subject.layout.x += e.dx;
       e.subject.layout.y += e.dy;
+
+      const c = d3.pointers(e, removeAreaG.node())[0];
+      // not exact
+      const inRemoveArea = Math.abs(removeAreaCx - c[0]) + Math.abs(removeAreaCy - c[1]) < 30;
+      removeAreaG.classed('activated', inRemoveArea);
+
+
       // see https://stackoverflow.com/questions/14167863/how-can-i-bring-a-circle-to-the-front-with-d3
       d3.select(this)
         .raise()
+        .classed('will-delete', inRemoveArea)
         .attr('transform', d => `translate(${d.layout.x}, ${d.layout.y})`);
       routeEdges();
     })

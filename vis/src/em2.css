@@ -50,7 +50,13 @@ rect.box {
   fill: rgba(0,0,0,0.2);
 }
 
+.nodeg.will-delete {
+  stroke: #99000d;
+}
 
+.nodeg.will-delete rect.box {
+  fill: rgba(255,0,0,0.2);
+}
 
 text.node-label {
   font-family: monospace;
