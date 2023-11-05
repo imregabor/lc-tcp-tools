@@ -89,15 +89,6 @@ export function initPage() {
       .attr('y', 14)
       .text(d => d.layout.label);
 
-  var sel = nodesg.filter(d => d.type && d.type === 'aa');
-  // port('out', sel, 'time domain', 150, 40);
-  // port('out', sel, 'spectrum', 150, 70);
-  param(sel, 'fftSize', d => d.size);
-
-  var sel = nodesg.filter(d => d.type && d.type === 'tde');
-  // port('out', sel, 'energy', 150, 40);
-  // port('in', sel, 'TD', -20, 40);
-
   nodesg.each(function (d) {
     const sel = d3.select(this);
 
@@ -107,8 +98,6 @@ export function initPage() {
           portid : k,
           def : v
         };});
-
-
 
     const portgs = sel.selectAll('g.portg').data(ports).enter().append('g')
         .attr('id', d => d.domid)
@@ -127,6 +116,35 @@ export function initPage() {
         .attr('y', 0)
         .text(d => d.def.label);
 
+
+    if (nodeTypes[d.type].params) {
+      const params = Object.entries(nodeTypes[d.type].params)
+        .map(([k, v]) => { return {
+          domid : newId(),
+          paramid : k,
+          def : v,
+          value : v.initial
+        };});
+      console.log(params, 'PPP')
+      const paramgs = sel.selectAll('g.paramg').data(params).enter().append('g')
+          .attr('id', d => d.domid)
+          .classed('paramg', true)
+          .attr('transform', d => `translate(${d.def.x}, ${d.def.y})`);
+      paramgs.append('text')
+        .classed('param-label', true)
+        .attr('text-anchor', 'start')
+        .attr('alignment-baseline', 'middle')
+        .attr('x', 0)
+        .attr('y', 0)
+        .text(d => d.def.label + ':');
+      paramgs.append('text')
+        .classed('param-value', true)
+        .attr('text-anchor', 'end')
+        .attr('alignment-baseline', 'middle')
+        .attr('x', d => d.def.len)
+        .attr('y', 0)
+        .text(d => d.value);
+   }
   });
 
 
@@ -190,43 +208,6 @@ export function initPage() {
     }
     return `M ${x1} ${y1} C ${x1 + bcpl} ${y1} , ${x2 - bcpl} ${y2} , ${x2} ${y2}`;
   }
-
-  function param(selection, label, value) {
-    selection.append('text')
-        .classed('param-label', true)
-        .attr('text-anchor', 'start')
-        .attr('alignment-baseline', 'middle')
-        .attr('x', 5)
-        .attr('y', 40)
-        .text(label + ':');
-    selection.append('text')
-        .classed('param-value', true)
-        .attr('text-anchor', 'end')
-        .attr('alignment-baseline', 'middle')
-        .attr('x', 80)
-        .attr('y', 40)
-        .text(value);
-  }
-
-  function port(t, selection, label, tx, ty) {
-    const g = sel.append('g')
-        .classed('portg', true)
-        .attr('transform', `translate(${tx}, ${ty})`);
-    g.append('path')
-        .attr('d', t === 'out'
-          ? 'M 0 0 l -10 -10 l -70 0 l 0 20 l 70 0 l 10 -10 Z'
-          : 'M 0 0 l 10 -10 l 70 0 l 0 20 l -70 0 l -10 -10 Z'
-        );
-    g.append('text')
-        .classed('port-label', true)
-        .attr('text-anchor', t === 'out' ? 'end' : 'start')
-        .attr('alignment-baseline', 'middle')
-        .attr('x', t === 'out' ? -10 : 10)
-        .attr('y', 0)
-        .text(label);
-  }
-
-
 
   // see https://www.d3indepth.com/zoom-and-pan/
   // see https://d3js.org/d3-zoom#zoom_transform

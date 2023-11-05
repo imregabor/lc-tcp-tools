@@ -20,6 +20,15 @@ export const nodeTypes = {
         y : 70,
         l : 70
       }
+    },
+    params : {
+      fftSize : {
+        label: 'fftSize',
+        initial : 1024,
+        x : 5,
+        y : 100,
+        len : 85
+      }
     }
   },
   aw : {
