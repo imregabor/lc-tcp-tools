@@ -114,28 +114,29 @@ export function initPage() {
             notes.topErr('Node to delete descriptor not found')
           }
           nodes.splice(ni, 1);
-          notes.top('Delete node')
+          notes.top('Delete node and connecting edges')
 
           edges = edges.filter(e => e.n1 != d && e.n2 != d);
           renderNodes();
           renderEdges();
         }
       })
-      .on('drag', function(e) {
-        e.subject.layout.x += e.dx;
-        e.subject.layout.y += e.dy;
+      .on('drag', function(e, nd) {
+        nd.layout.x += e.dx;
+        nd.layout.y += e.dy;
 
         const c = d3.pointers(e, removeAreaG.node())[0];
         // not exact
-        const inRemoveArea = Math.abs(removeAreaCx - c[0]) + Math.abs(removeAreaCy - c[1]) < 30;
+        const inRemoveArea = Math.abs(removeAreaCx - c[0]) + Math.abs(removeAreaCy - c[1]) < 40;
 
         removeAreaG.classed('activated', inRemoveArea);
 
         const thisD3 = d3.select(this);
         const wasInRemoveArea = thisD3.classed('will-delete');
 
-
-
+        if (inRemoveArea !== wasInRemoveArea) {
+          edgelayerg.selectAll('path').filter(d => d.n1 == nd || d.n2 == nd).classed('will-delete', inRemoveArea);
+        }
 
         // see https://stackoverflow.com/questions/14167863/how-can-i-bring-a-circle-to-the-front-with-d3
         thisD3

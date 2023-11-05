@@ -115,6 +115,11 @@ path.snapped {
   stroke: #61d161;
 }
 
+path.will-delete {
+  stroke-width: 3;
+  stroke: #99000d;
+}
+
 .remove-area {
   opacity: 0.5;
   transition: opacity 0.3s;
