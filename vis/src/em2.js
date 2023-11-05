@@ -20,6 +20,29 @@ export function initPage() {
   const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
   const maing = svg.append('g');
 
+  const uielementsg = svg.append('g');
+  const bcr = svg.node().getBoundingClientRect();
+  console.log('SVG bounding client rect', bcr);
+  const w = bcr.width;
+  const h = bcr.height;
+  const removeAreaG = uielementsg.append('g').classed('remove-area', true).classed('hidden', true);
+  removeAreaG.append('circle')
+      .attr('cx', w / 2)
+      .attr('cy', h - 40)
+      .attr('r', 25);
+  removeAreaG.append('line')
+      .attr('x1', w / 2 - 10)
+      .attr('y1', h - 40 - 10)
+      .attr('x2', w / 2 + 10)
+      .attr('y2', h - 40 + 10);
+  removeAreaG.append('line')
+      .attr('x1', w / 2 + 10)
+      .attr('y1', h - 40 - 10)
+      .attr('x2', w / 2 - 10)
+      .attr('y2', h - 40 + 10);
+
+
+
   var nodeTypes = nodeDefs.nodeTypes;
 
   var nodes = [
@@ -217,11 +240,19 @@ export function initPage() {
   );
 
   nodesg.call(d3.drag()
+    .on('start', function(e) {
+      removeAreaG.classed('hidden', false);
+    })
+    .on('end', function(e) {
+      removeAreaG.classed('hidden', true);
+    })
     .on('drag', function(e) {
       e.subject.layout.x += e.dx;
       e.subject.layout.y += e.dy;
       // see https://stackoverflow.com/questions/14167863/how-can-i-bring-a-circle-to-the-front-with-d3
-      d3.select(this).raise().attr('transform', d => `translate(${d.layout.x}, ${d.layout.y})`);
+      d3.select(this)
+        .raise()
+        .attr('transform', d => `translate(${d.layout.x}, ${d.layout.y})`);
       routeEdges();
     })
   );

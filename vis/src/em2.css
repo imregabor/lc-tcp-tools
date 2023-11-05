@@ -108,3 +108,38 @@ path.snapped {
   stroke-width: 3;
   stroke: #61d161;
 }
+
+.remove-area {
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+
+.remove-area.hidden {
+  opacity: 0;
+}
+
+.remove-area circle {
+  /* see https://colorbrewer2.org/#type=sequential&scheme=Reds&n=8 */
+  stroke: #fb6a4a;
+  stroke-width: 2;
+  fill: #fc9272;
+}
+
+.remove-area line {
+  stroke: #fee0d2;
+  stroke-width: 8;
+}
+
+.remove-area.activated {
+  opacity: 1;
+}
+
+.remove-area.activated circle {
+  stroke: #99000d;
+  fill: #cb181d;
+}
+
+.remove-area.activated line {
+  stroke: #fc9272;
+}
+
