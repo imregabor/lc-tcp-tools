@@ -98,80 +98,144 @@ export function initPage() {
   var eoverlayerg = maing.append('g').classed('eoverlayerg', true);
   var nodelayerg = maing.append('g');
 
-  var nodesg = nodelayerg.selectAll('g.nodeg').data(nodes).enter().append('g').classed('nodeg', true);
+  const nodeDrag = d3.drag()
+      .on('start', function(e) {
+        removeAreaG.classed('hidden', false);
+        removeAreaG.style('display', undefined);
+      })
+      .on('end', function(e, d) {
+        removeAreaG.style('display', 'none');
+        removeAreaG.classed('hidden', true);
+        removeAreaG.classed('activated', false);
+        if (d3.select(this).classed('will-delete')) {
 
-  nodesg.attr('transform', d => `translate(${d.layout.x}, ${d.layout.y})`);
-  nodesg.attr('id', d => { d.render = { id : newId() }; return d.render.id; } );
-  nodesg.append('rect')
-      .classed('box', true)
-      .attr('width', d => nodeTypes[d.type].w)
-      .attr('height', d => nodeTypes[d.type].h)
-      .attr('rx', 5);
-  nodesg.append('text')
-      .classed('node-label', true)
-      .attr('text-anchor', 'middle')
-      .attr('x', d => nodeTypes[d.type].w / 2)
-      .attr('y', 14)
-      .text(d => d.layout.label);
+          const ni = nodes.indexOf(d);
+          if (ni < 0) {
+            notes.topErr('Node to delete descriptor not found')
+          }
+          nodes.splice(ni, 1);
+          notes.top('Delete node')
 
-  nodesg.each(function (d) {
-    const sel = d3.select(this);
+          edges = edges.filter(e => e.n1 != d && e.n2 != d);
+          renderNodes();
+          renderEdges();
+        }
+      })
+      .on('drag', function(e) {
+        e.subject.layout.x += e.dx;
+        e.subject.layout.y += e.dy;
 
-    const ports = Object.entries(nodeTypes[d.type].ports)
-        .map(([k, v]) => { return {
-          domid : newId(),
-          portid : k,
-          def : v
-        };});
+        const c = d3.pointers(e, removeAreaG.node())[0];
+        // not exact
+        const inRemoveArea = Math.abs(removeAreaCx - c[0]) + Math.abs(removeAreaCy - c[1]) < 30;
 
-    const portgs = sel.selectAll('g.portg').data(ports).enter().append('g')
-        .attr('id', d => d.domid)
-        .classed('portg', true)
-        .attr('transform', d => `translate(${d.def.x}, ${d.def.y})`);
-    portgs.append('path')
-        .attr('d', d => d.def.type === 'out'
-            ? `M 0 0 l -10 -10 l -${d.def.l} 0 l 0 20 l ${d.def.l} 0 l 10 -10 Z`
-            : `M 0 0 l 10 -10 l ${d.def.l} 0 l 0 20 l -${d.def.l} 0 l -10 -10 Z`
-        );
-    portgs.append('text')
-        .classed('port-label', true)
-        .attr('text-anchor', d => d.def.type === 'out' ? 'end' : 'start')
-        .attr('alignment-baseline', 'middle')
-        .attr('x', d => d.def.type === 'out' ? -10 : 10)
-        .attr('y', 0)
-        .text(d => d.def.label);
+        removeAreaG.classed('activated', inRemoveArea);
+
+        const thisD3 = d3.select(this);
+        const wasInRemoveArea = thisD3.classed('will-delete');
 
 
-    if (nodeTypes[d.type].params) {
-      const params = Object.entries(nodeTypes[d.type].params)
-        .map(([k, v]) => { return {
-          domid : newId(),
-          paramid : k,
-          def : v,
-          value : v.initial
-        };});
-      console.log(params, 'PPP')
-      const paramgs = sel.selectAll('g.paramg').data(params).enter().append('g')
+
+
+        // see https://stackoverflow.com/questions/14167863/how-can-i-bring-a-circle-to-the-front-with-d3
+        thisD3
+          .raise()
+          .classed('will-delete', inRemoveArea)
+          .attr('transform', d => `translate(${d.layout.x}, ${d.layout.y})`);
+        routeEdges();
+      });
+
+  function renderNodes() {
+    // Node specifications will be extended
+    // d.render.id - Unique ID, associated to g.nodeg representing the node
+
+
+    nodes.forEach(e => {
+      if (!e.render) {
+        e.render = { id : newId() };
+      }
+    });
+
+    var nsd = nodelayerg.selectAll('g.nodeg').data(nodes, d => d.render.id);
+    nsd.exit().remove();
+
+    var nodesg = nsd.enter().append('g').classed('nodeg', true);
+    nodesg.attr('id', d => d.render.id);
+    nodesg.attr('transform', d => `translate(${d.layout.x}, ${d.layout.y})`);
+
+    nodesg.append('rect')
+        .classed('box', true)
+        .attr('width', d => nodeTypes[d.type].w)
+        .attr('height', d => nodeTypes[d.type].h)
+        .attr('rx', 5);
+    nodesg.append('text')
+        .classed('node-label', true)
+        .attr('text-anchor', 'middle')
+        .attr('x', d => nodeTypes[d.type].w / 2)
+        .attr('y', 14)
+        .text(d => d.layout.label);
+
+    nodesg.call(nodeDrag);
+
+
+    nodesg.each(function (d) {
+      const sel = d3.select(this);
+
+      const ports = Object.entries(nodeTypes[d.type].ports)
+          .map(([k, v]) => { return {
+            domid : newId(),
+            portid : k,
+            def : v
+          };});
+
+      const portgs = sel.selectAll('g.portg').data(ports).enter().append('g')
           .attr('id', d => d.domid)
-          .classed('paramg', true)
+          .classed('portg', true)
           .attr('transform', d => `translate(${d.def.x}, ${d.def.y})`);
-      paramgs.append('text')
-        .classed('param-label', true)
-        .attr('text-anchor', 'start')
-        .attr('alignment-baseline', 'middle')
-        .attr('x', 0)
-        .attr('y', 0)
-        .text(d => d.def.label + ':');
-      paramgs.append('text')
-        .classed('param-value', true)
-        .attr('text-anchor', 'end')
-        .attr('alignment-baseline', 'middle')
-        .attr('x', d => d.def.len)
-        .attr('y', 0)
-        .text(d => d.value);
-   }
-  });
+      portgs.append('path')
+          .attr('d', d => d.def.type === 'out'
+              ? `M 0 0 l -10 -10 l -${d.def.l} 0 l 0 20 l ${d.def.l} 0 l 10 -10 Z`
+              : `M 0 0 l 10 -10 l ${d.def.l} 0 l 0 20 l -${d.def.l} 0 l -10 -10 Z`
+          );
+      portgs.append('text')
+          .classed('port-label', true)
+          .attr('text-anchor', d => d.def.type === 'out' ? 'end' : 'start')
+          .attr('alignment-baseline', 'middle')
+          .attr('x', d => d.def.type === 'out' ? -10 : 10)
+          .attr('y', 0)
+          .text(d => d.def.label);
 
+
+      if (nodeTypes[d.type].params) {
+        const params = Object.entries(nodeTypes[d.type].params)
+            .map(([k, v]) => { return {
+              domid : newId(),
+              paramid : k,
+              def : v,
+              value : v.initial
+            };});
+        const paramgs = sel.selectAll('g.paramg').data(params).enter().append('g')
+            .attr('id', d => d.domid)
+            .classed('paramg', true)
+            .attr('transform', d => `translate(${d.def.x}, ${d.def.y})`);
+        paramgs.append('text')
+            .classed('param-label', true)
+            .attr('text-anchor', 'start')
+            .attr('alignment-baseline', 'middle')
+            .attr('x', 0)
+            .attr('y', 0)
+            .text(d => d.def.label + ':');
+        paramgs.append('text')
+            .classed('param-value', true)
+            .attr('text-anchor', 'end')
+            .attr('alignment-baseline', 'middle')
+            .attr('x', d => d.def.len)
+            .attr('y', 0)
+            .text(d => d.value);
+      }
+    });
+  }
+  renderNodes();
 
   var edgePaths;
   function renderEdges() {
@@ -241,37 +305,6 @@ export function initPage() {
         .on('zoom', e => maing.attr('transform', e.transform))
   );
 
-  nodesg.call(d3.drag()
-    .on('start', function(e) {
-      removeAreaG.classed('hidden', false);
-      removeAreaG.style('display', undefined);
-    })
-    .on('end', function(e) {
-      removeAreaG.style('display', 'none');
-      removeAreaG.classed('hidden', true);
-      removeAreaG.classed('activated', false);
-      if (d3.select(this).classed('will-delete')) {
-        notes.top('Will delete node')
-      }
-    })
-    .on('drag', function(e) {
-      e.subject.layout.x += e.dx;
-      e.subject.layout.y += e.dy;
-
-      const c = d3.pointers(e, removeAreaG.node())[0];
-      // not exact
-      const inRemoveArea = Math.abs(removeAreaCx - c[0]) + Math.abs(removeAreaCy - c[1]) < 30;
-      removeAreaG.classed('activated', inRemoveArea);
-
-
-      // see https://stackoverflow.com/questions/14167863/how-can-i-bring-a-circle-to-the-front-with-d3
-      d3.select(this)
-        .raise()
-        .classed('will-delete', inRemoveArea)
-        .attr('transform', d => `translate(${d.layout.x}, ${d.layout.y})`);
-      routeEdges();
-    })
-  );
 
   function firstConnection(nodeData, portData) {
     return edges.find(e => e.n2 == nodeData && e.p2 === portData.portid);
