@@ -309,8 +309,8 @@ export function initPage() {
     })
   );
 
-  function hasConnection(nodeData, portData) {
-    return !!edges.find(e => e.n2 == nodeData && e.p2 === portData.portid);
+  function firstConnection(nodeData, portData) {
+    return edges.find(e => e.n2 == nodeData && e.p2 === portData.portid);
   }
 
   connDrag.registerListenersOnPorts({
@@ -327,8 +327,41 @@ export function initPage() {
       const y = nodeData.layout.y + portDesc.y;
       return [x, y];
     },
+    firstConnection : portD3 => {
+      const portData = portD3.datum();
+      const nodeData = d3.select(portD3.node().parentNode).datum();
+      return firstConnection(nodeData, portData);
+    },
+    hideConnection : e => {
+      d3.select(`#${e.render.id}`).classed('lifting', true);
+    },
+    unhideConnection : e => {
+      d3.select(`#${e.render.id}`).classed('lifting', false);
+    },
+    updateConnectionSource : (e, portD3src) => {
+      const srcPortData = portD3src.datum();
+      const srcNodeData = d3.select(portD3src.node().parentNode).datum();
+      if (e.n1 == srcNodeData && e.p1 === srcPortData.portid) {
+        notes.top('Connection not changed');
+        return;
+      }
+      e.n1 = srcNodeData;
+      e.p1 = srcPortData.portid;
+      notes.top('Connection source updated');
+      renderEdges();
+    },
+    removeConnection : e => {
+      const eindex = edges.indexOf(e);
+      if (eindex < 0) {
+        notes.topErr('Edge to be removed not found');
+        return;
+      }
+      edges.splice(eindex, 1);
+      renderEdges();
+      notes.top('Connection removed');
+    },
     connect : (portD3src, portD3dst) => {
-      console.log(portD3src.datum(), portD3dst.datum());
+      // console.log(portD3src.datum(), portD3dst.datum());
 
 
       const srcPortData = portD3src.datum();
@@ -341,7 +374,7 @@ export function initPage() {
         return;
       }
 
-      if (hasConnection(dstNodeData, dstPortData)) {
+      if (firstConnection(dstNodeData, dstPortData)) {
         notes.topErr('Multiple connections to the same destination are not allowed.');
         return;
       }

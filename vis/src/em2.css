@@ -21,6 +21,12 @@ svg {
   fill: none;
 }
 
+.edgeg.lifting {
+  stroke-dasharray: 3 5;
+  opacity: 0.3;
+}
+
+
 .nodeg {
   cursor: move;
   pointer-events: visibleFill;

@@ -121,6 +121,7 @@ var draggingPortD3;
 var compatiblePortCoords;
 var insideCompatiblePort = false;
 var compatiblePort;
+var reroutingConnection;
 
 /** Pointer enetered port area as hover or drag. */
 export function enterPort(portD3) {
@@ -155,14 +156,32 @@ export function portDragStarted(portD3) {
   draggingPortType = portD3.datum().def.type;
   // lastOpts.portsD3.classed('lightred', d => d.def.type === draggingPortType);
   lastOpts.portsD3.classed('lightgreen', d => d.def.type !== draggingPortType);
+
+  reroutingConnection = undefined;
+  if (draggingPortType === 'in') {
+    reroutingConnection = lastOpts.firstConnection(portD3);
+    if (reroutingConnection) {
+      lastOpts.hideConnection(reroutingConnection);
+    }
+  }
+
 }
 
 export function portDragEnded() {
-  if (insideCompatiblePort) {
-    if (draggingPortD3.datum().def.type === 'out') {
-      lastOpts.connect(draggingPortD3, compatiblePort);
+  if (reroutingConnection) {
+    lastOpts.unhideConnection(reroutingConnection);
+    if (insideCompatiblePort) {
+      lastOpts.updateConnectionSource(reroutingConnection, compatiblePort);
     } else {
-      lastOpts.connect(compatiblePort, draggingPortD3);
+      lastOpts.removeConnection(reroutingConnection);
+    }
+  } else {
+    if (insideCompatiblePort) {
+      if (draggingPortD3.datum().def.type === 'out') {
+        lastOpts.connect(draggingPortD3, compatiblePort);
+      } else {
+        lastOpts.connect(compatiblePort, draggingPortD3);
+      }
     }
   }
   dragging = false;
