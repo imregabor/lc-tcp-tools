@@ -154,3 +154,63 @@ path.will-delete {
   stroke: #fc9272;
 }
 
+
+rect.toolbar-bg {
+  stroke: #cbdde7;
+  stroke-width: 1;
+  fill: none;
+
+}
+
+.tool rect.tool-border {
+  fill: white;
+  stroke: none;
+  cursor: pointer;
+  fill-opacity: 0.95;
+}
+
+.tool-icon {
+  pointer-events: none;
+}
+
+.tool:hover rect.tool-border {
+  stroke: #bae8f7;
+  fill: #e8f7fc;
+  stroke-width: 1;
+}
+
+.tool.activated rect.tool-border {
+  stroke: #bae8f7;
+  stroke-width: 1;
+  fill: #d1f0fa;
+  fill-opacity: 1;
+}
+
+rect.tool-popup-box {
+  fill: none;
+  stroke: #cbdde7;
+  stroke-width: 1;
+}
+
+.tool-popup-menuitem {
+  cursor: pointer;
+}
+
+.tool-popup-menuitem rect {
+  fill: white;
+  fill-opacity: 0.95;
+}
+
+.tool-popup-menuitem:hover rect {
+  fill: #e8f7fc;
+}
+
+.tool-popup-menuitem.activated rect {
+  fill: #d1f0fa;
+  fill-opacity: 1;
+}
+
+.tool-popup-menuitem text {
+  font-family: monospace;
+  font-size: 14px;
+}

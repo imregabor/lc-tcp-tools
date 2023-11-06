@@ -1,4 +1,5 @@
 .note-ctr {
+  pointer-events: none; /* do not interfere with toolbar */
   position: absolute;
   top: 5px;
   left: 0;
