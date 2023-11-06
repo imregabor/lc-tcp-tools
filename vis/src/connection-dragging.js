@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 var lastOpts;
 
 export function registerListenersOnPorts(opts) {
-  const portsD3 = opts.portsD3;
+  const portsD3 = opts.getPortsD3();
   const addTmpEdge = opts.addTmpEdge;
   const routeTmpEdge = opts.routeTmpEdge;
   const removeTmpEdge = opts.removeTmpEdge;
@@ -155,7 +155,7 @@ export function portDragStarted(portD3) {
   draggingPortD3 = portD3;
   draggingPortType = portD3.datum().def.type;
   // lastOpts.portsD3.classed('lightred', d => d.def.type === draggingPortType);
-  lastOpts.portsD3.classed('lightgreen', d => d.def.type !== draggingPortType);
+  lastOpts.getPortsD3().classed('lightgreen', d => d.def.type !== draggingPortType);
 
   reroutingConnection = undefined;
   if (draggingPortType === 'in') {
@@ -187,5 +187,5 @@ export function portDragEnded() {
   dragging = false;
   draggingPortD3 = undefined;
   // lastOpts.portsD3.classed('lightred', false);
-  lastOpts.portsD3.classed('lightgreen', false);
+  lastOpts.getPortsD3().classed('lightgreen', false);
 }

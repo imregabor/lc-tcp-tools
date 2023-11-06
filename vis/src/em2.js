@@ -108,6 +108,8 @@ export function initPage() {
     if (addNodeToolSubmenuG) {
       addNodeToolSubmenuG.remove();
     }
+
+    addingNodeOnClick = false;
     pointerToolG.classed('activated', true);
     addNodeToolG.classed('activated', false);
   });
@@ -116,6 +118,7 @@ export function initPage() {
   var addNodeToolSubmenuG = undefined;
 
   var selectedAddNodeType = 'aa'; // shortcut do default
+  var addingNodeOnClick = false;
 
   addNodeToolG.on('click', (e) => {
     e.stopPropagation();
@@ -124,6 +127,8 @@ export function initPage() {
     }
     pointerToolG.classed('activated', false);
     addNodeToolG.classed('activated', true);
+
+    addingNodeOnClick = true;
 
     addNodeToolSubmenuG = addNodeToolG.append('g').attr('transform', 'translate(41, 0)');
 
@@ -433,8 +438,23 @@ export function initPage() {
   );
 
   svg.on('click', e => {
-    console.log(e)
-    notes.top('click')
+    if (!addingNodeOnClick) {
+      return;
+    }
+    const coords = d3.pointers(e, maing.node())[0];
+    const nodeDef = nodeTypes[selectedAddNodeType];
+    const newNode = {
+      type : selectedAddNodeType,
+      layout : {
+        label : nodeDef.title,
+        x : coords[0] - nodeDef.w / 2,
+        y : coords[1] - nodeDef.h / 2
+      }
+    }
+    nodes.push(newNode);
+    renderNodes();
+    connDrag.registerListenersOnPorts(connDragOpts);
+    notes.top(`New ${nodeDef.title} node added`);
   });
 
 
@@ -442,8 +462,8 @@ export function initPage() {
     return edges.find(e => e.n2 == nodeData && e.p2 === portData.portid);
   }
 
-  connDrag.registerListenersOnPorts({
-    portsD3 : nodelayerg.selectAll('g.portg'),
+  const connDragOpts = {
+    getPortsD3 : () => nodelayerg.selectAll('g.portg'),
     maing : maing,
     addTmpEdge : () => eoverlayerg.append('path'),
     routeTmpEdge : (e, x1, y1, x2, y2) => e.attr('d', edgePathD(x1, y1, x2, y2)),
@@ -519,6 +539,7 @@ export function initPage() {
       notes.top('Connection added');
       renderEdges();
     }
-  });
+  };
+  connDrag.registerListenersOnPorts(connDragOpts);
 
 }
