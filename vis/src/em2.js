@@ -72,7 +72,7 @@ export function initPage() {
       .attr('width', 40)
       .attr('height', 40);
   pointerToolG.append('g').classed('tool-icon', true).html(`<path
-      style="fill: #000000; stroke: none;"
+      style="fill: #25748e; stroke: none;"
       d="m 9.6408685,10.076836 20.8687265,9.375455 -8.915308,2.666163 -3.142362,9.023487 z"/>`);
 
   const addNodeToolG = toolBarG.append('g').classed('tool', true).attr('transform', d => 'translate(1, 41)');
@@ -83,28 +83,28 @@ export function initPage() {
       .attr('width', 40)
       .attr('height', 40);
   addNodeToolG.append('g').classed('tool-icon', true).html(`<rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#9a9a9a;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:#5db7d5;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
        width="18.520832"
        height="25.135418"
        x="15.875"
        y="11.906251" />
     <path
-       style="fill:#ffffff;fill-opacity:1;stroke:#9a9a9a;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:#5db7d5;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
        d="m 26.458332,18.520835 9.15081,-1e-6 2.75544,2.645834 -2.645833,2.645834 h -9.260417 z"/>
     <path
-       style="fill:#ffffff;fill-opacity:1;stroke:#9a9a9a;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:#5db7d5;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
        d="m 23.812499,18.520833 -9.15081,-1e-6 -2.75544,2.645834 2.645833,2.645834 h 9.260417 z"/>
     <path
-       style="fill:#ffffff;fill-opacity:1;stroke:#9a9a9a;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:#5db7d5;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
        d="m 26.458332,26.458335 9.15081,-1e-6 2.75544,2.645834 -2.645833,2.645834 h -9.260417 z"/>
     <rect
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.966092;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#25748e;fill-opacity:1;stroke:none;stroke-width:0.966092;stroke-dasharray:none;stroke-opacity:1"
        width="5.2916665"
        height="18.520834"
        x="9.260416"
        y="2.6458342" />
     <rect
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.966092;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#25748e;fill-opacity:1;stroke:none;stroke-width:0.966092;stroke-dasharray:none;stroke-opacity:1"
        width="5.2916665"
        height="18.520834"
        x="9.260417"

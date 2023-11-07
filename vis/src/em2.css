@@ -213,4 +213,5 @@ rect.tool-popup-box {
 .tool-popup-menuitem text {
   font-family: monospace;
   font-size: 14px;
+  fill: #25748e;
 }
