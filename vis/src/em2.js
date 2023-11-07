@@ -21,27 +21,39 @@ export function initPage() {
   const maing = svg.append('g');
 
   const uielementsg = svg.append('g');
-  const bcr = svg.node().getBoundingClientRect();
-  console.log('SVG bounding client rect', bcr);
-  const w = bcr.width;
-  const h = bcr.height;
-  const removeAreaG = uielementsg.append('g').classed('remove-area', true).classed('hidden', true);
-  const removeAreaCx = w / 2;
-  const removeAreaCy = h - 40
+
+
+  const removeAreaG = uielementsg.append('g')
+      .classed('remove-area', true)
+      .classed('hidden', true);
   removeAreaG.append('circle')
-      .attr('cx', removeAreaCx)
-      .attr('cy', removeAreaCy)
+      .attr('cx', 0)
+      .attr('cy', 0)
       .attr('r', 25);
   removeAreaG.append('line')
-      .attr('x1', removeAreaCx - 10)
-      .attr('y1', removeAreaCy - 10)
-      .attr('x2', removeAreaCx + 10)
-      .attr('y2', removeAreaCy + 10);
+      .attr('x1', -10)
+      .attr('y1', -10)
+      .attr('x2',  10)
+      .attr('y2',  10);
   removeAreaG.append('line')
-      .attr('x1', removeAreaCx + 10)
-      .attr('y1', removeAreaCy - 10)
-      .attr('x2', removeAreaCx - 10)
-      .attr('y2', removeAreaCy + 10);
+      .attr('x1',  10)
+      .attr('y1', -10)
+      .attr('x2', -10)
+      .attr('y2',  10);
+  function updateSvgSize() {
+    const bcr = svg.node().getBoundingClientRect();
+    const w = bcr.width;
+    const h = bcr.height;
+    const removeAreaCx = w / 2;
+    const removeAreaCy = h - 40;
+    removeAreaG.attr('transform', `translate(${removeAreaCx}, ${removeAreaCy})`);
+  }
+  updateSvgSize();
+
+
+
+
+
 
   const toolBarG = uielementsg.append('g').classed('toolbar', true).attr('transform', d => 'translate(5.5, 5.5)');
   toolBarG.call(d3.drag().clickDistance(5)); // Avoid dragging underlying content; allow slight cursor move to register as click
@@ -230,6 +242,7 @@ export function initPage() {
 
   const nodeDrag = d3.drag()
       .on('start', function(e) {
+        updateSvgSize();
         removeAreaG.classed('hidden', false);
         removeAreaG.style('display', undefined);
       })
@@ -257,7 +270,7 @@ export function initPage() {
 
         const c = d3.pointers(e, removeAreaG.node())[0];
         // not exact
-        const inRemoveArea = Math.abs(removeAreaCx - c[0]) + Math.abs(removeAreaCy - c[1]) < 40;
+        const inRemoveArea = Math.abs(c[0]) + Math.abs(c[1]) < 40;
 
         removeAreaG.classed('activated', inRemoveArea);
 
