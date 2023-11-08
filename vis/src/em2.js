@@ -515,6 +515,7 @@ export function initPage() {
     if (!addingNodeOnClick) {
       return;
     }
+
     const coords = d3.pointers(e, maing.node())[0];
     hoverPreviewG.attr('transform', `translate(${coords[0]}, ${coords[1]})`);
   });
@@ -531,6 +532,7 @@ export function initPage() {
   function firstConnection(nodeData, portData) {
     return edges.find(e => e.n2 == nodeData && e.p2 === portData.portid);
   }
+
 
   const connDragOpts = {
     getPortsD3 : () => nodelayerg.selectAll('g.portg'),
@@ -608,8 +610,24 @@ export function initPage() {
       edges.push(newEdge);
       notes.top('Connection added');
       renderEdges();
+    },
+    pointerOccupied : () => {
+      lastOcc = true;
+      seeOcc();
+    },
+    pointerUnoccupied : () => {
+      lastOcc = false;
+      seeOcc();
     }
+
   };
+  var lastOcc = false;
+  function seeOcc() {
+    if (!addingNodeOnClick) {
+      return;
+    }
+    hoverPreviewG.classed('shown', !lastOcc);
+  }
   connDrag.registerListenersOnPorts(connDragOpts);
 
 }

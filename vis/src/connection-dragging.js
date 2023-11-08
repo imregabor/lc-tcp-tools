@@ -114,7 +114,7 @@ export function registerListenersOnPorts(opts) {
 
 }
 
-
+var insidePort = false;
 var dragging = false;
 var draggingPortType;
 var draggingPortD3;
@@ -125,6 +125,8 @@ var reroutingConnection;
 
 /** Pointer enetered port area as hover or drag. */
 export function enterPort(portD3) {
+  insidePort = true;
+  handlePointerOcc();
   const enteredPortType = portD3.datum().def.type;
 
 
@@ -143,6 +145,8 @@ export function enterPort(portD3) {
 }
 
 export function exitPort(portD3) {
+  insidePort = false;
+  handlePointerOcc();
   portD3.classed('green', false);
   portD3.classed('red', false);
   insideCompatiblePort = false;
@@ -152,6 +156,7 @@ export function exitPort(portD3) {
 
 export function portDragStarted(portD3) {
   dragging = true;
+  handlePointerOcc();
   draggingPortD3 = portD3;
   draggingPortType = portD3.datum().def.type;
   // lastOpts.portsD3.classed('lightred', d => d.def.type === draggingPortType);
@@ -188,4 +193,19 @@ export function portDragEnded() {
   draggingPortD3 = undefined;
   // lastOpts.portsD3.classed('lightred', false);
   lastOpts.getPortsD3().classed('lightgreen', false);
+  handlePointerOcc();
+}
+
+var lastOccupied = false;
+function handlePointerOcc() {
+  var occupied = insidePort || dragging;
+  if (occupied !== lastOccupied) {
+    lastOccupied = occupied;
+    if (occupied) {
+      lastOpts.pointerOccupied();
+    } else {
+      lastOpts.pointerUnoccupied();
+    }
+  }
+
 }
