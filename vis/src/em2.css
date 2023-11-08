@@ -42,13 +42,15 @@ svg {
 rect.box {
   stroke: black;
   stroke-width: 1;
-  fill: rgba(0,0,0,0.1);
+  fill: #ccc;
 
 }
 
+/*
 .nodeg:hover rect.box {
   fill: rgba(0,0,0,0.2);
 }
+*/
 
 .nodeg.will-delete {
   stroke: #99000d;
@@ -107,6 +109,10 @@ text.param-value {
 
 .portg.red path {
   fill: red;
+  pointer-events: none;
+}
+
+path.tmp-preview-edge {
   pointer-events: none;
 }
 
@@ -214,4 +220,15 @@ rect.tool-popup-box {
   font-family: monospace;
   font-size: 14px;
   fill: #25748e;
+}
+
+.hover-preview {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  filter: drop-shadow( 5px 5px 5px rgba(0, 0, 0, .4));
+}
+
+.hover-preview.shown {
+  opacity: 0.5;
 }

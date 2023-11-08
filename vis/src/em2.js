@@ -122,6 +122,7 @@ export function initPage() {
     }
 
     addingNodeOnClick = false;
+    stopAddingNodeOnClick();
     pointerToolG.classed('activated', true);
     addNodeToolG.classed('activated', false);
   });
@@ -141,6 +142,7 @@ export function initPage() {
     addNodeToolG.classed('activated', true);
 
     addingNodeOnClick = true;
+    startAddingNodeOnClick();
 
     addNodeToolSubmenuG = addNodeToolG.append('g').attr('transform', 'translate(41, 0)');
 
@@ -181,7 +183,8 @@ export function initPage() {
 
     menuItemGs.on('click', function (e, clickd) {
       selectedAddNodeType = clickd.nodeType;
-      menuItemGs.classed('activated', id => id.nodeType === clickd.nodeType)
+      menuItemGs.classed('activated', id => id.nodeType === clickd.nodeType);
+      updateAddingNodeOnClick();
     });
 
   });
@@ -236,6 +239,7 @@ export function initPage() {
     }
   ];
 
+  const hoverPreviewG = maing.append('g').classed('hover-preview', true);
   var edgelayerg = maing.append('g');
   var eoverlayerg = maing.append('g').classed('eoverlayerg', true);
   var nodelayerg = maing.append('g');
@@ -290,6 +294,10 @@ export function initPage() {
       });
 
   function renderNodes() {
+    renderNodesInto(nodes, nodelayerg, true);
+  }
+
+  function renderNodesInto(nodes, nodelayerg, registerDrag) {
     // Node specifications will be extended
     // d.render.id - Unique ID, associated to g.nodeg representing the node
 
@@ -319,9 +327,10 @@ export function initPage() {
         .attr('y', 14)
         .text(d => d.layout.label);
 
-    nodesg.on('click', e => e.stopPropagation());
-    nodesg.call(nodeDrag);
-
+    if (registerDrag) {
+      nodesg.on('click', e => e.stopPropagation());
+      nodesg.call(nodeDrag);
+    }
 
     nodesg.each(function (d) {
       const sel = d3.select(this);
@@ -378,7 +387,7 @@ export function initPage() {
             .attr('y', 0)
             .text(d => d.value);
       }
-    });
+    }); nodes = null;
   }
   renderNodes();
 
@@ -463,13 +472,61 @@ export function initPage() {
         x : coords[0] - nodeDef.w / 2,
         y : coords[1] - nodeDef.h / 2
       }
-    }
+    };
     nodes.push(newNode);
     renderNodes();
     connDrag.registerListenersOnPorts(connDragOpts);
     notes.top(`New ${nodeDef.title} node added`);
   });
 
+
+
+  hoverPreviewG.append('circle')
+    .attr('cx', 0)
+    .attr('cy', 0)
+    .attr('r', 10);
+
+  function updateAddingNodeOnClick() {
+    hoverPreviewG.selectAll('*').remove();
+    const nodeDef = nodeTypes[selectedAddNodeType];
+    const newNode = {
+      type : selectedAddNodeType,
+      layout : {
+        label : nodeDef.title,
+        x : - nodeDef.w / 2,
+        y : - nodeDef.h / 2
+      }
+    };
+    renderNodesInto([newNode], hoverPreviewG, false);
+  }
+
+  function startAddingNodeOnClick() {
+    hoverPreviewG.classed('shown', true);
+    updateAddingNodeOnClick();
+
+  }
+
+  function stopAddingNodeOnClick() {
+    hoverPreviewG.classed('shown', false);
+
+  }
+
+  svg.on('pointermove', e => {
+    if (!addingNodeOnClick) {
+      return;
+    }
+    const coords = d3.pointers(e, maing.node())[0];
+    hoverPreviewG.attr('transform', `translate(${coords[0]}, ${coords[1]})`);
+  });
+  svg.on('pointerenter', e => {
+    if (!addingNodeOnClick) {
+      return;
+    }
+    hoverPreviewG.classed('shown', true);
+  });
+  svg.on('pointerleave', e => {
+    hoverPreviewG.classed('shown', false);
+  });
 
   function firstConnection(nodeData, portData) {
     return edges.find(e => e.n2 == nodeData && e.p2 === portData.portid);
@@ -478,7 +535,7 @@ export function initPage() {
   const connDragOpts = {
     getPortsD3 : () => nodelayerg.selectAll('g.portg'),
     maing : maing,
-    addTmpEdge : () => eoverlayerg.append('path'),
+    addTmpEdge : () => eoverlayerg.append('path').classed('tmp-preview-edge', true),
     routeTmpEdge : (e, x1, y1, x2, y2) => e.attr('d', edgePathD(x1, y1, x2, y2)),
     removeTmpEdge : e => e.remove(),
     getPortCoordinates : portD3 => {
