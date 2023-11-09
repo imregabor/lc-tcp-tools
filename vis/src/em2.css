@@ -225,7 +225,7 @@ rect.tool-popup-box {
 .hover-preview {
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.5s;
   filter: drop-shadow( 5px 5px 5px rgba(0, 0, 0, .4));
 }
 
