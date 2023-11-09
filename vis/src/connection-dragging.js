@@ -1,9 +1,12 @@
 'use strict';
 
 import * as d3 from 'd3';
+import * as occ from './occ.js';
 
 
 var lastOpts;
+var hOnport;
+var hDragging
 
 export function registerListenersOnPorts(opts) {
   const portsD3 = opts.getPortsD3();
@@ -12,6 +15,13 @@ export function registerListenersOnPorts(opts) {
   const removeTmpEdge = opts.removeTmpEdge;
   const maing = opts.maing;
   lastOpts = opts;
+
+  if (!hOnport) {
+    const occh = occ.handler().enter();
+    occh.onChange(o => opts.pointerOccupied(!o));
+    hOnport = occh.newChild();
+    hDragging = occh.newChild();
+  }
 
   // work around flakyness - TODO investigate
   var inside;
@@ -126,7 +136,7 @@ var reroutingConnection;
 /** Pointer enetered port area as hover or drag. */
 export function enterPort(portD3) {
   insidePort = true;
-  handlePointerOcc();
+  //handlePointerOcc();
   const enteredPortType = portD3.datum().def.type;
 
 
@@ -142,21 +152,25 @@ export function enterPort(portD3) {
   } else {
     portD3.classed('green', true);
   }
+
+  hOnport.enter();
 }
 
 export function exitPort(portD3) {
   insidePort = false;
-  handlePointerOcc();
+  // handlePointerOcc();
   portD3.classed('green', false);
   portD3.classed('red', false);
   insideCompatiblePort = false;
   compatiblePort = undefined;
   compatiblePortCoords = undefined;
+
+  hOnport.exit();
 }
 
 export function portDragStarted(portD3) {
   dragging = true;
-  handlePointerOcc();
+  // handlePointerOcc();
   draggingPortD3 = portD3;
   draggingPortType = portD3.datum().def.type;
   // lastOpts.portsD3.classed('lightred', d => d.def.type === draggingPortType);
@@ -169,7 +183,7 @@ export function portDragStarted(portD3) {
       lastOpts.hideConnection(reroutingConnection);
     }
   }
-
+  hDragging.enter();
 }
 
 export function portDragEnded() {
@@ -193,19 +207,18 @@ export function portDragEnded() {
   draggingPortD3 = undefined;
   // lastOpts.portsD3.classed('lightred', false);
   lastOpts.getPortsD3().classed('lightgreen', false);
-  handlePointerOcc();
+
+  //handlePointerOcc();
+  hDragging.exit();
 }
 
+/*
 var lastOccupied = false;
 function handlePointerOcc() {
   var occupied = insidePort || dragging;
   if (occupied !== lastOccupied) {
+    lastOpts.pointerOccupied(occupied);
     lastOccupied = occupied;
-    if (occupied) {
-      lastOpts.pointerOccupied();
-    } else {
-      lastOpts.pointerUnoccupied();
-    }
   }
-
 }
+*/

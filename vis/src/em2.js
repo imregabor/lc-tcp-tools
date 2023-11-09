@@ -5,6 +5,7 @@ import './em2.css';
 import * as connDrag from './connection-dragging.js';
 import * as notes from './notes.js';
 import * as nodeDefs from './node-definitions.js';
+import * as occ from './occ.js';
 
 export function initPage() {
   d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
@@ -56,6 +57,8 @@ export function initPage() {
 
 
   const toolBarG = uielementsg.append('g').classed('toolbar', true).attr('transform', d => 'translate(5.5, 5.5)');
+  toolBarG.on('pointerenter', e => hToolbarPointerOver.enter());
+  toolBarG.on('pointerleave', e => hToolbarPointerOver.exit());
   toolBarG.call(d3.drag().clickDistance(5)); // Avoid dragging underlying content; allow slight cursor move to register as click
   toolBarG.append('rect')
       .classed('toolbar-bg', true)
@@ -249,6 +252,7 @@ export function initPage() {
         updateSvgSize();
         removeAreaG.classed('hidden', false);
         removeAreaG.style('display', undefined);
+        hNodeDragging.enter();
       })
       .on('end', function(e, d) {
         removeAreaG.style('display', 'none');
@@ -267,6 +271,7 @@ export function initPage() {
           renderNodes();
           renderEdges();
         }
+        hNodeDragging.exit();
       })
       .on('drag', function(e, nd) {
         nd.layout.x += e.dx;
@@ -330,6 +335,8 @@ export function initPage() {
     if (registerDrag) {
       nodesg.on('click', e => e.stopPropagation());
       nodesg.call(nodeDrag);
+      nodesg.on('pointerenter', e => hNodePointerOver.enter());
+      nodesg.on('pointerleave', e => hNodePointerOver.exit());
     }
 
     nodesg.each(function (d) {
@@ -501,13 +508,15 @@ export function initPage() {
   }
 
   function startAddingNodeOnClick() {
-    hoverPreviewG.classed('shown', true);
+    occh.enter();
+    // hoverPreviewG.classed('shown', true);
     updateAddingNodeOnClick();
 
   }
 
   function stopAddingNodeOnClick() {
-    hoverPreviewG.classed('shown', false);
+    occh.exit();
+    // hoverPreviewG.classed('shown', false);
 
   }
 
@@ -520,19 +529,35 @@ export function initPage() {
     hoverPreviewG.attr('transform', `translate(${coords[0]}, ${coords[1]})`);
   });
   svg.on('pointerenter', e => {
+    hOutsideSvg.exit();
+    /*
     if (!addingNodeOnClick) {
       return;
     }
     hoverPreviewG.classed('shown', true);
+    */
   });
   svg.on('pointerleave', e => {
-    hoverPreviewG.classed('shown', false);
+    hOutsideSvg.enter();
+    //hoverPreviewG.classed('shown', false);
   });
 
   function firstConnection(nodeData, portData) {
     return edges.find(e => e.n2 == nodeData && e.p2 === portData.portid);
   }
 
+
+  const occh = occ.handler().enter(); // pointer over svg
+  const hOutsideSvg = occh.newChild().enter();
+  const hNodeDragging = occh.newChild();
+  const hNodePointerOver = occh.newChild();
+  const hToolbarPointerOver = occh.newChild();
+  occh.onChange(onSvg => {
+    if (!addingNodeOnClick) {
+      return;
+    }
+    hoverPreviewG.classed('shown', onSvg);
+  });
 
   const connDragOpts = {
     getPortsD3 : () => nodelayerg.selectAll('g.portg'),
@@ -611,16 +636,15 @@ export function initPage() {
       notes.top('Connection added');
       renderEdges();
     },
-    pointerOccupied : () => {
-      lastOcc = true;
+    pointerOccupied : occh.newChild().overThisOrChild
+    /*pointerOccupied : (occ) => {
+      lastOcc = occ;
       seeOcc();
-    },
-    pointerUnoccupied : () => {
-      lastOcc = false;
-      seeOcc();
-    }
+    }*/
 
   };
+
+  /*
   var lastOcc = false;
   function seeOcc() {
     if (!addingNodeOnClick) {
@@ -628,6 +652,7 @@ export function initPage() {
     }
     hoverPreviewG.classed('shown', !lastOcc);
   }
+  */
   connDrag.registerListenersOnPorts(connDragOpts);
 
 }
