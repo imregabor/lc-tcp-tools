@@ -11,6 +11,15 @@ export function initPage() {
   d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
   const body = d3.select('body');
 
+  body.on('keydown', e => {
+    console.log(e);
+    if (e.key === 'Escape') {
+      pointerToollIconClicked();
+    }
+  });
+
+
+
   var idct = 0;
   function newId() {
     idct += 1;
@@ -115,8 +124,7 @@ export function initPage() {
        transform="rotate(90)"/>`);
   pointerToolG.classed('activated', true);
 
-  pointerToolG.on('click', (e) => {
-    e.stopPropagation();
+  function pointerToollIconClicked() {
     if (pointerToolG.classed('activated')) {
       return;
     }
@@ -124,10 +132,16 @@ export function initPage() {
       addNodeToolSubmenuG.remove();
     }
 
-    addingNodeOnClick = false;
+
     stopAddingNodeOnClick();
     pointerToolG.classed('activated', true);
     addNodeToolG.classed('activated', false);
+    addingNodeOnClick = false; // otherwise removal of preview will short circuit
+  }
+
+  pointerToolG.on('click', (e) => {
+    e.stopPropagation();
+    pointerToollIconClicked();
   });
 
   const nodeTypes = nodeDefs.nodeTypes;
