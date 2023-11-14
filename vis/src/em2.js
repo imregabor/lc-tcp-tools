@@ -18,8 +18,6 @@ export function initPage() {
     }
   });
 
-
-
   var idct = 0;
   function newId() {
     idct += 1;
@@ -74,7 +72,7 @@ export function initPage() {
       .attr('x', 0)
       .attr('y', 0)
       .attr('width', 42)
-      .attr('height', 82);
+      .attr('height', 122);
 
   const pointerToolG = toolBarG.append('g').classed('tool', true).attr('transform', d => 'translate(1, 1)');
   pointerToolG.append('rect')
@@ -123,6 +121,145 @@ export function initPage() {
        y="-21.166666"
        transform="rotate(90)"/>`);
   pointerToolG.classed('activated', true);
+
+
+  const editParamToolG = toolBarG.append('g').classed('tool', true).attr('transform', d => 'translate(1, 81)');
+  editParamToolG.append('rect')
+      .classed('tool-border', true)
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', 40)
+      .attr('height', 40);
+  editParamToolG.append('g').classed('tool-icon', true).html(`<g>
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="1.9948076"
+       height="29.58145"
+       x="28.100634"
+       y="8.4200668" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="32.195236"
+       y="8.4713335" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="32.190884"
+       y="36.768253" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="32.190884"
+       y="32.718105" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="32.243378"
+       y="28.87303" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="32.190884"
+       y="24.669081" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="32.13839"
+       y="20.772738" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="32.190884"
+       y="16.620056" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="32.190884"
+       y="12.518643" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="20.803839"
+       y="8.4763994" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="20.799484"
+       y="36.773315" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       id="rect3-7-6"
+       width="5.1445022"
+       height="0.97408575"
+       x="20.799484"
+       y="32.723171" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="20.85198"
+       y="28.878096" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="20.799484"
+       y="24.674147" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="20.74699"
+       y="20.777803" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="20.799484"
+       y="16.625124" />
+    <rect
+       style="fill:#5db7d5;stroke-width:1.02586"
+       width="5.1445022"
+       height="0.97408575"
+       x="20.799484"
+       y="12.523709" />
+    <rect
+       style="fill:#25748e;stroke-width:1.01146"
+       width="14.646082"
+       height="3.9988782"
+       x="21.748749"
+       y="14.572186"
+       ry="1.230424" />
+    <text
+       style="font-size:24.6208px;fill:#25748e;stroke-width:1.02586"
+       x="4.892168"
+       y="23.045992"
+       transform="scale(1.0118982,0.98824169)"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24.6208px;font-family:Monospace;-inkscape-font-specification:'Monospace Bold';stroke-width:1.02586"
+         x="4.892168"
+         y="23.045992">5</tspan></text>
+    <path
+       style="fill:#25748e;stroke:#25748e;stroke-width:2.05173;stroke-dasharray:none;stroke-opacity:1"
+       d="m 5.107861,3.344566 v 23.53186"/>
+    <path
+       style="fill:#25748e;stroke:#25748e;stroke-width:2.05173;stroke-dasharray:none;stroke-opacity:1"
+       d="m 1.8251686,26.795574 6.4568745,-10e-7"/>
+    <path
+       style="fill:#25748e;stroke:#25748e;stroke-width:2.05173;stroke-dasharray:none;stroke-opacity:1"
+       d="m 1.9131434,3.4327168 6.4568746,-4e-7"/>
+  </g>`);
+
 
   function pointerToollIconClicked() {
     if (pointerToolG.classed('activated')) {
