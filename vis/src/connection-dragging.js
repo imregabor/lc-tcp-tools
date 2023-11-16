@@ -56,7 +56,7 @@ export function registerListenersOnPorts(opts) {
         exitPort(insideD3);
         insideD3 = undefined;
         inside = undefined;
-      }, 150);
+      }, 1);
     });
 
   var tmpeN;
