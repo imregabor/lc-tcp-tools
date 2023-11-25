@@ -6,6 +6,7 @@ import * as connDrag from './connection-dragging.js';
 import * as notes from './notes.js';
 import * as nodeDefs from './node-definitions.js';
 import * as occ from './occ.js';
+import * as toolbar from './toolbar.js';
 
 export function initPage() {
   d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
@@ -14,7 +15,8 @@ export function initPage() {
   body.on('keydown', e => {
     console.log(e);
     if (e.key === 'Escape') {
-      pointerToollIconClicked();
+      tb.reset();
+      // pointerToollIconClicked();
     }
   });
 
@@ -48,6 +50,7 @@ export function initPage() {
       .attr('y1', -10)
       .attr('x2', -10)
       .attr('y2',  10);
+
   function updateSvgSize() {
     const bcr = svg.node().getBoundingClientRect();
     const w = bcr.width;
@@ -59,291 +62,48 @@ export function initPage() {
   updateSvgSize();
 
 
+  const nodeTypes = nodeDefs.nodeTypes;
 
 
-
-
-  const toolBarG = uielementsg.append('g').classed('toolbar', true).attr('transform', d => 'translate(5.5, 5.5)');
-  toolBarG.on('pointerenter', e => hToolbarPointerOver.enter());
-  toolBarG.on('pointerleave', e => hToolbarPointerOver.exit());
-  toolBarG.call(d3.drag().clickDistance(5)); // Avoid dragging underlying content; allow slight cursor move to register as click
-  toolBarG.append('rect')
-      .classed('toolbar-bg', true)
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', 42)
-      .attr('height', 122);
-
-  const pointerToolG = toolBarG.append('g').classed('tool', true).attr('transform', d => 'translate(1, 1)');
-  pointerToolG.append('rect')
-      .classed('tool-border', true)
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', 40)
-      .attr('height', 40);
-  pointerToolG.append('g').classed('tool-icon', true).html(`<path
-      style="fill: #25748e; stroke: none;"
-      d="m 9.6408685,10.076836 20.8687265,9.375455 -8.915308,2.666163 -3.142362,9.023487 z"/>`);
-
-  const addNodeToolG = toolBarG.append('g').classed('tool', true).attr('transform', d => 'translate(1, 41)');
-  addNodeToolG.append('rect')
-      .classed('tool-border', true)
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', 40)
-      .attr('height', 40);
-  addNodeToolG.append('g').classed('tool-icon', true).html(`<rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#5db7d5;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
-       width="18.520832"
-       height="25.135418"
-       x="15.875"
-       y="11.906251" />
-    <path
-       style="fill:#ffffff;fill-opacity:1;stroke:#5db7d5;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
-       d="m 26.458332,18.520835 9.15081,-1e-6 2.75544,2.645834 -2.645833,2.645834 h -9.260417 z"/>
-    <path
-       style="fill:#ffffff;fill-opacity:1;stroke:#5db7d5;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
-       d="m 23.812499,18.520833 -9.15081,-1e-6 -2.75544,2.645834 2.645833,2.645834 h 9.260417 z"/>
-    <path
-       style="fill:#ffffff;fill-opacity:1;stroke:#5db7d5;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
-       d="m 26.458332,26.458335 9.15081,-1e-6 2.75544,2.645834 -2.645833,2.645834 h -9.260417 z"/>
-    <rect
-       style="fill:#25748e;fill-opacity:1;stroke:none;stroke-width:0.966092;stroke-dasharray:none;stroke-opacity:1"
-       width="5.2916665"
-       height="18.520834"
-       x="9.260416"
-       y="2.6458342" />
-    <rect
-       style="fill:#25748e;fill-opacity:1;stroke:none;stroke-width:0.966092;stroke-dasharray:none;stroke-opacity:1"
-       width="5.2916665"
-       height="18.520834"
-       x="9.260417"
-       y="-21.166666"
-       transform="rotate(90)"/>`);
-  pointerToolG.classed('activated', true);
-
-
-  const editParamToolG = toolBarG.append('g').classed('tool', true).attr('transform', d => 'translate(1, 81)');
-  editParamToolG.append('rect')
-      .classed('tool-border', true)
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', 40)
-      .attr('height', 40);
-  editParamToolG.append('g').classed('tool-icon', true).html(`<g>
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="1.9948076"
-       height="29.58145"
-       x="28.100634"
-       y="8.4200668" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="32.195236"
-       y="8.4713335" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="32.190884"
-       y="36.768253" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="32.190884"
-       y="32.718105" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="32.243378"
-       y="28.87303" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="32.190884"
-       y="24.669081" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="32.13839"
-       y="20.772738" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="32.190884"
-       y="16.620056" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="32.190884"
-       y="12.518643" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="20.803839"
-       y="8.4763994" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="20.799484"
-       y="36.773315" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       id="rect3-7-6"
-       width="5.1445022"
-       height="0.97408575"
-       x="20.799484"
-       y="32.723171" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="20.85198"
-       y="28.878096" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="20.799484"
-       y="24.674147" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="20.74699"
-       y="20.777803" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="20.799484"
-       y="16.625124" />
-    <rect
-       style="fill:#5db7d5;stroke-width:1.02586"
-       width="5.1445022"
-       height="0.97408575"
-       x="20.799484"
-       y="12.523709" />
-    <rect
-       style="fill:#25748e;stroke-width:1.01146"
-       width="14.646082"
-       height="3.9988782"
-       x="21.748749"
-       y="14.572186"
-       ry="1.230424" />
-    <text
-       style="font-size:24.6208px;fill:#25748e;stroke-width:1.02586"
-       x="4.892168"
-       y="23.045992"
-       transform="scale(1.0118982,0.98824169)"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24.6208px;font-family:Monospace;-inkscape-font-specification:'Monospace Bold';stroke-width:1.02586"
-         x="4.892168"
-         y="23.045992">5</tspan></text>
-    <path
-       style="fill:#25748e;stroke:#25748e;stroke-width:2.05173;stroke-dasharray:none;stroke-opacity:1"
-       d="m 5.107861,3.344566 v 23.53186"/>
-    <path
-       style="fill:#25748e;stroke:#25748e;stroke-width:2.05173;stroke-dasharray:none;stroke-opacity:1"
-       d="m 1.8251686,26.795574 6.4568745,-10e-7"/>
-    <path
-       style="fill:#25748e;stroke:#25748e;stroke-width:2.05173;stroke-dasharray:none;stroke-opacity:1"
-       d="m 1.9131434,3.4327168 6.4568746,-4e-7"/>
-  </g>`);
-
-
-  function pointerToollIconClicked() {
-    if (pointerToolG.classed('activated')) {
-      return;
-    }
-    if (addNodeToolSubmenuG) {
-      addNodeToolSubmenuG.remove();
-    }
-
-
-    stopAddingNodeOnClick();
-    pointerToolG.classed('activated', true);
-    addNodeToolG.classed('activated', false);
-    addingNodeOnClick = false; // otherwise removal of preview will short circuit
-  }
-
-  pointerToolG.on('click', (e) => {
-    e.stopPropagation();
-    pointerToollIconClicked();
+  const tb = toolbar.addTo(uielementsg, {
+    pointerOccupied : o => hToolbarPointerOver.overThisOrChild(o)
   });
 
-  const nodeTypes = nodeDefs.nodeTypes;
-  var addNodeToolSubmenuG = undefined;
+  const pointerTool = tb.addTool({
+    default : true,
+    svgFrag : toolbar.svgFragPointer()
+  });
 
-  var selectedAddNodeType = 'aa'; // shortcut do default
-  var addingNodeOnClick = false;
-
-  addNodeToolG.on('click', (e) => {
-    e.stopPropagation();
-    if (addNodeToolG.classed('activated')) {
-      return;
-    }
-    pointerToolG.classed('activated', false);
-    addNodeToolG.classed('activated', true);
-
-    addingNodeOnClick = true;
-    startAddingNodeOnClick();
-
-    addNodeToolSubmenuG = addNodeToolG.append('g').attr('transform', 'translate(41, 0)');
-
-
-    const nodeTypeArr = Object.entries(nodeTypes)
-        .map(([k, v]) => {
+  const addNodeTool = tb.addTool({
+    svgFrag : toolbar.svgFragAddNode(),
+    submenu : Object.entries(nodeTypes).map(([k, v]) => {
           return {
             nodeType : k,
             def : v
           };
-        });
-
-    addNodeToolSubmenuG.append('rect')
-      .classed('tool-popup-box', true)
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', 220)
-      .attr('height', nodeTypeArr.length * 25);
-
-
-    const menuItemGs = addNodeToolSubmenuG.selectAll('g.tool-popup-menuitem').data(nodeTypeArr)
-        .enter()
-        .append('g')
-        .classed('tool-popup-menuitem', true)
-        .classed('activated', d => d.nodeType === selectedAddNodeType)
-        .attr('transform', (d, i) => `translate(0, ${i * 25})`);
-    menuItemGs.append('rect')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', 220)
-        .attr('height', 25);
-    menuItemGs.append('text')
-        .attr('x', 5)
-        .attr('y', 12.5)
-        .attr('alignment-baseline', 'middle')
-        .text(d => `${d.def.title} (${d.nodeType})`);
-
-
-    menuItemGs.on('click', function (e, clickd) {
-      selectedAddNodeType = clickd.nodeType;
-      menuItemGs.classed('activated', id => id.nodeType === clickd.nodeType);
+        }),
+    submenuLabel : d => `${d.def.title} (${d.nodeType})`,
+    onSelect : (d1,d2) => {
+      addingNodeOnClick = true;
+      selectedAddNodeType = d1.nodeType;
+      startAddingNodeOnClick();
       updateAddingNodeOnClick();
-    });
+    },
+    onDeselect : () => {
+      stopAddingNodeOnClick();
+      addingNodeOnClick = false; // otherwise removal of preview will short circuit
+    }
+  });
 
+  const editParamsTool = tb.addTool({
+    svgFrag : toolbar.svgFragEditParams(),
+    onSelect : d => console.log('EDIT', d)
   });
 
 
+
+  var selectedAddNodeType = 'aa'; // shortcut do default
+  var addingNodeOnClick = false;
 
 
   var nodes = [
