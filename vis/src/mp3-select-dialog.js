@@ -126,7 +126,14 @@ export function chooseMp3() {
       resolve(url);
     }
 
-    const m1 = body.append('div').classed('modal-bg', true).on('click', cancel);
+    const m1 = body.append('div')
+        .classed('modal-bg', true)
+        .on('click', cancel)
+        .on('keydown', e => {
+          if (e.key === 'Escape') {
+            cancel();
+          }
+        });
     const m2 = m1.append('div').classed('modal-dg', true).on('click', () => event.stopPropagation());
 
     m2.append('h1').text('Pick an mp3').append('i').classed('fa fa-times', true).on('click', cancel);
