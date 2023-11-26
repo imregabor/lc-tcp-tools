@@ -40,17 +40,17 @@ export function addTo(uielementsg, opts) {
         thisD3.classed('activated', true);
         if (toolOpts.onSelect) {
           if (toolOpts.submenu) {
-            toolOpts.onSelect(d.selectedSubmenuItem, d);
+            d.onSelect(d.selectedSubmenuItem, d);
           } else {
-            toolOpts.onSelect(d);
+            d.onSelect(d);
           }
         }
       } else {
         if (!thisSelected) {
           return;
         }
-        if (toolOpts.onDeselect) {
-          toolOpts.onDeselect(d);
+        if (d.onDeselect) {
+          d.onDeselect(d);
         }
         thisD3.classed('activated', false);
       }
