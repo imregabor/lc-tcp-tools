@@ -95,7 +95,12 @@ export function initPage() {
 
   const editParamsTool = tb.addTool({
     svgFrag : toolbar.svgFragEditParams(),
-    onSelect : d => console.log('EDIT', d)
+    onSelect : d => {
+      maing.classed('param-editing', true);
+    },
+    onDeselect : d => {
+      maing.classed('param-editing', false);
+    }
   });
 
 
@@ -234,7 +239,17 @@ export function initPage() {
         .attr('width', d => nodeTypes[d.type].w)
         .attr('height', d => nodeTypes[d.type].h)
         .attr('rx', 5);
-    nodesg.append('text')
+
+    var titleg = nodesg.append('g').classed('paramg titleg', true);
+    titleg.append('rect')
+        .classed('param-bg-rect', true)
+        .attr('x', 5)
+        .attr('y', 3)
+        .attr('width', d => nodeTypes[d.type].w - 10)
+        .attr('height', 15);
+
+
+    titleg.append('text')
         .classed('node-label', true)
         .attr('text-anchor', 'middle')
         .attr('x', d => nodeTypes[d.type].w / 2)
@@ -284,10 +299,19 @@ export function initPage() {
               def : v,
               value : v.initial
             };});
-        const paramgs = sel.selectAll('g.paramg').data(params).enter().append('g')
+        const paramsctr = sel.append('g');
+        const paramgs = paramsctr.selectAll('g.paramg').data(params).enter().append('g')
             .attr('id', d => d.domid)
             .classed('paramg', true)
             .attr('transform', d => `translate(${d.def.x}, ${d.def.y})`);
+
+        paramgs.append('rect')
+            .classed('param-bg-rect', true)
+            .attr('x', -3)
+            .attr('y', -8)
+            .attr('width', d => d.def.len + 7)
+            .attr('height', 14);
+
         paramgs.append('text')
             .classed('param-label', true)
             .attr('text-anchor', 'start')

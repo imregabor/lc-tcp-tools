@@ -46,6 +46,23 @@ rect.box {
 
 }
 
+rect.param-bg-rect {
+  stroke: none;
+  fill: rgba(0, 0, 0, 0);
+  transition: fill 0.2s;
+}
+
+.param-editing rect.param-bg-rect {
+  stroke: none;
+  fill: #e8f7fc;
+}
+
+.param-editing .paramg:hover rect.param-bg-rect {
+  stroke: none;
+  fill: #d1f0fa;
+}
+
+
 /*
 .nodeg:hover rect.box {
   fill: rgba(0,0,0,0.2);
