@@ -111,33 +111,63 @@ export function addItemsTo(m2, select) {
 
 }
 
+export function showModal(opts) {
+  const body = d3.select('body');
+
+  function cancel() {
+    event.stopPropagation();
+    m1.remove();
+    body.on('keydown', oldeh);
+    if (opts.reject) {
+      opts.reject();
+    }
+  }
+
+  function select(url) {
+    m1.remove();
+    body.on('keydown', oldeh);
+    if (opts.resolve) {
+      opts.resolve(url);
+    }
+  }
+
+  const oldeh = body.on('keydown');
+  body.on('keydown', e => {
+        if (e.key === 'Escape') {
+          cancel();
+        }
+      });
+
+  const m1 = body.append('div')
+      .classed('modal-bg', true)
+      .on('click', cancel);
+  const m2 = m1.append('div')
+      .classed('modal-dg', true)
+      .on('click', () => event.stopPropagation());
+
+  m2.append('h1')
+      .text(opts.title)
+      .append('i')
+      .classed('fa fa-times', true)
+      .on('click', cancel);
+
+
+  const ret = {
+    doResolve : value => select(value),
+    doReject : () => cancel(),
+    getDgD3 : () => { return m2; }
+  };
+  return ret;
+}
+
+
 export function chooseMp3() {
   return new Promise((resolve, reject) => {
-    const body = d3.select('body');
-
-    function cancel() {
-      event.stopPropagation();
-      m1.remove();
-      reject();
-    }
-
-    function select(url) {
-      m1.remove();
-      resolve(url);
-    }
-
-    const m1 = body.append('div')
-        .classed('modal-bg', true)
-        .on('click', cancel)
-        .on('keydown', e => {
-          if (e.key === 'Escape') {
-            cancel();
-          }
-        });
-    const m2 = m1.append('div').classed('modal-dg', true).on('click', () => event.stopPropagation());
-
-    m2.append('h1').text('Pick an mp3').append('i').classed('fa fa-times', true).on('click', cancel);
-
-    addItemsTo(m2, select);
+    const modal = showModal({
+      title : 'Pick an mp3',
+      resolve : d => resolve(d),
+      reject : () => reject()
+    });
+    addItemsTo(modal.getDgD3(), modal.doResolve);
   });
 }
