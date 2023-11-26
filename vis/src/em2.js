@@ -13,10 +13,8 @@ export function initPage() {
   const body = d3.select('body');
 
   body.on('keydown', e => {
-    console.log(e);
     if (e.key === 'Escape') {
       tb.reset();
-      // pointerToollIconClicked();
     }
   });
 
