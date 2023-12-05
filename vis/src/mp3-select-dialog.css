@@ -45,6 +45,7 @@
   margin: 0;
 }
 
+
 .modal-dg h1 i {
   float: right;
   user-select: none;
@@ -52,9 +53,15 @@
   color: #bbb;
 }
 
+/* See https://colorbrewer2.org/#type=sequential&scheme=Reds&n=8 */
 .modal-dg h1 i:hover {
-  color: #444;
+  color: #cb181d;
 }
+
+.modal-dg h1 i:active {
+  color: #99000d;
+}
+
 
 .modal-dg .header-info {
   display: block;
@@ -126,4 +133,48 @@
 
 .modal-dg .list-entry:hover .t2 {
     color: #668499;
+}
+
+.modal-dg .modal-kv-row {
+  margin-bottom: 10px;
+}
+
+.modal-dg .modal-kv-row .modal-kv-k {
+  display: inline-block;
+  width: 200px;
+}
+
+.modal-dg .modal-kv-row .modal-kv-v {
+  display: inline-block;
+  font-family: monospace;
+}
+
+
+.modal-dg .modal-dg-ftr {
+  margin-top: 30px;
+  text-align: center;
+}
+
+/* See https://colorbrewer2.org/#type=sequential&scheme=Greens&n=8 */
+.modal-dg .btn {
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  background-color: #41ab5d;
+  color: #e5f5e0;
+  padding: 10px;
+  padding-left: 30px;
+  padding-right: 30px;
+  border-radius: 8px;
+  font-size: 140%;
+}
+
+.modal-dg .btn:hover {
+  background-color: #238b45;
+  color: #a1d99b;
+}
+
+.modal-dg .btn:active {
+  background-color: #005a32;
+  color: #74c476;
 }

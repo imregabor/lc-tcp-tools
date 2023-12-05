@@ -52,9 +52,14 @@ rect.param-bg-rect {
   transition: fill 0.2s;
 }
 
+.param-editing .paramg {
+  cursor: text;
+}
+
 .param-editing rect.param-bg-rect {
   stroke: none;
   fill: #e8f7fc;
+
 }
 
 .param-editing .paramg:hover rect.param-bg-rect {

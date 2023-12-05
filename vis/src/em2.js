@@ -7,6 +7,7 @@ import * as notes from './notes.js';
 import * as nodeDefs from './node-definitions.js';
 import * as occ from './occ.js';
 import * as toolbar from './toolbar.js';
+import * as dg from './mp3-select-dialog.js';
 
 export function initPage() {
   d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
@@ -97,9 +98,11 @@ export function initPage() {
     svgFrag : toolbar.svgFragEditParams(),
     onSelect : d => {
       maing.classed('param-editing', true);
+      editingNodeParams = true;
     },
     onDeselect : d => {
       maing.classed('param-editing', false);
+      editingNodeParams = false;
     }
   });
 
@@ -107,6 +110,7 @@ export function initPage() {
 
   var selectedAddNodeType = 'aa'; // shortcut do default
   var addingNodeOnClick = false;
+  var editingNodeParams = false;
 
 
   var nodes = [
@@ -216,6 +220,32 @@ export function initPage() {
     renderNodesInto(nodes, nodelayerg, true);
   }
 
+  function nodeParamClicked(e,d,n) {
+    if (!editingNodeParams) {
+      return;
+    }
+    const thisD3 = d3.select(this);
+    if (thisD3.classed('titleg')) {
+      console.log('Title', d);
+      const modal = dg.showModal({
+        title: 'Change node title',
+        reject : () => {
+          console.log('Rejected', nvf());
+        },
+        resolve : v => {
+          console.log('Resolved', v);
+        },
+        ok : () => 'well, ok'
+      });
+      modal.appendKV('Current value:', d.layout.label);
+      const nvf = modal.appendStrInput('New value:', d.layout.label);
+    } else if (d.paramid) {
+      const parentD3 = d3.select(this.parentNode);
+      const pd = parentD3.datum();
+      console.log('Param', d, pd);
+    }
+  }
+
   function renderNodesInto(nodes, nodelayerg, registerDrag) {
     // Node specifications will be extended
     // d.render.id - Unique ID, associated to g.nodeg representing the node
@@ -257,6 +287,7 @@ export function initPage() {
         .text(d => d.layout.label);
 
     if (registerDrag) {
+      titleg.on('click', nodeParamClicked);
       nodesg.on('click', e => e.stopPropagation());
       nodesg.call(nodeDrag);
       nodesg.on('pointerenter', e => hNodePointerOver.enter());
@@ -277,6 +308,12 @@ export function initPage() {
           .attr('id', d => d.domid)
           .classed('portg', true)
           .attr('transform', d => `translate(${d.def.x}, ${d.def.y})`);
+
+      if (registerDrag) {
+        portgs.on('click', nodeParamClicked);
+      }
+
+
       portgs.append('path')
           .attr('d', d => d.def.type === 'out'
               ? `M 0 0 l -10 -10 l -${d.def.l} 0 l 0 20 l ${d.def.l} 0 l 10 -10 Z`
@@ -304,6 +341,10 @@ export function initPage() {
             .attr('id', d => d.domid)
             .classed('paramg', true)
             .attr('transform', d => `translate(${d.def.x}, ${d.def.y})`);
+
+        if (registerDrag) {
+          paramgs.on('click', nodeParamClicked);
+        }
 
         paramgs.append('rect')
             .classed('param-bg-rect', true)

@@ -133,10 +133,13 @@ export function showModal(opts) {
 
   const oldeh = body.on('keydown');
   body.on('keydown', e => {
-        if (e.key === 'Escape') {
-          cancel();
-        }
-      });
+    if (e.key === 'Escape') {
+      cancel();
+    }
+    if (e.key === 'Enter' && opts.ok) {
+      select(opts.ok());
+    }
+  });
 
   const m1 = body.append('div')
       .classed('modal-bg', true)
@@ -151,11 +154,40 @@ export function showModal(opts) {
       .classed('fa fa-times', true)
       .on('click', cancel);
 
+  const m2_body = m2.append('div');
+
+  if (opts.ok) {
+    const m2_ft = m2.append('div').classed('modal-dg-ftr', true);
+    m2_ft.append('div')
+        .classed('btn', true)
+        .text('ok')
+        .on('click', () => {
+          select(opts.ok());
+        });
+  }
+  //const m2_body = m2.append('div');
+
 
   const ret = {
     doResolve : value => select(value),
     doReject : () => cancel(),
-    getDgD3 : () => { return m2; }
+    getDgD3 : () => { return m2; },
+    appendKV : (k, v) => {
+      const d1 = m2_body.append('div').classed('modal-kv-row', true);
+      d1.append('div').classed('modal-kv-k', true).text(k);
+      d1.append('div').classed('modal-kv-v', true).text(v);
+      return ret;
+    },
+    appendStrInput : (k, v) => {
+      const d1 = m2_body.append('div').classed('modal-kv-row', true);
+      d1.append('div').classed('modal-kv-k', true).text(k);
+      const i = d1.append('div').classed('modal-kv-v', true).append('input')
+          .attr('value', v)
+          .attr('size', 50);
+      i.node().focus();
+      i.node().select();
+      return () => i.property('value');
+    }
   };
   return ret;
 }
