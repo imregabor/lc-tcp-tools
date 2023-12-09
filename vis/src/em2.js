@@ -166,6 +166,7 @@ export function initPage() {
   var nodelayerg = maing.append('g');
 
   const nodeDrag = d3.drag()
+      .clickDistance(5)
       .on('start', function(e) {
         updateSvgSize();
         removeAreaG.classed('hidden', false);
