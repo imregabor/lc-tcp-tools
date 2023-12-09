@@ -226,16 +226,18 @@ export function initPage() {
     }
     const thisD3 = d3.select(this);
     if (thisD3.classed('titleg')) {
-      console.log('Title', d);
+      console.log('Title of node', d);
       const modal = dg.showModal({
         title: 'Change node title',
         reject : () => {
-          console.log('Rejected', nvf());
+          console.log('Rejected');
         },
         resolve : v => {
-          console.log('Resolved', v);
+          console.log('Resolved; update title', v);
+          d.layout.label = v;
+          updateNodeTitles();
         },
-        ok : () => 'well, ok'
+        ok : () => nvf()
       });
       modal.appendKV('Current value:', d.layout.label);
       const nvf = modal.appendStrInput('New value:', d.layout.label);
@@ -244,6 +246,10 @@ export function initPage() {
       const pd = parentD3.datum();
       console.log('Param', d, pd);
     }
+  }
+
+  function updateNodeTitles() {
+    nodelayerg.selectAll('g.titleg text').text(d => d.layout.label);
   }
 
   function renderNodesInto(nodes, nodelayerg, registerDrag) {
