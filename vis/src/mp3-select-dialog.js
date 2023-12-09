@@ -187,6 +187,17 @@ export function showModal(opts) {
       i.node().focus();
       i.node().select();
       return () => i.property('value');
+    },
+    appendNumInput : (k, v) => {
+      const d1 = m2_body.append('div').classed('modal-kv-row', true);
+      d1.append('div').classed('modal-kv-k', true).text(k);
+      const i = d1.append('div').classed('modal-kv-v', true).append('input')
+          .attr('type', 'number')
+          .attr('value', v)
+          .attr('size', 50);
+      i.node().focus();
+      i.node().select();
+      return () => i.property('value');
     }
   };
   return ret;

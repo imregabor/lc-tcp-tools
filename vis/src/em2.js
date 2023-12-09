@@ -246,11 +246,40 @@ export function initPage() {
       const parentD3 = d3.select(this.parentNode);
       const pd = parentD3.datum();
       console.log('Param', d, pd);
+
+      const modal = dg.showModal({
+        title: `Change parameter "${d.def.label}" of "${pd.layout.label}"`,
+        reject : () => {
+          console.log('Rejected');
+        },
+        resolve : v => {
+          console.log('Resolved; update value', v);
+          d.value = v;
+          updateNodeParamValues();
+        },
+        ok : () => nvf()
+      });
+      modal.appendKV('Default value:', d.def.initial);
+      modal.appendKV('Current value:', d.value);
+      const nvf = modal.appendNumInput('New value:', d.value);
+
     }
   }
 
   function updateNodeTitles() {
     nodelayerg.selectAll('g.titleg text').text(d => d.layout.label);
+  }
+
+  function updateNodeParamValues() {
+    const nodegs = nodelayerg.selectAll('g.nodeg');
+    nodegs.each(function (d) {
+      const sel = d3.select(this);
+      if (!d.params) {
+        return;
+      }
+      const paramvs = sel.selectAll('g.paramg text.param-value')
+        .text(d => d.value);
+    });
   }
 
   function renderNodesInto(nodes, nodelayerg, registerDrag) {
@@ -343,6 +372,7 @@ export function initPage() {
               def : v,
               value : v.initial
             };});
+        d.params = params;
         const paramsctr = sel.append('g');
         const paramgs = paramsctr.selectAll('g.paramg').data(params).enter().append('g')
             .attr('id', d => d.domid)
