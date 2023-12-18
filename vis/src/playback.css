@@ -30,6 +30,7 @@
 }
 
 audio {
+  vertical-align: top;
   width: 500px;
   height: 32px;
 }
@@ -37,7 +38,7 @@ audio {
 .playback-extra-controls {
   user-select: none;
   display: inline-block;
-  margin-left:  16px;
+  color: #888;
   height: 32px;
   background-color: #eee;
   vertical-align: top;
@@ -48,9 +49,13 @@ audio {
   line-height: 32px;
 }
 
+.playback-extra-controls.spaced {
+  margin-left:  16px;
+}
+
 .playback-extra-controls i {
   cursor: pointer;
-  color: #bbb;
+  color: #888;
   border-radius: 8px;
   border: 4px solid #eee;
 }

@@ -12,9 +12,10 @@ import * as d3 from 'd3';
 import '@fortawesome/fontawesome-free/css/all.css'
 import * as mp3dialog from './mp3-select-dialog.js';
 import * as apiClient from './api-client.js';
+import * as notes from './notes.js';
 
 
-export function addPlaybackControls(parentD3) {
+export function addPlaybackControls(parentD3, opts) {
   apiClient.getMp3Servers(mp3dialog.loadMp3ListFromServer);
 
   const d = parentD3.append('div').classed('playback-extra-controls', true);
@@ -23,7 +24,7 @@ export function addPlaybackControls(parentD3) {
       .attr('title', 'Play from music collection')
       .on('click', () => {
         mp3dialog.chooseMp3()
-//            .then(url => audio(url))
+            .then(url => opts.startPlaybackFrom(url))
             .catch(e => {
               console.log('Error in mp3 dialog', e);
             });
@@ -35,14 +36,29 @@ export function addPlaybackControls(parentD3) {
         mp3dialog
             .showModal({
               title : 'Pick audio source',
-              resolve : v => { console.log('Resolved', v)}
+              resolve : v => {
+                console.log('Pick audio resolved', v);
+                if (v.dmp3) {
+                  opts.startDecodeFrom(v.dmp3);
+                } else if (v.tone) {
+                  opts.tone(v.tone);
+                }
+              }
             })
             .appendH2('Decoded MP3')
             .appendP('Audio samples stored locally (no MP3 server dependency), decoded into a buffer before playback.')
             .appendResolvingList([
               { dmp3 : 'data/viper.mp3' , t1 : 'Viper', t2 : 'for Web Audio examples project' },
+              // track credit:
+              // Outfoxing the Fox by Kevin MacLeod under Creative Commons
               { dmp3 : 'data/outfoxing.mp3' , t1 : 'Outfoxing the fox', t2 : 'by Kevin MacLeod (incompetech.com)' },
+              // track credit:
+              // RetroFuture Dirty Kevin MacLeod (incompetech.com)
+              // Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/ licenses/by/3.0/
               { dmp3 : 'data/retrofuturedirty.mp3' , t1 : 'RetroFuture dirty', t2 : 'by Kevin MacLeod (incompetech.com)' },
+              // track credit:
+              // "Sneaky Snitch" Kevin MacLeod (incompetech.com)
+              // Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/
               { dmp3 : 'data/sneakysnitch.mp3' , t1 : 'Sneaky Snitch', t2 : 'by Kevin MacLeod (incompetech.com)' }
             ], d => d.t1, d => d.t2)
             .appendH2('Fixed tones')
@@ -57,91 +73,42 @@ export function addPlaybackControls(parentD3) {
               { tone : 3000 }
             ], d => `${d.tone} Hz`);
       });
+
   const i3 = d.append('i')
       .classed('fa fa-stop fa-fw', true)
       .attr('title', 'Stop playback')
-      .on('click', () => {});
+      .on('click', () => {
+        opts.stop();
+      });
   i3.classed('disabled', true);
 
   const ret = {
+    stopEnabled : v => i3.classed('disabled', !v)
   };
+  return ret;
 }
 
 /**
  * Add playback.
  *
- * parentD3: D3 selection of parent element
+ * parentD3: D3 selection of parent element for buttons
+ * playerParentD3: D3 selection of parent element for audio element and additional seek controls
  * opts: callbacks called with component facade when audio context is initiated (inside a user action)
  */
-export function addSimplePlayback(parentD3, opts) {
+export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
+  const ctrls = addPlaybackControls(parentD3, {
+    startPlaybackFrom : url => audio(url),
+    startDecodeFrom : url => load(url),
+    tone : f => tone(f),
+    stop : () => stop()
+  });
 
+  /*
   const div = parentD3.append('div').classed('playback-controls', true);
-
-  const b0 = div.append('input')
-      .attr('type', 'button')
-      .attr('value', 'Listen')
-      .on('click', () => {
-        ensureAudioContext();
-        b0.remove();
-      });
-
-
-  const b1 = div.append('input')
-      .attr('type', 'button')
-      .attr('value', 'Play Viper')
-      .on('click', () => load('data/viper.mp3'));
-
-  const b2 = div.append('input')
-      .attr('type', 'button')
-      .attr('value', 'Play Outfoxing')
-      // track credit:
-      // Outfoxing the Fox by Kevin MacLeod under Creative Commons
-      .on('click', () => load('data/outfoxing.mp3'));
-
-  const b3 = div.append('input')
-      .attr('type', 'button')
-      .attr('value', 'Play RetroFuture Dirty')
-      // track credit:
-      // RetroFuture Dirty Kevin MacLeod (incompetech.com)
-      // Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/ licenses/by/3.0/
-      .on('click', () => load('data/retrofuturedirty.mp3'));
-
-  const b4 = div.append('input')
-      .attr('type', 'button')
-      .attr('value', 'Play Sneaky Snitch')
-      // track credit:
-      // "Sneaky Snitch" Kevin MacLeod (incompetech.com)
-      // Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/
-      .on('click', () => load('data/sneakysnitch.mp3'));
-
-  const b5 = div.append('input')
-      .attr('type', 'button')
-      .attr('value', 'Tone')
-      .on('click', () => tone());
-
-  const b6 = div.append('input')
-      .attr('type', 'button')
-      .attr('value', 'Audio')
-      .on('click', () => {
-        mp3dialog.chooseMp3()
-            .then(url => audio(url))
-            .catch(e => {
-              console.log('Error in mp3 dialog', e);
-            })
-      });
-
-  const bStop = div.append('input')
-      .attr('type', 'button')
-      .attr('value', 'Stop')
-      .attr('disabled', true)
-      .on('click', () => stop());
-
-  // const a = div.append('audio').attr('crossorigin', 'anonymous');
-
   const msgDiv = div.append('div').classed('message', true)
   const msg1 = msgDiv.append('span').text('Click on a play button');
   const msg2 = msgDiv.append('span');
-
+  */
 
   var audioContext;
   var sourceNode;
@@ -155,22 +122,11 @@ export function addSimplePlayback(parentD3, opts) {
   }
 
   function disableButtons() {
-    b1.attr('disabled', true);
-    b2.attr('disabled', true);
-    b3.attr('disabled', true);
-    b4.attr('disabled', true);
-    b5.attr('disabled', true);
-    b6.attr('disabled', true);
+    ctrls.stopEnabled(true);
   }
 
   function enableButtons() {
-    b1.attr('disabled', null);
-    b2.attr('disabled', null);
-    b3.attr('disabled', null);
-    b4.attr('disabled', null);
-    b5.attr('disabled', null);
-    b6.attr('disabled', null);
-    bStop.attr('disabled', true);
+    ctrls.stopEnabled(false);
   }
 
   var useAudio = false;
@@ -182,9 +138,10 @@ export function addSimplePlayback(parentD3, opts) {
   var astop;
 
   function audio(url) {
+    ret.ensureStop(true);
     message(`Start playing from ${decodeURI(url)}`);
     disableButtons();
-    adiv = div.append('div').classed('playback-player', true)
+    adiv = playerParentD3.append('div').classed('playback-player', true)
     a = adiv.append('audio').attr('crossorigin', 'anonymous').attr('controls', true);
     apaused = false;
     astop = false;
@@ -210,7 +167,7 @@ export function addSimplePlayback(parentD3, opts) {
     a.attr('src', url);
 
 
-    const xctd = adiv.append('div').classed('playback-extra-controls', true);
+    const xctd = adiv.append('div').classed('playback-extra-controls spaced', true);
     xctd.append('i').classed('fa fa-caret-left fa-fw', true).on('click', () => {
       const ct = a.node().currentTime;
       a.node().currentTime = Math.max(0, ct - 3);
@@ -246,8 +203,9 @@ export function addSimplePlayback(parentD3, opts) {
 
   }
 
-  function tone() {
-    message('Play 440Hz sinewave');
+  function tone(f) {
+    ret.ensureStop(true);
+    message(`Playing ${f} Hz sinewave`);
     disableButtons();
 
     // A user interaction happened we can create the audioContext
@@ -255,6 +213,7 @@ export function addSimplePlayback(parentD3, opts) {
     ensureAudioContext();
 
     sourceNode = audioContext.createOscillator();
+    sourceNode.frequency.setValueAtTime(f, audioContext.currentTime);
     sourceNode.connect(audioContext.destination);
     sampleRate = audioContext.sampleRate;
 
@@ -263,13 +222,13 @@ export function addSimplePlayback(parentD3, opts) {
     }
 
     lastPlaybackInfo = {
-      audio : '440Hz sinewave'
+      audio : `${f} z sinewave`
     };
 
     ret.start();
   }
 
-  function stop() {
+  function stop(silent) {
     lastPlaybackInfo = undefined;
     astop = true;
     if (!playing) {
@@ -287,24 +246,41 @@ export function addSimplePlayback(parentD3, opts) {
       sourceNode.stop(0);
     }
     enableButtons();
-    message2('Playback stopped');
+    if (!silent) {
+      message2('Playback stopped');
+    }
     if (opts.onStop) {
       opts.onStop(ret);
     }
 
   }
 
+  var lastM1;
+
   function message(message) {
-    msg1.text(message);
-    msg2.text('');
+    lastM1 = message;
+    if (msgD3) {
+      msgD3.text(message);
+    } else {
+      notes.top(message);
+    }
+    //msg1.text(message);
+     // msg2.text('');
   }
 
   function message2(message) {
-    msg2.text(message);
+    if (msgD3) {
+      msgD3.text(lastM1 + ' | ' + message);
+    } else {
+      notes.top(message);
+    }
+    // msg2.text(message);
   }
 
 
   function load(url) {
+    ret.ensureStop(true);
+
     disableButtons();
 
     // A user interaction happened we can create the audioContext
@@ -346,7 +322,6 @@ export function addSimplePlayback(parentD3, opts) {
   // TODO: reuse context, see https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
   // > It's recommended to create one AudioContext and reuse it instead of initializing a new one each time
 
-  apiClient.getMp3Servers(mp3dialog.loadMp3ListFromServer);
 
 
   const ret = {
@@ -365,7 +340,6 @@ export function addSimplePlayback(parentD3, opts) {
       if (!sourceNode) {
         throw new Error('No audio loaded');
       }
-      bStop.attr('disabled', null);
 
       if (useAudio) {
         a.node().play();
@@ -380,11 +354,11 @@ export function addSimplePlayback(parentD3, opts) {
         opts.onStart(ret);
       }
     },
-    ensureStop : () => {
+    ensureStop : (silent) => {
       if (!playing) {
         return;
       }
-      stop();
+      stop(silent);
     },
     newAnalyserNode : () => {
       if (!audioContext) {

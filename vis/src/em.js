@@ -72,7 +72,7 @@ export function initPage() {
   }
 
   const body = d3.select('body');
-  body.append('h1').text('Hello');
+
 
   var analyserNode;
 
@@ -93,8 +93,13 @@ export function initPage() {
 
   var visComponents = [];
 
+  const playerDivs = body.append('div').style('margin-bottom', '16px');
+  const ctrDiv = playerDivs.append('div').style('display', 'inline-block');
+  const plyrDiv = playerDivs.append('div').style('display', 'inline-block').style('margin-left', '16px');
+  const msgDiv = playerDivs.append('div').classed('playback-extra-controls', true).text('Select audio to play');
+
   var lastPb; // last playback facade
-  lastPb = playback.addSimplePlayback(body, {
+  lastPb = playback.addSimplePlayback(ctrDiv, plyrDiv, msgDiv, {
     build : pb => {
       analyserNode = pb.newAnalyserNode();
       analyserNode.fftSize = 4096;
