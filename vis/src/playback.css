@@ -60,3 +60,14 @@ audio {
   background-color: #ccc;
   border: 4px solid #ccc;
 }
+
+.playback-extra-controls i:active {
+  color: #444;
+  background-color: #aaa;
+  border: 4px solid #aaa;
+}
+
+.playback-extra-controls i.disabled {
+  color: #e4e4e4;
+  pointer-events: none;
+}

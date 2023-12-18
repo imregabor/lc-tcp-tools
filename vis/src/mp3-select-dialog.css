@@ -78,6 +78,17 @@
 
 }
 
+.modal-dg h2 {
+  font-size: 18px;
+  color: #666;
+}
+
+.modal-dg .ptext-row {
+  color: #777;
+  margin-bottom: 10px;
+}
+
+
 .modal-dg .src {
   margin-bottom: 10px;
 }

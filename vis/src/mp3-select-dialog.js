@@ -15,6 +15,10 @@ function formatSize(size) {
 }
 
 export function loadMp3ListFromServer(srv) {
+  if (mp3index) {
+    console.log('MP3 index already loaded; ignore');
+    mp3index = undefined;
+  }
   return fetch(`${srv}/index-mp3.json`)
     .then(response => response.json())
     .then(l => {
@@ -172,10 +176,38 @@ export function showModal(opts) {
     doResolve : value => select(value),
     doReject : () => cancel(),
     getDgD3 : () => { return m2; },
+    appendH2 : t => {
+      m2_body.append('h2').text(t);
+      return ret;
+    },
+    appendP : t => {
+      m2_body.append('div').classed('ptext-row', true).text(t);
+      return ret;
+    },
     appendKV : (k, v) => {
       const d1 = m2_body.append('div').classed('modal-kv-row', true);
       d1.append('div').classed('modal-kv-k', true).text(k);
       d1.append('div').classed('modal-kv-v', true).text(v);
+      return ret;
+    },
+    appendResolvingList(data, t1format, t2format) {
+      const lstd = m2_body.append('div').classed('lst', true);
+      const entries = lstd.selectAll('.list-entry').data(data).enter().append('div')
+          .classed('list-entry', true)
+          .on('click', (e, d) => {
+            event.preventDefault();
+            select(d);
+          });
+      if (t1format) {
+        entries.append('span')
+            .classed('t1', true)
+            .text(t1format);
+      }
+      if (t2format) {
+        entries.append('span')
+            .classed('t2', true)
+            .text(t2format);
+      }
       return ret;
     },
     appendStrInput : (k, v) => {

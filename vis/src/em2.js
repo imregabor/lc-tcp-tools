@@ -8,6 +8,7 @@ import * as nodeDefs from './node-definitions.js';
 import * as occ from './occ.js';
 import * as toolbar from './toolbar.js';
 import * as dg from './mp3-select-dialog.js';
+import * as pb from './playback.js';
 
 export function initPage() {
   d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
@@ -26,6 +27,11 @@ export function initPage() {
   }
 
   const svgdiv = body.append('div').classed('svg-ctr', true);
+
+  const playerOverlayDiv = body.append('div').classed('player-overlay', true);
+  const playback = pb.addPlaybackControls(playerOverlayDiv);
+
+
   const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
   const maing = svg.append('g');
 
@@ -116,7 +122,6 @@ export function initPage() {
   var nodes = [
     {
       type : 'aa', // audio analyzer
-      size : 1024,
       layout : {
         label : 'Analyzer 1',
         x : 200,

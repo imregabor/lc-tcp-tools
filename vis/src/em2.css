@@ -2,6 +2,7 @@ html {
   margin: 0;
   /* overflow: hidden; */
 }
+
 .svg-ctr {
   position: absolute;
   left: 3px;
@@ -13,6 +14,14 @@ html {
 svg {
   border: 1px solid black;
   box-sizing: border-box;
+}
+
+div.player-overlay {
+  position:  absolute;
+  right: 10px;
+  top: 10px;
+  display: inline-block;
+  /* background-color: green; */
 }
 
 .edgeg {
@@ -193,3 +202,5 @@ path.will-delete {
 .hover-preview.shown {
   opacity: 0.5;
 }
+
+
