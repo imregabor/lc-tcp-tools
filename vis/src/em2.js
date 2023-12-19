@@ -29,7 +29,14 @@ export function initPage() {
   const svgdiv = body.append('div').classed('svg-ctr', true);
 
   const playerOverlayDiv = body.append('div').classed('player-overlay', true);
-  const playback = pb.addPlaybackControls(playerOverlayDiv);
+
+
+
+  // const playback = pb.addPlaybackControls(playerOverlayDiv);
+  const playback = pb.addSimplePlayback(
+    playerOverlayDiv.append('div').classed('pb-controls', true),
+    playerOverlayDiv.append('div').classed('pb-player', true),
+    body.append('div').classed('pb-message', true), {});
 
 
   const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');

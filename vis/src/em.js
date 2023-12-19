@@ -94,8 +94,8 @@ export function initPage() {
   var visComponents = [];
 
   const playerDivs = body.append('div').style('margin-bottom', '16px');
-  const ctrDiv = playerDivs.append('div').style('display', 'inline-block');
-  const plyrDiv = playerDivs.append('div').style('display', 'inline-block').style('margin-left', '16px');
+  const ctrDiv = playerDivs.append('div').style('display', 'inline-block').style('margin-bottom', '5px');
+  const plyrDiv = playerDivs.append('div').style('display', 'inline-block').style('margin-left', '16px').style('margin-bottom', '5px');
   const msgDiv = playerDivs.append('div').classed('playback-extra-controls', true).text('Select audio to play');
 
   var lastPb; // last playback facade

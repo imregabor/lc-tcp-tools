@@ -20,9 +20,31 @@ div.player-overlay {
   position:  absolute;
   right: 10px;
   top: 10px;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
   /* background-color: green; */
 }
+
+.pb-player {
+  display: inline-block;
+  min-width: 500px;
+}
+
+.pb-controls {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.pb-message {
+  position:  absolute;
+  right: 10px;
+  bottom: 10px;
+  font-family: monospace;
+  color: #666;
+  font-size: 12px;
+}
+
 
 .edgeg {
   stroke: black;
