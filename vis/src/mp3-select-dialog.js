@@ -117,10 +117,13 @@ export function addItemsTo(m2, select) {
 
 export function showModal(opts) {
   const body = d3.select('body');
+  body.classed('modal-open', true);
 
   function cancel() {
     event.stopPropagation();
+    body.classed('modal-open', false);
     m1.remove();
+
     body.on('keydown', oldeh);
     if (opts.reject) {
       opts.reject();
@@ -128,6 +131,7 @@ export function showModal(opts) {
   }
 
   function select(url) {
+    body.classed('modal-open', false);
     m1.remove();
     body.on('keydown', oldeh);
     if (opts.resolve) {

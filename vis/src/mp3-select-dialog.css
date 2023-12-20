@@ -1,4 +1,8 @@
 /* Modal overlay to hide page */
+body.modal-open {
+  overflow-y: hidden;
+}
+
 .modal-bg {
   position: absolute;
   backdrop-filter:  blur(4px);
@@ -8,6 +12,7 @@
   left: 0;
   top: 0;
   cursor: pointer;
+  overflow-y: auto;
 }
 
 /* Dialog background */
