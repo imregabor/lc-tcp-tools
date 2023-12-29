@@ -18,10 +18,11 @@ do
 done
 
 
-
 MP3BASEDIR=$(readlink -m `pwd`)"/mp3"
 
-
+ALLCT=0
+FOUNDCT=0
+CONVCT=0
 
 echo "MP3BASEDIR: ${MP3BASEDIR}"
 
@@ -30,14 +31,17 @@ mkdir -p "${MP3BASEDIR}"
 
 while read line ; do
   MP3=$(echo "./mp3/${line}" | sed -e 's/mp4$/mp3/' | sed -e 's/mkv$/mp3/' | sed -e 's/webm$/mp3/' | sed -e 's/m4a$/mp3/')
-  echo
-  echo
-  echo "Checking ${line}"
-  echo "  mp3 file: ${MP3}"
+
+  ALLCT=$(( $ALLCT + 1 ))
+
+  echo -n "Checking # ${ALLCT}: ${line}; mp3 file: ${MP3}"
   if [ -f "$MP3" ] ; then
-    echo "  found."
+    FOUNDCT=$(( $FOUNDCT + 1 ))
+    echo " -> (${FOUNDCT}) found."
   else
-    echo "  not found, converting (or copying)"
+    CONVCT=$(( $CONVCT + 1 ))
+    echo " -> (${CONVCT}) not found, converting (or copying)"
+
     PARENT=$(readlink -m "${MP3}/..")
     EXT=$(echo "${line}" | sed -e 's/^.*\.//')
     if [ "${EXT}" == "mkv" ] ; then EXT="matroska" ; fi
@@ -74,6 +78,12 @@ while read line ; do
     echo
 
   fi
-  echo
 
 done < <(find -type f -wholename '*.mp4' -o -wholename '*.mkv' -o -wholename '*.webm' -o -wholename '*.mp3' -o -wholename '*.m4a' | grep -v '^./mp3/')
+
+echo "All done."
+echo "  Total files checked: ${ALLCT}"
+echo "  Found (skipped):     ${FOUNDCT}"
+echo "  Converted/copied:    ${CONVCT}"
+echo
+echo
