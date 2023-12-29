@@ -29,14 +29,14 @@ npm install
 cd <MEDIA_DIRECTORY>
 <BASE_DIR>/lc-tcp-tools/mp3-srv/convert-all-to-mp3.sh
 
-# This will be <MEDIA_DIRECTORY>/mp3
-cd <MP3_DIRECTORY>
+# Converted files will be in <MEDIA_DIRECTORY>/mp3
+cd mp3
 
 # generate index file
 python <BASE_DIR>/lc-tcp-tools/mp3-srv/generate-index-mp3-json.py > index-mp3.json
 
-# or under cygwin use
-python $(cygpath -w <BASE_DIR>/lc-tcp-tools/mp3-srv/generate-index-mp3-json.py) > index-mp3.json
+# or under cygwin + python on Windows use
+<BASE_DIR>/lc-tcp-tools/mp3-srv/generate-index-mp3-json.sh
 
 # launch http server
 <BASE_DIR>/lc-tcp-tools/mp3-srv/node_modules/.bin/http-server --cors -d false -p 4123 -c-1

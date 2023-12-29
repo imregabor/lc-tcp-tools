@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#
+# Under windows/cygwin use
+# python $(cygpath -w <BASE_DIR>/lc-tcp-tools/mp3-srv/generate-index-mp3-json.py) > index-mp3.json
+
 
 import os
 import urllib.parse
