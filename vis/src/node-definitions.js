@@ -28,6 +28,13 @@ export const nodeTypes = {
         x : 5,
         y : 100,
         len : 85
+      },
+      targetFps : {
+        label: 'targetFps',
+        initial : 50,
+        x : 5,
+        y : 115,
+        len : 85
       }
     }
   },
