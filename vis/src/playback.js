@@ -13,7 +13,7 @@ import '@fortawesome/fontawesome-free/css/all.css'
 import * as mp3dialog from './mp3-select-dialog.js';
 import * as apiClient from './api-client.js';
 import * as notes from './notes.js';
-
+import * as ed from './ed.js';
 
 export function addPlaybackControls(parentD3, opts) {
   apiClient.getMp3Servers(mp3dialog.loadMp3ListFromServer);
@@ -115,6 +115,25 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
   var sampleRate;
   var playing = false;
 
+  const events = {
+    contextCreated : ed.ed(),
+    playbackStarted : ed.ed(),
+    playbackStopped : ed.ed(),
+    playbackPaused : ed.ed(),
+    playbackResumed : ed.ed()
+  };
+
+  // wire single event handlers
+  events.playbackPaused.addWhenSpecified(opts.onPause);
+  events.playbackResumed.addWhenSpecified(opts.onResume);
+  events.playbackStopped.addWhenSpecified(opts.onStop);
+  events.playbackStarted.addWhenSpecified(opts.onStart);
+
+
+
+
+
+
   function ensureAudioContext() {
     if (!audioContext) {
       audioContext = new AudioContext();
@@ -151,18 +170,14 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
         return;
       }
       apaused = true;
-      if (opts.onPause) {
-        opts.onPause(ret);
-      }
+      events.playbackPaused(ret);
     };
     a.node().onplay = e => {
       if (!apaused) {
         return;
       }
       apaused = false;
-      if (opts.onResume) {
-        opts.onResume(ret);
-      }
+      events.playbackResumed(ret);
     };
     a.attr('src', url);
 
@@ -249,9 +264,7 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
     if (!silent) {
       message2('Playback stopped');
     }
-    if (opts.onStop) {
-      opts.onStop(ret);
-    }
+    events.playbackStopped(ret);
 
   }
 
@@ -325,6 +338,22 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
 
 
   const ret = {
+    onPlaybackStarted : h => {
+      events.playbackStarted.add(h);
+      return ret;
+    },
+    onPlaybackStopped : h => {
+      events.playbackStopped.add(h);
+      return ret;
+    },
+    onPlaybackPaused : h => {
+      events.playbackPaused.add(h);
+      return ret;
+    },
+    onPlaybackResumed : h => {
+      events.playbackResumed.add(h);
+      return ret;
+    },
     tryToCreateAudioContext : () => ensureAudioContext(),
     startPlaybackFrom : url => {
       console.log('Start playback from', url)
@@ -350,9 +379,7 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
 
       playing = true;
       message2('Playback started');
-      if (opts.onStart) {
-        opts.onStart(ret);
-      }
+      events.playbackStarted(ret);
     },
     ensureStop : (silent) => {
       if (!playing) {
