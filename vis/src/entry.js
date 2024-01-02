@@ -7,12 +7,16 @@ import * as rc from './rc.js';
 
 function loaded() {
   if (location.hash && location.hash === '#rc') {
+    document.title = 'Remote controller';
     rc.initPage();
   } else if (location.hash && location.hash === '#vis') {
+    document.title = 'Effects machine';
     em.initPage();
   } else if (location.hash && location.hash === '#vis2') {
+    document.title = 'Effects machine 2';
     em2.initPage();
   } else {
+    document.title = 'LC pages';
     catalog.initPage();
   }
   window.onhashchange = () => window.location.reload();
