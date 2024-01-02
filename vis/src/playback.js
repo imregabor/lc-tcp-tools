@@ -93,9 +93,8 @@ export function addPlaybackControls(parentD3, opts) {
  *
  * parentD3: D3 selection of parent element for buttons
  * playerParentD3: D3 selection of parent element for audio element and additional seek controls
- * opts: callbacks called with component facade when audio context is initiated (inside a user action)
  */
-export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
+export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
   const ctrls = addPlaybackControls(parentD3, {
     startPlaybackFrom : url => audio(url),
     startDecodeFrom : url => load(url),
@@ -191,10 +190,8 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
     sourceNode.connect(audioContext.destination);
 
     sampleRate = audioContext.sampleRate;
-    if (opts.build) {
-      opts.build(ret);
-    }
 
+    events.contextCreated(ret);
 
     useAudio = true;
 
@@ -221,9 +218,7 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
     sourceNode.connect(audioContext.destination);
     sampleRate = audioContext.sampleRate;
 
-    if (opts.build) {
-      opts.build(ret);
-    }
+    events.contextCreated(ret);
 
     lastPlaybackInfo = {
       audio : `${f} z sinewave`
@@ -309,9 +304,8 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
 
         })
         .then(() => {
-          if (opts.build) {
-            opts.build(ret);
-          }
+          events.contextCreated(ret);
+
           lastPlaybackInfo = {
             audio : 'MP3 (decoded from buffer)',
             url : url
@@ -321,12 +315,16 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
         });
   }
 
-  // TODO: reuse context, see https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
-  // > It's recommended to create one AudioContext and reuse it instead of initializing a new one each time
-
-
-
   const ret = {
+    // signal processing graph / analyzer nodes should be initialized
+    // audioContext handling needs rework
+    //  - callback called when starting any playback; previous analyzer nodes are not disposed
+    //  - should reuse them, see https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
+    //    > It's recommended to create one AudioContext and reuse it instead of initializing a new one each time
+    onContextCreated : h => {
+      events.contextCreated.add(h);
+      return ret;
+    },
     // playback events will be called with an argument of "ret"
     onPlaybackStarted : h => {
       events.playbackStarted.add(h);

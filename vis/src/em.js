@@ -99,30 +99,29 @@ export function initPage() {
   const msgDiv = playerDivs.append('div').classed('playback-extra-controls', true).text('Select audio to play');
 
   var lastPb; // last playback facade
-  lastPb = playback.addSimplePlayback(ctrDiv, plyrDiv, msgDiv, {
-    build : pb => {
-      analyserNode = pb.newAnalyserNode();
-      analyserNode.fftSize = 4096;
-      analyserNode.smoothingTimeConstant = 0;
-      fftdb = new Float32Array(analyserNode.frequencyBinCount);
-      fftm =  new Float32Array(analyserNode.frequencyBinCount);
-      ffti =  new Float32Array(analyserNode.frequencyBinCount);
-      fftwm = new Float32Array(analyserNode.frequencyBinCount);
-      fftwi = new Float32Array(analyserNode.frequencyBinCount);
+  lastPb = playback.addSimplePlayback(ctrDiv, plyrDiv, msgDiv)
+  .onContextCreated(pb => {
+    analyserNode = pb.newAnalyserNode();
+    analyserNode.fftSize = 4096;
+    analyserNode.smoothingTimeConstant = 0;
+    fftdb = new Float32Array(analyserNode.frequencyBinCount);
+    fftm =  new Float32Array(analyserNode.frequencyBinCount);
+    ffti =  new Float32Array(analyserNode.frequencyBinCount);
+    fftwm = new Float32Array(analyserNode.frequencyBinCount);
+    fftwi = new Float32Array(analyserNode.frequencyBinCount);
 
-      samples = new Float32Array(analyserNode.fftSize);
-      fftweights = u.calcAWeights(analyserNode.frequencyBinCount, pb.sampleRate());
-      sp0.params(pb.sampleRate(), analyserNode.frequencyBinCount);
-      sp1.params(pb.sampleRate(), analyserNode.frequencyBinCount);
-      sp2.params(pb.sampleRate(), analyserNode.frequencyBinCount);
-      sp3.params(pb.sampleRate(), analyserNode.frequencyBinCount);
-      sp4.params(pb.sampleRate(), analyserNode.frequencyBinCount);
+    samples = new Float32Array(analyserNode.fftSize);
+    fftweights = u.calcAWeights(analyserNode.frequencyBinCount, pb.sampleRate());
+    sp0.params(pb.sampleRate(), analyserNode.frequencyBinCount);
+    sp1.params(pb.sampleRate(), analyserNode.frequencyBinCount);
+    sp2.params(pb.sampleRate(), analyserNode.frequencyBinCount);
+    sp3.params(pb.sampleRate(), analyserNode.frequencyBinCount);
+    sp4.params(pb.sampleRate(), analyserNode.frequencyBinCount);
 
-      organ7.params(pb.sampleRate(), analyserNode.frequencyBinCount);
+    organ7.params(pb.sampleRate(), analyserNode.frequencyBinCount);
 
-      organ24.params(pb.sampleRate(), analyserNode.frequencyBinCount);
-      organ35.params(pb.sampleRate(), analyserNode.frequencyBinCount);
-    }
+    organ24.params(pb.sampleRate(), analyserNode.frequencyBinCount);
+    organ35.params(pb.sampleRate(), analyserNode.frequencyBinCount);
   })
   .onPlaybackStarted(pb => {
     poll1.start();
