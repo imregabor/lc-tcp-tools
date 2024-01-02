@@ -9,8 +9,49 @@ import * as occ from './occ.js';
 import * as toolbar from './toolbar.js';
 import * as dg from './mp3-select-dialog.js';
 import * as pb from './playback.js';
+import * as ed from './ed.js';
 
 export function initPage() {
+  const events = {
+    // Nodes or edges added or removed; not fired on parametrization change
+    topologyChanged : ed.ed(),
+
+    // Parameters changed; not fired on topology change or node moves
+    parametersChanged : ed.ed()
+  };
+
+
+  function fireTopologyChanged() {
+    var ni = 0;
+    const graph = {
+      nodes : nodes.map(n => {
+        n.tmp_index = ni++;
+        const gn = {
+          type : n.type,
+          label: n.layout.label,
+          id : n.render.id,
+          index : n.tmp_index
+        };
+        if (n.params) {
+          gn.params = {};
+          n.params.forEach(p => gn.params[p.paramid] = p.value);
+        }
+        return gn;
+      }),
+      edges : edges.map(e => {
+        const ge = {
+          n1i : e.n1.tmp_index,
+          n2i : e.n2.tmp_index,
+          p1 : e.p1,
+          p2 : e.p2
+        };
+        return ge;
+      })
+    };
+    console.log('Topology changed.', nodes, edges, graph);
+    events.topologyChanged(graph);
+  }
+
   d3.select('html').style('overflow', 'hidden'); // in css it would pollute other pages
   const body = d3.select('body');
 
@@ -200,6 +241,7 @@ export function initPage() {
           edges = edges.filter(e => e.n1 != d && e.n2 != d);
           renderNodes();
           renderEdges();
+          fireTopologyChanged();
         }
         hNodeDragging.exit();
       })
@@ -441,6 +483,9 @@ export function initPage() {
   }
   renderEdges();
 
+
+  fireTopologyChanged();
+
   function routeEdges() {
     edgePaths.each(function (d) {
       var g1d = d3.select(`#${d.n1.render.id}`).datum();
@@ -506,6 +551,7 @@ export function initPage() {
     renderNodes();
     connDrag.registerListenersOnPorts(connDragOpts);
     notes.top(`New ${nodeDef.title} node added`);
+    fireTopologyChanged();
   });
 
 
@@ -617,6 +663,7 @@ export function initPage() {
       e.p1 = srcPortData.portid;
       notes.top('Connection source updated');
       renderEdges();
+      fireTopologyChanged();
     },
     removeConnection : e => {
       const eindex = edges.indexOf(e);
@@ -626,6 +673,7 @@ export function initPage() {
       }
       edges.splice(eindex, 1);
       renderEdges();
+      fireTopologyChanged();
       notes.top('Connection removed');
     },
     connect : (portD3src, portD3dst) => {
@@ -657,6 +705,7 @@ export function initPage() {
       edges.push(newEdge);
       notes.top('Connection added');
       renderEdges();
+      fireTopologyChanged();
     },
     pointerOccupied : occh.newChild().overThisOrChild
     /*pointerOccupied : (occ) => {
