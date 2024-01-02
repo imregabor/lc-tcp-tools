@@ -123,17 +123,6 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
     playbackResumed : ed.ed()
   };
 
-  // wire single event handlers
-  events.playbackPaused.addWhenSpecified(opts.onPause);
-  events.playbackResumed.addWhenSpecified(opts.onResume);
-  events.playbackStopped.addWhenSpecified(opts.onStop);
-  events.playbackStarted.addWhenSpecified(opts.onStart);
-
-
-
-
-
-
   function ensureAudioContext() {
     if (!audioContext) {
       audioContext = new AudioContext();
@@ -338,6 +327,7 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3, opts) {
 
 
   const ret = {
+    // playback events will be called with an argument of "ret"
     onPlaybackStarted : h => {
       events.playbackStarted.add(h);
       return ret;

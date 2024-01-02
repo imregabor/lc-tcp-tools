@@ -122,33 +122,29 @@ export function initPage() {
 
       organ24.params(pb.sampleRate(), analyserNode.frequencyBinCount);
       organ35.params(pb.sampleRate(), analyserNode.frequencyBinCount);
-    },
-    onStart : pb => {
-      lastPb = pb;
-      poll1.start();
-      wslink.sendJson({ event : 'START_PLAYBACK', info : pb.getPlaybackInfo() });
-    },
-    onStop: pb => {
-      // lastPb = undefined;
-      poll1.stop();
-
-      visComponents.forEach(c => c.reset());
-      vu24.reset();
-      vu35.reset();
-      organ24.reset();
-      organ35.reset();
-      organ7.reset();
-
-      wslink.sendJson({ event : 'STOP_PLAYBACK' });
-    },
-    onPause: pb => {
-      wslink.sendJson({ event : 'PAUSE_PLAYBACK' });
-    },
-    onResume: pb => {
-      wslink.sendJson({ event : 'RESUME_PLAYBACK' });
     }
-  });
+  })
+  .onPlaybackStarted(pb => {
+    poll1.start();
+    wslink.sendJson({ event : 'START_PLAYBACK', info : pb.getPlaybackInfo() });
+  })
+  .onPlaybackStopped(pb => {
+    poll1.stop();
+    visComponents.forEach(c => c.reset());
+    vu24.reset();
+    vu35.reset();
+    organ24.reset();
+    organ35.reset();
+    organ7.reset();
 
+    wslink.sendJson({ event : 'STOP_PLAYBACK' });
+  })
+  .onPlaybackPaused(pb => {
+      wslink.sendJson({ event : 'PAUSE_PLAYBACK' });
+  })
+  .onPlaybackResumed(pb => {
+      wslink.sendJson({ event : 'RESUME_PLAYBACK' });
+  });
 
   const buf35 = new Float32Array(35);
   const buf7 = new Float32Array(7);
