@@ -26,7 +26,10 @@ export function newPoll(delay, callback) {
   var lastNow = 0;
   var lastDt = 0;
   var callbacks = [];
-  callbacks.push(callback);
+
+  if (callback) {
+    callbacks.push(callback);
+  }
 
   function poll() {
     count ++;

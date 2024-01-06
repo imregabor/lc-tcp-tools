@@ -9,6 +9,7 @@ import * as occ from './occ.js';
 import * as toolbar from './toolbar.js';
 import * as dg from './mp3-select-dialog.js';
 import * as pb from './playback.js';
+import * as pl from './pipeline.js';
 import * as ed from './ed.js';
 
 export function initPage() {
@@ -48,7 +49,7 @@ export function initPage() {
         return ge;
       })
     };
-    console.log('Topology changed.', nodes, edges, graph);
+    console.log('Topology changed. UI nodes:', nodes, 'UI edges:', edges, 'Exported graph:', graph);
     events.topologyChanged(graph);
   }
 
@@ -76,6 +77,15 @@ export function initPage() {
     playerOverlayDiv.append('div').classed('pb-controls', true),
     playerOverlayDiv.append('div').classed('pb-player', true),
     body.append('div').classed('pb-message', true));
+
+  const pipeline = pl.createPipeline();
+  events.topologyChanged.add(pipeline.setGraph);
+  playback.onContextCreated(pipeline.setCtx);
+  playback.onPlaybackStarted(() => pipeline.run());
+  playback.onPlaybackStopped(() => {
+    pipeline.stop();
+    pipeline.reset();
+  });
 
 
 
@@ -173,6 +183,10 @@ export function initPage() {
         label : 'Analyzer 1',
         x : 200,
         y : 200
+      },
+      pvals : {
+        fftSize : 512,
+        targetFps : 100
       }
     },
     {
@@ -423,7 +437,7 @@ export function initPage() {
               domid : newId(),
               paramid : k,
               def : v,
-              value : v.initial
+              value : (d.pvals && d.pvals[k]) ? d.pvals[k] : v.initial
             };});
         d.params = params;
         const paramsctr = sel.append('g');
