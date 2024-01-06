@@ -69,14 +69,15 @@ export function initPage() {
   }
 
   const svgdiv = body.append('div').classed('svg-ctr', true);
+  const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
 
-  const playerOverlayDiv = body.append('div').classed('player-overlay', true);
+  const playerOverlayDiv = svgdiv.append('div').classed('player-overlay', true);
 
   // const playback = pb.addPlaybackControls(playerOverlayDiv);
   const playback = pb.addSimplePlayback(
     playerOverlayDiv.append('div').classed('pb-controls', true),
     playerOverlayDiv.append('div').classed('pb-player', true),
-    body.append('div').classed('pb-message', true));
+    svgdiv.append('div').classed('pb-message', true));
 
   const pipeline = pl.createPipeline();
   events.topologyChanged.add(pipeline.setGraph);
@@ -89,7 +90,7 @@ export function initPage() {
 
 
 
-  const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
+
   const maing = svg.append('g');
 
   const uielementsg = svg.append('g');
