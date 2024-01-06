@@ -37,10 +37,10 @@ while read line ; do
   echo -n "Checking # ${ALLCT}: ${line}; mp3 file: ${MP3}"
   if [ -f "$MP3" ] ; then
     FOUNDCT=$(( $FOUNDCT + 1 ))
-    echo " -> (${FOUNDCT}) found."
+    echo " -> found (so far found: ${FOUNDCT}, converted: ${CONVCT})."
   else
     CONVCT=$(( $CONVCT + 1 ))
-    echo " -> (${CONVCT}) not found, converting (or copying)"
+    echo " -> not found, converting/copying (so far found: ${FOUNDCT}, converted: ${CONVCT})."
 
     PARENT=$(readlink -m "${MP3}/..")
     EXT=$(echo "${line}" | sed -e 's/^.*\.//')
