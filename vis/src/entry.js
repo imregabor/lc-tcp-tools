@@ -4,9 +4,13 @@ import * as em from './em.js';
 import * as em2 from './em2.js';
 import * as catalog from './catalog.js';
 import * as rc from './rc.js';
+import * as panes from './panes.js';
 
 function loaded() {
-  if (location.hash && location.hash === '#rc') {
+  if (location.hash && location.hash === '#p') {
+    document.title = 'Dynamic pane layout demo';
+    panes.initPage();
+  } else if (location.hash && location.hash === '#rc') {
     document.title = 'Remote controller';
     rc.initPage();
   } else if (location.hash && location.hash === '#vis') {

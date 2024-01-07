@@ -45,8 +45,22 @@ audio {
   text-align: center;
   padding-left: 16px;
   padding-right: 16px;
-  border-radius: 32px;
+  border-radius: 16px;
   line-height: 32px;
+}
+
+.playback-extra-controls.playback-extra-controls-toptab {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-left: 1px solid #aaa;
+  border-right: 1px solid #aaa;
+  border-top: 1px solid #aaa;
+  background-color: white;
+  box-shadow: 8px 8px 20px #888;
+}
+
+.playback-extra-controls.playback-extra-controls-toptab i {
+  border-color: white;
 }
 
 .playback-extra-controls.spaced {
