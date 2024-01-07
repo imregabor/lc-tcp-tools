@@ -21,6 +21,7 @@ export function init() {
   const topc = topp.append('div').classed('panes-ctr', true);
   const btmp = ctr.append('div').classed('panes-ctr', true);
   const btmc = btmp.append('div').classed('panes-ctr', true);
+  var bottomPaneName = 'bottom pane';
 
   btmp.style('top', 'unset'); // height is set in adjust()
 
@@ -90,7 +91,7 @@ export function init() {
     topp.style('bottom', `${ph}px`);
     btmp.style('height', `${ph}px`);
     i1
-        .attr('title', ph == 0 ? 'Open bottom pane' : 'Close bottom pane')
+        .attr('title', ph == 0 ? `Open ${bottomPaneName}` : `Close ${bottomPaneName}`)
         .classed('fa-chevron-up', ph == 0)
         .classed('fa-chevron-down', ph > 0);
     if (lastPh == 0 && ph > 0) {
@@ -104,6 +105,11 @@ export function init() {
 
 
   const ret = {
+    bottomPaneName : s => {
+      bottomPaneName = s;
+      adjust();
+      return ret;
+    },
     topD3 : () => topc,
     bottomD3 : () => btmc,
     isOpen : () => ph > 0,
