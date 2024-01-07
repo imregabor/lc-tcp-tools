@@ -11,6 +11,7 @@ import * as dg from './mp3-select-dialog.js';
 import * as pb from './playback.js';
 import * as pl from './pipeline.js';
 import * as ed from './ed.js';
+import * as panes from './panes.js';
 
 export function initPage() {
   const events = {
@@ -68,7 +69,9 @@ export function initPage() {
     return `id-${idct}`;
   }
 
-  const svgdiv = body.append('div').classed('svg-ctr', true);
+  const p = panes.init().bottomPaneName('visualizations');
+
+  const svgdiv = p.topD3().append('div').classed('svg-ctr', true);
   const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
 
   const playerOverlayDiv = svgdiv.append('div').classed('player-overlay', true);
