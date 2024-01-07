@@ -18,7 +18,9 @@ export function init() {
   const body = d3.select('body').style('overflow', 'hidden'); // in css it would pollute other pages;
   const ctr = body.append('div').classed('panes-ctr', true);
   const topp = ctr.append('div').classed('panes-ctr', true);
+  const topc = topp.append('div').classed('panes-ctr', true);
   const btmp = ctr.append('div').classed('panes-ctr', true);
+  const btmc = btmp.append('div').classed('panes-ctr', true);
 
   btmp.style('top', 'unset'); // height is set in adjust()
 
@@ -102,8 +104,8 @@ export function init() {
 
 
   const ret = {
-    topD3 : () => topp,
-    bottomD3 : () => btmp,
+    topD3 : () => topc,
+    bottomD3 : () => btmc,
     isOpen : () => ph > 0,
     onOpened : h => { events.opened.add(h); return ret; },
     onClosed : h => { events.closed.add(h); return ret; },
