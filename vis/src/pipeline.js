@@ -1,7 +1,7 @@
 'use strict';
 
 import * as poll from './poll.js';
-
+import * as ed from './ed.js';
 
 
 export function createPipeline() {
@@ -13,10 +13,15 @@ export function createPipeline() {
   // Processing graph
   var graph;
 
+  var visDataEnabled = false;
+
   // map of analyzer ID to node defined in createAnalyzers()
   var analyzers;
   var apoll;
+  var lastTick;
 
+  // invoked with milliseconds since last call
+  const tickEvent = ed.ed();
 
   function tick() {
     console.log('Tick')
@@ -35,6 +40,11 @@ export function createPipeline() {
       a.lastCall = now;
       console.log(now, 'call aa', id);
     }
+
+    if (visDataEnabled) {
+      tickEvent(now - lastTick);
+    }
+    lastTick = now;
   }
 
 
@@ -78,21 +88,39 @@ export function createPipeline() {
       ctxFrontend = ctxFe;
       analyzers = undefined;
       createAnalyzers();
+      return ret;
     },
     setGraph : g => {
       console.log('Processing graph set', g);
       graph = g;
+      return ret;
     },
     run : () => {
       console.log('Run');
+      lastTick = Date.now(); // avoid reporting large first dt value
       apoll.start();
+      return ret;
     },
     stop : () => {
       console.log('Stop');
       apoll.stop();
+      return ret;
     },
     reset : () => {
       console.log('Reset');
+      return ret;
+    },
+    pauseVisData : () => {
+      visDataEnabled = false;
+      return ret;
+    },
+    resumeVisData : () => {
+      visDataEnabled = true;
+      return ret;
+    },
+    onTick : h => {
+      tickEvent.add(h);
+      return ret;
     }
   };
   return ret;

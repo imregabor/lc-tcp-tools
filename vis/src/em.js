@@ -267,5 +267,5 @@ export function initPage() {
   poll.animationLoop(() => {
     // if (lastPb) { console.log(lastPb.getCurrentTime()); }
     visComponents.forEach(c => c.render());
-  }, 1);
+  }, 1).start();
 }

@@ -12,6 +12,9 @@ import * as pb from './playback.js';
 import * as pl from './pipeline.js';
 import * as ed from './ed.js';
 import * as panes from './panes.js';
+import * as vispane from './vispane.js';
+
+
 
 export function initPage() {
   const events = {
@@ -71,6 +74,9 @@ export function initPage() {
 
   const p = panes.init().bottomPaneName('visualizations');
 
+  const vp = vispane.init(p.bottomD3());
+
+
   const svgdiv = p.topD3().append('div').classed('svg-ctr', true);
   const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
 
@@ -85,14 +91,29 @@ export function initPage() {
   const pipeline = pl.createPipeline();
   events.topologyChanged.add(pipeline.setGraph);
   playback.onContextCreated(pipeline.setCtx);
-  playback.onPlaybackStarted(() => pipeline.run());
+  playback.onPlaybackStarted(() => {
+    if (p.isOpen()) {
+      vp.start();
+    }
+    pipeline.run();
+  });
   playback.onPlaybackStopped(() => {
+    vp.stop();
     pipeline.stop();
     pipeline.reset();
   });
 
-
-
+  vp.setDataSource(pipeline);
+  p.onOpened(() => {
+    if (playback.isPlaying()) {
+      vp.start();
+    }
+    pipeline.resumeVisData();
+  });
+  p.onClosed(() => {
+    pipeline.pauseVisData();
+    vp.stop();
+  });
 
   const maing = svg.append('g');
 

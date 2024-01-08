@@ -6,16 +6,37 @@ export function animationLoop(callback, scale) {
   }
 
   var n = 0;
+  var willCall = false;
+  var running = false;
   function f() {
-
+    willCall = false;
+    if (!running) {
+      return;
+    }
     n++;
     if (n >= scale) {
       callback();
       n = 0;
     }
+    willCall = true;
     requestAnimationFrame(f);
   }
-  f();
+
+  const ret = {
+    start : () => {
+      running = true;
+      if (!willCall) {
+        n = 0;
+        f();
+      }
+      return ret;
+    },
+    stop : () => {
+      running = false;
+      return ret;
+    }
+  };
+  return ret;
 }
 
 
