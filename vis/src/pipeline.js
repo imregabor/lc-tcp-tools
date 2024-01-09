@@ -110,14 +110,24 @@ export function createPipeline() {
       console.log('Reset');
       return ret;
     },
+    // Interface for visualizations
+    /**
+     * No visualization callbacks will be invoked.
+     */
     pauseVisData : () => {
       visDataEnabled = false;
       return ret;
     },
+    /**
+     * Invoke visualization callbacks.
+     */
     resumeVisData : () => {
       visDataEnabled = true;
       return ret;
     },
+    /**
+     * Invoked with time in milliseconds since last tick.
+     */
     onTick : h => {
       tickEvent.add(h);
       return ret;
