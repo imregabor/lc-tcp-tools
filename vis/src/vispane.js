@@ -7,8 +7,13 @@ import * as poll from './poll.js';
 
 export function init(parentD3) {
 
+  var renderDelayDisplay;
+
   const visComponents = [];
-  const animationLoop = poll.animationLoop(() => {
+  const animationLoop = poll.animationLoop(dt => {
+    if (renderDelayDisplay) {
+      renderDelayDisplay.add(dt);
+    }
     visComponents.forEach(c => c.render());
   }, 1);
 
@@ -17,7 +22,7 @@ export function init(parentD3) {
   parentD3.classed('pane-for-visualizations', true);
   const bd = parentD3.append('div').classed('display-buttons', true);
 
-  function addTps() {
+  function addTicksDelay() {
     const s = scalar(parentD3, 'Ticks delay').autoScale();
     dataSource.onTick(dt => {
       s.add(dt);
@@ -25,12 +30,24 @@ export function init(parentD3) {
     visComponents.push(s);
   }
 
+  function addRenderDelay() {
+    const s = scalar(parentD3, 'Render delay').autoScale();
+    renderDelayDisplay = s;
+    visComponents.push(s);
+  }
+
 
   bd.append('a')
     .attr('href', '#')
-    .attr('title', 'Add tick/s display')
-    .on('click', () => { event.preventDefault(); addTps(); })
-    .text('Add tps');
+    .attr('title', 'Add ticks delay display')
+    .on('click', () => { event.preventDefault(); addTicksDelay(); })
+    .text('Add ticks delay');
+  bd.append('br');
+  bd.append('a')
+    .attr('href', '#')
+    .attr('title', 'Add render delay display')
+    .on('click', () => { event.preventDefault(); addRenderDelay(); })
+    .text('Add render delay');
   bd.append('br');
 
   const ret = {
