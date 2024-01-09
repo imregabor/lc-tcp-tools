@@ -40,6 +40,10 @@ export function init(parentD3) {
     visComponents.push(s);
   }
 
+  function resetAll() {
+    visComponents.forEach(c => c.reset());
+  }
+
 
   bd.append('a')
     .attr('href', '#')
@@ -52,6 +56,12 @@ export function init(parentD3) {
     .attr('title', 'Add render delay display')
     .on('click', () => { event.preventDefault(); addRenderDelay(); })
     .text('Add render delay');
+  bd.append('br');
+  bd.append('a')
+    .attr('href', '#')
+    .attr('title', 'Reset all')
+    .on('click', () => { event.preventDefault(); resetAll(); })
+    .text('Reset all displays');
   bd.append('br');
 
   const ret = {
@@ -69,7 +79,7 @@ export function init(parentD3) {
 
     },
     reset : () => {
-      visComponents.forEach(c => c.reset());
+      resetAll();
       return ret;
     }
   };
