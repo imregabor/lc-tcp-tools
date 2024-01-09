@@ -8,6 +8,7 @@ export function animationLoop(callback, scale) {
   var n = 0;
   var willCall = false;
   var running = false;
+  var lastCall = Date.now();
   function f() {
     willCall = false;
     if (!running) {
@@ -15,7 +16,9 @@ export function animationLoop(callback, scale) {
     }
     n++;
     if (n >= scale) {
-      callback();
+      const now = Date.now();
+      callback(now - lastCall);
+      lastCall = now;
       n = 0;
     }
     willCall = true;
@@ -27,6 +30,7 @@ export function animationLoop(callback, scale) {
       running = true;
       if (!willCall) {
         n = 0;
+        lastCall = Date.now();
         f();
       }
       return ret;
