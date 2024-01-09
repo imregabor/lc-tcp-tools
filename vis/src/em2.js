@@ -92,6 +92,7 @@ export function initPage() {
   events.topologyChanged.add(pipeline.setGraph);
   playback.onContextCreated(pipeline.setCtx);
   playback.onPlaybackStarted(() => {
+    vp.reset();
     if (p.isOpen()) {
       vp.start();
     }

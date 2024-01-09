@@ -67,6 +67,10 @@ export function init(parentD3) {
       animationLoop.stop();
       return ret;
 
+    },
+    reset : () => {
+      visComponents.forEach(c => c.reset());
+      return ret;
     }
   };
   return ret;
