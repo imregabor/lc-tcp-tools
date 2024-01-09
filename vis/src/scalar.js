@@ -17,6 +17,8 @@ export default function addTo(parentD3, label) {
 
   const canvas2d = canvas.node().getContext('2d');
 
+  var valueFormat = v => v;
+
   var cw = 800;
   var ch = 64;
 
@@ -82,6 +84,10 @@ export default function addTo(parentD3, label) {
   }
 
   const ret = {
+    valueFormat : f => {
+      valueFormat = f;
+      return ret;
+    },
     onSeek : callback => {
       onseek = callback;
       seekpos = new Array(cw);
@@ -184,7 +190,7 @@ export default function addTo(parentD3, label) {
         vSpan.text('N/A');
         return;
       } else {
-        vSpan.text(lastValue);
+        vSpan.text(valueFormat(lastValue));
       }
 
       while(lastCx !== nextCx) {
