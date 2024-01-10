@@ -124,13 +124,21 @@ export function createPipeline() {
       return ret;
     },
     setGraph : g => {
+      g.nodeIds = {};
+      g.nodes.forEach(n => { g.nodeIds[n.id] = n; });
+
       console.log('Processing graph set', g);
+
       graph = g;
       updateAnalyzers();
       return ret;
     },
     updateParameter : p => {
       console.log('Parameter update', p);
+      graph.nodeIds[p.nodeid].params[p.paramid] = p.value;
+      if (p.nodetype === 'aa') {
+        updateAnalyzers();
+      }
       return ret;
     },
     run : () => {
