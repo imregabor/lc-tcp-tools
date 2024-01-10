@@ -90,6 +90,7 @@ export function initPage() {
 
   const pipeline = pl.createPipeline();
   events.topologyChanged.add(pipeline.setGraph);
+  events.parametersChanged.add(pipeline.updateParameter);
   playback.onContextCreated(pipeline.setCtx);
   playback.onPlaybackStarted(() => {
     vp.reset();
@@ -346,9 +347,16 @@ export function initPage() {
           console.log('Rejected');
         },
         resolve : v => {
+
           console.log('Resolved; update value', v);
           d.value = v;
           updateNodeParamValues();
+          events.parametersChanged({
+            paramid: d.paramid,
+            value: d.value,
+            nodetype: pd.type,
+            nodeid: pd.render.id
+          });
         },
         ok : () => nvf()
       });

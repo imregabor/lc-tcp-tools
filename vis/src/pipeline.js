@@ -129,6 +129,10 @@ export function createPipeline() {
       updateAnalyzers();
       return ret;
     },
+    updateParameter : p => {
+      console.log('Parameter update', p);
+      return ret;
+    },
     run : () => {
       console.log('Run');
       lastTick = Date.now(); // avoid reporting large first dt value
