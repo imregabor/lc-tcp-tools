@@ -51,6 +51,7 @@ export function newPoll(delay, callback) {
   var lastNow = 0;
   var lastDt = 0;
   var callbacks = [];
+  var delayToUse = delay;
 
   if (callback) {
     callbacks.push(callback);
@@ -61,7 +62,7 @@ export function newPoll(delay, callback) {
     const now = Date.now();
     lastDt = lastNow ? now - lastNow : 0;
     lastNow = now;
-    lastTimeout = setTimeout(poll, delay);
+    lastTimeout = setTimeout(poll, delayToUse);
 
     for (var cb of callbacks) {
       cb();
@@ -90,6 +91,7 @@ export function newPoll(delay, callback) {
       count = 0;
       lastNow = 0;
       poll();
+      return ret;
     },
     stop : () => {
       if (!lastTimeout) {
@@ -98,8 +100,13 @@ export function newPoll(delay, callback) {
       }
       clearTimeout(lastTimeout);
       lastTimeout = 0;
+      return ret;
     },
-    lastDt : () => lastDt
+    lastDt : () => lastDt,
+    setDelay : d => {
+      delayToUse = d;
+      return ret;
+    }
   };
   return ret;
 }
