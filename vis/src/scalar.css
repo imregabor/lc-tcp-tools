@@ -15,11 +15,12 @@
   top:  6px;
   left: 6px;
   color:  rgba(0, 0, 0, 0.4);
+  font-family: monospace;
 }
 
 .display-scalar .value {
   display: inline-block;
-  width:  4em;
+  /* width:  4em; */
   position: absolute;
   top:  6px;
   left:  calc(8em + 6px);

@@ -55,6 +55,7 @@ export default function addTo(parentD3, label) {
     }
     nextCx = 0;
     lastCx = 0;
+    canvas2d.clearRect(0,0,cw,ch);
   }
   updateCanvasSize(cw, ch);
 
@@ -118,9 +119,11 @@ export default function addTo(parentD3, label) {
       return ret;
     },
     ch : v => {
-      ch = v;
-      canvas.attr('height', ch);
-      canvas2d.clearRect(0,0,cw,ch);
+      updateCanvasSize(cw, v);
+      return ret;
+    },
+    cw : v => {
+      updateCanvasSize(v, ch);
       return ret;
     },
     max : v => {
@@ -253,5 +256,6 @@ export default function addTo(parentD3, label) {
       return ret;
     }
   };
+  ret.render();
   return ret;
 }
