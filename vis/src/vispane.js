@@ -20,11 +20,12 @@ export function init(parentD3) {
   var dataSource;
 
   parentD3.classed('pane-for-visualizations', true);
-  const bd = parentD3.append('div').classed('display-buttons', true);
+  const bd = parentD3.append('div').classed('display-buttons', true).call(d3.drag().clickDistance(5));
 
   function addTicksDelay() {
     const s = scalar(parentD3, 'Ticks delay')
       .autoScale()
+      .cw(300)
       .valueFormat(d => `${d} ms (${Math.round(10000 / d) / 10} fps)`);
     dataSource.onTick(dt => {
       s.add(dt);
@@ -35,6 +36,7 @@ export function init(parentD3) {
   function addRenderDelay() {
     const s = scalar(parentD3, 'Render delay')
       .autoScale()
+      .cw(300)
       .valueFormat(d => `${d} ms (${Math.round(10000 / d) / 10} fps)`);
     renderDelayDisplay = s;
     visComponents.push(s);
