@@ -57,7 +57,8 @@ export function init() {
   adjust();
 
   var maxh;
-  d.call(d3.drag()
+
+  const paneDrag = d3.drag()
       .clickDistance(5)
       .container(ctr)
       .on('start', () => {
@@ -84,8 +85,11 @@ export function init() {
           ph = Math.max(minOpenH, ph);
           adjust();
         }
-      })
-  );
+      });
+
+
+  d.call(paneDrag);
+  btmp.call(paneDrag);
 
   function adjust() {
     topp.style('bottom', `${ph}px`);
