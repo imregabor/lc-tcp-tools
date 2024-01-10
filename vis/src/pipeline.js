@@ -48,27 +48,54 @@ export function createPipeline() {
   }
 
 
-  function createAnalyzers() {
-    console.log('Create analyzers');
+  function updateAnalyzers() {
+    console.log('Create / update analyzers');
     if (!ctxFrontend || !graph) {
       return;
     }
     analyzers = analyzers || {};
     var maxFps = 0;
+
+    for (var id in analyzers) {
+      if (!analyzers.hasOwnProperty(id)) {
+        continue;
+      }
+      const a = analyzers[id];
+      a.found = false;
+    }
+
     graph.nodes.forEach(n => {
       if (n.type !== 'aa') {
         return;
       }
-      const na = {
-        analyzerNode : ctxFrontend.newAnalyserNode(),
-        targetFps : n.params.targetFps,
-        targetDelayMs : 1000 / n.params.targetFps,
-      };
+      var na;
+      if (!analyzers[n.id]) {
+        na = {
+          analyzerNode : ctxFrontend.newAnalyserNode(),
+        };
+        na.analyzerNode.smoothingTimeConstant = 0;
+        analyzers[n.id] = na;
+      } else {
+        na = analyzers[n.id];
+      }
+      na.found = true;
+      na.targetFps = n.params.targetFps;
+      na.targetDelayMs = 1000 / n.params.targetFps;
       na.analyzerNode.fftSize = n.params.fftSize;
-      na.analyzerNode.smoothingTimeConstant = 0;
-      analyzers[n.id] = na;
       maxFps = Math.max(maxFps, na.targetFps);
     });
+
+    for (var id in analyzers) {
+      if (!analyzers.hasOwnProperty(id)) {
+        continue;
+      }
+      const a = analyzers[id];
+      if ( !a.found ) {
+        delete analyzers[id];
+      };
+    }
+
+
     console.log('Analyzers:', analyzers, 'maxFps:', maxFps);
 
     if (maxFps > 1000) {
@@ -78,7 +105,13 @@ export function createPipeline() {
       maxFps = 5;
     }
 
-    apoll = poll.newPoll(Math.round(1000 / maxFps), tick);
+    const pollDelay = Math.round(1000 / maxFps);
+    if (apoll) {
+      apoll.setDelay(pollDelay);
+    } else {
+      apoll = poll.newPoll(pollDelay, tick);
+    }
+
   }
 
 
@@ -87,12 +120,13 @@ export function createPipeline() {
       console.log('AudioContext frontend set');
       ctxFrontend = ctxFe;
       analyzers = undefined;
-      createAnalyzers();
+      updateAnalyzers();
       return ret;
     },
     setGraph : g => {
       console.log('Processing graph set', g);
       graph = g;
+      updateAnalyzers();
       return ret;
     },
     run : () => {
