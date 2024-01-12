@@ -81,6 +81,9 @@ while read line ; do
 
 done < <(find -type f -wholename '*.mp4' -o -wholename '*.mkv' -o -wholename '*.webm' -o -wholename '*.mp3' -o -wholename '*.m4a' | grep -v '^./mp3/')
 
+echo
+echo
+echo
 echo "All done."
 echo "  Total files checked: ${ALLCT}"
 echo "  Found (skipped):     ${FOUNDCT}"

@@ -40,6 +40,9 @@ python <BASE_DIR>/lc-tcp-tools/mp3-srv/generate-index-mp3-json.py > index-mp3.js
 
 # launch http server
 <BASE_DIR>/lc-tcp-tools/mp3-srv/node_modules/.bin/http-server --cors -d false -p 4123 -c-1
+
+# or use convenience launcher
+<BASE_DIR>/lc-tcp-tools/mp3-srv/run-http-server.sh
 ```
 
 When launching `node.js` based server in  `../ws-server` pass the URL of the
