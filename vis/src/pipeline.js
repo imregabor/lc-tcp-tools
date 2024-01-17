@@ -124,8 +124,43 @@ export function createPipeline() {
       return ret;
     },
     setGraph : g => {
+      // note that passed graph is extended
+      //   g.nodeIds:     map of ID to nodes
+      //   g.dagOrderIds: DAG ordered node IDs
       g.nodeIds = {};
-      g.nodes.forEach(n => { g.nodeIds[n.id] = n; });
+
+
+      g.nodes.forEach(n => {
+        g.nodeIds[n.id] = n;
+      });
+
+      const dagLevels = {};
+      g.nodes.forEach(n => { dagLevels[n.id] = 0; });
+      var nextRound = true;
+      while (nextRound) {
+        nextRound = false;
+        g.edges.forEach(e => {
+          const minDagLevel = dagLevels[e.n1id] + 1;
+          if (dagLevels[e.n2id] < minDagLevel) {
+            nextRound = true;
+            dagLevels[e.n2id] = minDagLevel;
+            if (minDagLevel > g.nodes.lenght || minDagLevel > g.edges.length) {
+              // TODO: This will leave editor in an inconsistent state
+              // better error handling / reporting is needed
+              throw new Error('Loop found');
+            }
+          }
+        });
+      }
+
+
+      g.dagOrderIds = [];
+      g.nodes.forEach(n => g.dagOrderIds.push(n.id));
+      g.dagOrderIds.sort((a, b) => dagLevels[a] - dagLevels[b]);
+
+
+
+
 
       console.log('Processing graph set', g);
 
