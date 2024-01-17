@@ -17,6 +17,10 @@ export function createPipeline() {
 
   // map of analyzer ID to node defined in createAnalyzers()
   var analyzers;
+
+  // map of port outport ID (nodeID + '/' + outPortID) to port state
+  var portStates;
+
   var apoll;
   var lastTick;
 
@@ -127,11 +131,22 @@ export function createPipeline() {
       // note that passed graph is extended
       //   g.nodeIds:     map of ID to nodes
       //   g.dagOrderIds: DAG ordered node IDs
+      //   g.nodes[].isConnected: true when there is an in/out edge
+      //   g.nodes[].portStateIds: map of port ID to ID in portStates (when connected)
       g.nodeIds = {};
 
 
       g.nodes.forEach(n => {
+        n.isConnected = false;
         g.nodeIds[n.id] = n;
+        n.portStateIds = {};
+      });
+      g.edges.forEach(e => {
+        g.nodeIds[e.n1id].isConnected = true;
+        g.nodeIds[e.n2id].isConnected = true;
+
+        g.nodeIds[e.n1id].portStateIds[ e.p1 ] = `${e.n1id}/${e.p1}`;
+        g.nodeIds[e.n2id].portStateIds[ e.p2 ] = `${e.n1id}/${e.p1}`;
       });
 
       const dagLevels = {};
