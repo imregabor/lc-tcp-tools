@@ -45,8 +45,10 @@ export function initPage() {
       }),
       edges : edges.map(e => {
         const ge = {
-          n1i : e.n1.tmp_index,
-          n2i : e.n2.tmp_index,
+          n1index : e.n1.tmp_index,
+          n2index : e.n2.tmp_index,
+          n1id : e.n1.render.id,
+          n2id : e.n2.render.id,
           p1 : e.p1,
           p2 : e.p2
         };
