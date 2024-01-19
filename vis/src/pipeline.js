@@ -19,6 +19,8 @@ export function createPipeline() {
   var analyzers;
 
   // map of port outport ID (nodeID + '/' + outPortID) to port state
+  //  - found: used temporarily when topology changed
+  //  - updated: when new value is present in a tick
   var portStates;
 
   var apoll;
@@ -49,6 +51,53 @@ export function createPipeline() {
       tickEvent(now - lastTick);
     }
     lastTick = now;
+  }
+
+  function updatePortStates() {
+    console.log('Update port states');
+    if (!graph) {
+      return;
+    }
+
+    portStates = portStates || {};
+
+    for (var id in portStates) {
+      if (!portStates.hasOwnProperty(id)) {
+        continue;
+      }
+      const p = portStates[id];
+      p.found = false;
+    }
+
+
+    graph.nodes.forEach(n => {
+      for (var portId in n.portStateIds) {
+        if (!n.portStateIds.hasOwnProperty(portId)) {
+          continue;
+        }
+        const psId = n.portStateIds[portId];
+        var ps;
+        if (!portStates[psId]) {
+          ps = {};
+          portStates[psId] = ps;
+        } else {
+          ps = portStates[psId];
+        }
+        ps.found = true;
+      }
+    });
+
+    for (var id in portStates) {
+      if (!portStates.hasOwnProperty(id)) {
+        continue;
+      }
+      const p = portStates[id];
+      if ( !p.found ) {
+        delete portStates[id];
+      }
+    }
+
+    console.log('PortStates:', portStates);
   }
 
 
@@ -180,6 +229,7 @@ export function createPipeline() {
       console.log('Processing graph set', g);
 
       graph = g;
+      updatePortStates();
       updateAnalyzers();
       return ret;
     },
