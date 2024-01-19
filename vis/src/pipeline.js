@@ -30,8 +30,16 @@ export function createPipeline() {
   const tickEvent = ed.ed();
 
   function tick() {
-    console.log('Tick')
     const now = Date.now();
+
+    for (var id in portStates) {
+      if (!portStates.hasOwnProperty(id)) {
+        continue;
+      }
+      const p = portStates[id];
+      p.updated = false;
+    }
+
     for (var id in analyzers) {
 
       if (!analyzers.hasOwnProperty(id)) {
