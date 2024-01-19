@@ -52,7 +52,26 @@ export function createPipeline() {
         continue;
       }
       a.lastCall = now;
-      console.log(now, 'call aa', id);
+      if (graph.nodeIds[id].portStateIds.spo) {
+        const psId = graph.nodeIds[id].portStateIds.spo;
+        const ps = portStates[psId];
+        ps.type = 'spectrum';
+        ps.updated = true;
+        if (!ps.bins || ps.bins.length !== a.analyzerNode.frequencyBinCount) {
+          ps.bins = new Float32Array(a.analyzerNode.frequencyBinCount);
+        }
+        a.analyzerNode.getFloatFrequencyData(ps.bins);         // fftdb - spectrum magnitudes in dB
+      }
+      if (graph.nodeIds[id].portStateIds.tdo) {
+        const psId = graph.nodeIds[id].portStateIds.tdo;
+        const ps = portStates[psId];
+        ps.type = 'samples';
+        ps.updated = true;
+        if (!ps.samples || ps.samples.length !== a.analyzerNode.fftSize) {
+          ps.samples = new Float32Array(a.analyzerNode.fftSize);
+        }
+        a.analyzerNode.getFloatTimeDomainData(ps.samples);
+      }
     }
 
     if (visDataEnabled) {
@@ -139,6 +158,7 @@ export function createPipeline() {
       } else {
         na = analyzers[n.id];
       }
+      na.graphNode = n;
       na.found = true;
       na.targetFps = n.params.targetFps;
       na.targetDelayMs = 1000 / n.params.targetFps;
