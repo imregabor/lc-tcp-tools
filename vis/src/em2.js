@@ -237,13 +237,28 @@ export function initPage() {
     },
     {
       type : 'tde', // time domain energy
-      size: 256,
       layout : {
         label : 'TD energy',
         x : 400,
         y : 200
+      },
+    },
+    {
+      type : 'vu',
+      layout : {
+        label : 'VU',
+        x : 550,
+        y : 200
       }
-    }
+    },
+    {
+      type : 'lr',
+      layout : {
+        label : 'Legacy router',
+        x : 750,
+        y : 200
+      }
+    },
   ];
 
   var edges = [
@@ -252,7 +267,20 @@ export function initPage() {
       p1: 'tdo',
       n2: nodes[3],
       p2: 'tdi'
+    },
+    {
+      n1: nodes[3],
+      p1: 'eo',
+      n2: nodes[4],
+      p2: 'ein'
+    },
+    {
+      n1: nodes[4],
+      p1: 'out',
+      n2: nodes[5],
+      p2: 'lb24'
     }
+
   ];
 
   const hoverPreviewG = maing.append('g').classed('hover-preview', true);
