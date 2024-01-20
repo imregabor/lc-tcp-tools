@@ -2,6 +2,7 @@
 
 import * as poll from './poll.js';
 import * as ed from './ed.js';
+import * as u from './util.js';
 
 
 export function createPipeline() {
@@ -73,6 +74,38 @@ export function createPipeline() {
         a.analyzerNode.getFloatTimeDomainData(ps.samples);
       }
     }
+
+    graph.dagOrderIds.forEach(id => {
+      const node = graph.nodeIds[id];
+      switch (node.type) {
+        case 'aa':
+          // analyzers already processed
+          break;
+        case 'tde':
+          var ips;
+          var ops;
+          if (node.portStateIds.tdi) {
+            ips = portStates[node.portStateIds.tdi];
+            if (ips.type !== 'samples') {
+              // TODO: better error handling; in graph init time
+              throw new Error('Expected samples as input');
+            }
+
+
+          }
+          if (node.portStateIds.eo) {
+            ops = portStates[node.portStateIds.eo];
+            ops.type = 'scalar';
+            ops.value = 0;
+          }
+
+          if (ips && ops) {
+            ops.value = u.calcTimeDomainEnergy(ips.samples);
+          }
+          break;
+
+      }
+    });
 
     if (visDataEnabled) {
       tickEvent(now - lastTick);
