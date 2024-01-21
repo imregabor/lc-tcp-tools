@@ -45,7 +45,7 @@ export const nodeTypes = {
   aa : {
     w : 100,
     h : 130,
-    title : 'audio analyzer',
+    title : 'Analyzer',
     ports : {
       tdo : {
         type : 'out',
@@ -56,7 +56,7 @@ export const nodeTypes = {
       },
       spo : { // spectrum magnitude dB
         type : 'out',
-        label : 'spectrum [dB mag]',
+        label : 'Spectrum [dB mag]',
         x : 120,
         y : 70,
         l : 100
@@ -124,7 +124,7 @@ export const nodeTypes = {
   fde : {
     w : 90,
     h : 60,
-    title : 'freq domain energy',
+    title : 'FD energy',
     ports : {
       fdi : {
         type : 'in',
@@ -135,7 +135,7 @@ export const nodeTypes = {
       },
       eo : {
         type : 'out',
-        label : 'energy',
+        label : 'Energy',
         x : 110,
         y : 40,
         l : 50
@@ -145,7 +145,7 @@ export const nodeTypes = {
   tde : {
     w : 90,
     h : 60,
-    title : 'time domain energy',
+    title : 'TD energy',
     ports : {
       tdi : {
         type : 'in',
@@ -156,7 +156,7 @@ export const nodeTypes = {
       },
       eo : {
         type : 'out',
-        label : 'energy',
+        label : 'Energy',
         x : 110,
         y : 40,
         l : 50
@@ -177,7 +177,7 @@ export const nodeTypes = {
       },
       out : {
         type : 'out',
-        label : 'Mapping',
+        label : 'Channels',
         x : 120,
         y : 40,
         l : 50
