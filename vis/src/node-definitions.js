@@ -2,6 +2,13 @@
 
 
 export const nodeFunctions = {
+  aw : {
+    initState : params => {
+      // ensure that node have a state
+      // todo: parametrize the curve
+      return {};
+    }
+  },
   vu : {
     initState : params => {
       return {
@@ -42,17 +49,17 @@ export const nodeTypes = {
     ports : {
       tdo : {
         type : 'out',
-        label : 'time domain',
+        label : 'TD [lin mag]',
         x : 120,
         y : 40,
-        l : 70
+        l : 100
       },
-      spo : {
+      spo : { // spectrum magnitude dB
         type : 'out',
-        label : 'spectrum',
+        label : 'spectrum [dB mag]',
         x : 120,
         y : 70,
-        l : 70
+        l : 100
       }
     },
     params : {
@@ -72,6 +79,27 @@ export const nodeTypes = {
       }
     }
   },
+  dbm2linm : {
+    w : 130,
+    h : 130,
+    title : 'Spectrum to lin',
+    ports : {
+      spo : {
+        type : 'out',
+        label : 'FD [lin mag]',
+        x : 150,
+        y : 40,
+        l : 70
+      },
+      spi : {
+        type : 'in',
+        label : 'FD [dB mag]',
+        x : -20,
+        y : 40,
+        l : 70
+      }
+    }
+  },
   aw : {
     w : 130,
     h : 130,
@@ -79,38 +107,59 @@ export const nodeTypes = {
     ports : {
       spo : {
         type : 'out',
-        label : 'spectrum',
+        label : 'FD [lin mag]',
         x : 150,
         y : 40,
         l : 70
       },
       spi : {
         type : 'in',
-        label : 'spectrum',
+        label : 'FD [lin mag]',
         x : -20,
         y : 40,
         l : 70
       }
     }
   },
+  fde : {
+    w : 90,
+    h : 60,
+    title : 'freq domain energy',
+    ports : {
+      fdi : {
+        type : 'in',
+        label : 'FD [mag]',
+        x : -20,
+        y : 40,
+        l : 50
+      },
+      eo : {
+        type : 'out',
+        label : 'energy',
+        x : 110,
+        y : 40,
+        l : 50
+      }
+    }
+  },
   tde : {
-    w : 70,
+    w : 90,
     h : 60,
     title : 'time domain energy',
     ports : {
       tdi : {
         type : 'in',
-        label : 'TD',
+        label : 'TD [mag]',
         x : -20,
         y : 40,
-        l : 40
+        l : 50
       },
       eo : {
         type : 'out',
         label : 'energy',
-        x : 90,
+        x : 110,
         y : 40,
-        l : 40
+        l : 50
       }
     }
   },

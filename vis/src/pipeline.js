@@ -37,6 +37,7 @@ export function createPipeline() {
 
   function tick() {
     const now = Date.now();
+    const sampleRate = ctxFrontend.sampleRate();
 
     for (var id in portStates) {
       if (!portStates.hasOwnProperty(id)) {
@@ -82,9 +83,30 @@ export function createPipeline() {
 
     graph.dagOrderIds.forEach(id => {
       const node = graph.nodeIds[id];
+      const state = node.state;
       switch (node.type) {
         case 'aa':
           // analyzers already processed
+          break;
+        case 'fde':
+          var ips;
+          var ops;
+          if (node.portStateIds.fdi) {
+            ips = portStates[node.portStateIds.fdi];
+            if (ips.type !== 'spectrum') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "spectrum" as input, got ${ips.type}`);
+            }
+          }
+          if (node.portStateIds.eo) {
+            ops = portStates[node.portStateIds.eo];
+            ops.type = 'scalar';
+            ops.value = 0;
+          }
+          if (ips && ops && ips.updated) {
+            ops.value = u.avgSqr(ips.bins);
+            ops.updated = true;
+          }
           break;
         case 'tde':
           var ips;
@@ -93,7 +115,7 @@ export function createPipeline() {
             ips = portStates[node.portStateIds.tdi];
             if (ips.type !== 'samples') {
               // TODO: better error handling; in graph init time
-              throw new Error('Expected "samples" as input');
+              throw new Error(`Expected "samples" as input, got ${ips.type}`);
             }
           }
           if (node.portStateIds.eo) {
@@ -106,6 +128,55 @@ export function createPipeline() {
             ops.updated = true;
           }
 
+          break;
+        case 'dbm2linm':
+          var ips;
+          var ops;
+          if (node.portStateIds.spi) {
+            ips = portStates[node.portStateIds.spi];
+            if (ips.type !== 'spectrum') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "spectrum" as input, got ${ips.type}`);
+            }
+          }
+          if (node.portStateIds.spo && ips) {
+            ops = portStates[node.portStateIds.spo];
+            ops.type = 'spectrum';
+            if (!ops.bins || ops.bins.length !== ips.bins.length) {
+              ops.bins = new Float32Array(ips.bins.length);
+            }
+          }
+          if (ips && ops && ips.updated) {
+            u.calcMagnitudeFromDb(ips.bins, ops.bins);
+            ops.updated = true;
+          }
+          break;
+        case 'aw':
+          var ips;
+          var ops;
+          if (node.portStateIds.spi) {
+            ips = portStates[node.portStateIds.spi];
+            if (ips.type !== 'spectrum') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "spectrum" as input, got ${ips.type}`);
+            }
+
+          }
+          if (node.portStateIds.spo && ips) {
+            ops = portStates[node.portStateIds.spo];
+            ops.type = 'spectrum';
+            if (!ops.bins || ops.bins.length !== ips.bins.length) {
+              ops.bins = new Float32Array(ips.bins.length);
+            }
+          }
+          if (ips && (!state.weights || state.weights.length !== ips.bins.length)) {
+            state.weights = u.calcAWeights(ips.bins.length, sampleRate);
+          }
+
+          if (ips && ops && ips.updated) {
+            u.calcWeightedMagnitudes(ips.bins, state.weights, ops.bins);
+            ops.updated = true;
+          }
           break;
         case 'vu':
           var ips;
@@ -127,7 +198,6 @@ export function createPipeline() {
 
           }
           if (ips && ops && ips.updated) {
-            const state = node.state;
             const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
             state.lastUpdate = now; // todo - common implementation
 
@@ -183,24 +253,24 @@ export function createPipeline() {
             }
           }
 
-          const state = node.state;
           var maybeSend = false;
           if (ipsLb24 && ipsLb24.updated) {
-            for (var i = 0; i < 24; i++) {
+            const channelCount = Math.min(24, state.lb24.length);
+            for (var i = 0; i < channelCount; i++) {
               state.lb24[i] = Math.max(state.lb24[i], ipsLb24.channels[i]);
             }
             maybeSend = true;
           }
 
           if (ipsLm35 && ipsLm35.updated) {
-            for (var i = 0; i < 35; i++) {
+            const channelCount = Math.min(35, state.lm35.length);
+            for (var i = 0; i < channelCount; i++) {
               state.lm35[i] = Math.max(state.lm35[i], ipsLm35.channels[i]);
             }
             maybeSend = true;
           }
 
           const send = maybeSend && (!state.lastSend || ((now - state.lastSend) >= state.targetDelayMs));
-
           if (send) {
             state.lastSend = now;
             var url = '/api/setBulk100';

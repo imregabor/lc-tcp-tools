@@ -27,7 +27,7 @@ export function calcAWeights(bands, sampleRate) {
   // See https://en.wikipedia.org/wiki/A-weighting
   // Note that return value is for the amplitude spectrum and not for intensity spectrum
   console.log(`calc A-weights. Bands: ${bands}, sampleRate: ${sampleRate} 1/s, band span: ${sampleRate / (2 * (bands - 1))} Hz`);
-  const ret = [];
+  const ret = new Float32Array(bands);
   var min, max;
   for (var i = 0; i < bands; i++) {
     const f = i * sampleRate / (2 * bands);
@@ -42,7 +42,7 @@ export function calcAWeights(bands, sampleRate) {
     if (i == 0 || max < raf) {
       max = raf;
     }
-    ret.push(raf);
+    ret[i] = raf;
   }
   console.log(`Weights min: ${min}, max: ${max}, first items: ${ret[0]}, ${ret[1]}, ${ret[2]}, ${ret[3]}`);
 
@@ -121,6 +121,15 @@ export function avg(input) {
   }
   return ret / input.length;
 }
+
+export function avgSqr(input) {
+  var ret = 0;
+  for (var i = 0; i < input.length; i++) {
+    ret = ret + input[i];
+  }
+  return ret / input.length;
+}
+
 
 export function channelsToBulk100(values) {
   var ret = '';

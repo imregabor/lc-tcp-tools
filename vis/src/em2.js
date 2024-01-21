@@ -207,7 +207,7 @@ export function initPage() {
 
   var nodes = [
     {
-      type : 'aa', // audio analyzer
+      type : 'aa', // [0] audio analyzer
       layout : {
         label : 'Analyzer 1',
         x : 200,
@@ -219,7 +219,7 @@ export function initPage() {
       }
     },
     {
-      type : 'aa',
+      type : 'aa', // [1]
       size: 256,
       layout : {
         label : 'Analyzer 2',
@@ -228,10 +228,18 @@ export function initPage() {
       }
     },
     {
-      type : 'aw',
+      type : 'dbm2linm', // [2]
+      layout : {
+        label : 'Spectrum to lin',
+        x : 400,
+        y : 400
+      }
+    },
+    {
+      type : 'aw', // [3]
       layout : {
         label : 'Fletcher a-weights',
-        x : 400,
+        x : 600,
         y : 400
       }
     },
@@ -265,19 +273,31 @@ export function initPage() {
     {
       n1: nodes[0],
       p1: 'tdo',
-      n2: nodes[3],
+      n2: nodes[4],
       p2: 'tdi'
     },
     {
-      n1: nodes[3],
-      p1: 'eo',
-      n2: nodes[4],
-      p2: 'ein'
+      n1: nodes[0],
+      p1: 'spo',
+      n2: nodes[2],
+      p2: 'spi'
+    },
+    {
+      n1: nodes[2],
+      p1: 'spo',
+      n2: nodes[3],
+      p2: 'spi'
     },
     {
       n1: nodes[4],
-      p1: 'out',
+      p1: 'eo',
       n2: nodes[5],
+      p2: 'ein'
+    },
+    {
+      n1: nodes[5],
+      p1: 'out',
+      n2: nodes[6],
       p2: 'lb24'
     }
 
