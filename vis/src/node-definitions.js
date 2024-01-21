@@ -101,7 +101,7 @@ export const nodeTypes = {
       }
     },
     params : {
-      targetFps : {
+      channels : {
         label: 'channels',
         initial : 24,
         x : 5,
