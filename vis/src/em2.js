@@ -244,7 +244,26 @@ export function initPage() {
       }
     },
     {
-      type : 'tde', // time domain energy
+      type : 'fde', // [4]
+      layout : {
+        label : 'FD energy',
+        x : 800,
+        y : 400
+      }
+    },
+    {
+      type : 'vu', // [5]
+      layout : {
+        label : 'VU',
+        x : 1000,
+        y : 400
+      },
+      pvals : {
+        channels: 35
+      }
+    },
+    {
+      type : 'tde', // [6] time domain energy
       layout : {
         label : 'TD energy',
         x : 400,
@@ -252,18 +271,18 @@ export function initPage() {
       },
     },
     {
-      type : 'vu',
+      type : 'vu', // [7]
       layout : {
         label : 'VU',
-        x : 550,
+        x : 600,
         y : 200
       }
     },
     {
-      type : 'lr',
+      type : 'lr', // [8]
       layout : {
         label : 'Legacy router',
-        x : 750,
+        x : 1200,
         y : 200
       }
     },
@@ -273,7 +292,7 @@ export function initPage() {
     {
       n1: nodes[0],
       p1: 'tdo',
-      n2: nodes[4],
+      n2: nodes[6],
       p2: 'tdi'
     },
     {
@@ -289,6 +308,12 @@ export function initPage() {
       p2: 'spi'
     },
     {
+      n1: nodes[3],
+      p1: 'spo',
+      n2: nodes[4],
+      p2: 'fdi'
+    },
+    {
       n1: nodes[4],
       p1: 'eo',
       n2: nodes[5],
@@ -297,7 +322,19 @@ export function initPage() {
     {
       n1: nodes[5],
       p1: 'out',
-      n2: nodes[6],
+      n2: nodes[8],
+      p2: 'lm35'
+    },
+    {
+      n1: nodes[6],
+      p1: 'eo',
+      n2: nodes[7],
+      p2: 'ein'
+    },
+    {
+      n1: nodes[7],
+      p1: 'out',
+      n2: nodes[8],
       p2: 'lb24'
     }
 
