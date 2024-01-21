@@ -4,6 +4,7 @@ import * as poll from './poll.js';
 import * as ed from './ed.js';
 import * as u from './util.js';
 import * as nodeDefs from './node-definitions.js';
+import * as d3 from 'd3';
 
 
 export function createPipeline() {
@@ -92,22 +93,134 @@ export function createPipeline() {
             ips = portStates[node.portStateIds.tdi];
             if (ips.type !== 'samples') {
               // TODO: better error handling; in graph init time
-              throw new Error('Expected samples as input');
+              throw new Error('Expected "samples" as input');
             }
-
-
           }
           if (node.portStateIds.eo) {
             ops = portStates[node.portStateIds.eo];
             ops.type = 'scalar';
             ops.value = 0;
           }
-
-          if (ips && ops) {
+          if (ips && ops && ips.updated) {
             ops.value = u.calcTimeDomainEnergy(ips.samples);
+            ops.updated = true;
+          }
+
+          break;
+        case 'vu':
+          var ips;
+          var ops;
+          if (node.portStateIds.ein) {
+            ips = portStates[node.portStateIds.ein];
+            if (ips.type !== 'scalar') {
+              // TODO: better error handling; in graph init time
+              throw new Error('Expected "scalar" as input');
+            }
+          }
+          if (node.portStateIds.out) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = 'channels';
+
+            if (!ops.channels || ops.channels.length !== node.params.channels) {
+              ops.channels = new Float32Array(node.params.channels);
+            }
+
+          }
+          if (ips && ops && ips.updated) {
+            const state = node.state;
+            const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
+            state.lastUpdate = now; // todo - common implementation
+
+            const value = ips.value;
+
+
+            const maxDecay = Math.exp( -state.maxDecayL * dt);
+            const minDecay = Math.exp( -state.minDecayL * dt);
+            const vh = value * 1.25; // todo - option
+            const vl = value / 1.5;
+
+            state.max = maxDecay * (state.max - vh) + vh;
+            if (value > state.max) {
+              state.max = vh;
+            }
+
+            state.min = minDecay * (state.min - vl) + vl;
+            if (value < state.min) {
+              state.min = vl;
+            }
+
+            var on = node.params.channels * (value - state.min) / (state.max - state.min);
+
+            for (var i = 0; i < node.params.channels; i++) {
+              if (on >= 1) {
+                ops.channels[i] = 1;
+                on = on - 1;
+              } else if (on > 0) {
+                ops.channels[i] = on;
+                on = 0;
+              } else {
+                ops.channels[i] = 0;
+              }
+            }
+            ops.updated = true;
           }
           break;
+        case 'lr':
+          var ipsLb24;
+          var ipsLm35;
+          if (node.portStateIds.lb24) {
+            ipsLb24 = portStates[node.portStateIds.lb24];
+            if (ipsLb24.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "channels" as input, got ${ipsLb24.type}`);
+            }
+          }
+          if (node.portStateIds.lm35) {
+            ipsLm35 = portStates[node.portStateIds.lm35];
+            if (ipsLm35.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "channels" as input, got ${ipsLm35.type}`);
+            }
+          }
 
+          const state = node.state;
+          var maybeSend = false;
+          if (ipsLb24 && ipsLb24.updated) {
+            for (var i = 0; i < 24; i++) {
+              state.lb24[i] = Math.max(state.lb24[i], ipsLb24.channels[i]);
+            }
+            maybeSend = true;
+          }
+
+          if (ipsLm35 && ipsLm35.updated) {
+            for (var i = 0; i < 35; i++) {
+              state.lm35[i] = Math.max(state.lm35[i], ipsLm35.channels[i]);
+            }
+            maybeSend = true;
+          }
+
+          const send = maybeSend && (!state.lastSend || ((now - state.lastSend) >= state.targetDelayMs));
+
+          if (send) {
+            state.lastSend = now;
+            var url = '/api/setBulk100';
+            var sepChar = '?';
+            if (ipsLb24) {
+              url = url + sepChar + 'm1=' + u.channelsToBulk100(state.lb24);
+              state.lb24.fill(0);
+              sepChar = '&';
+            }
+            if (ipsLm35) {
+              url = url + sepChar + 'm2=' + u.channelsToBulk100(state.lm35);
+              state.lm35.fill(0);
+              sepChar = '&';
+            }
+
+            d3.text(url, {
+              method : 'POST',
+            }).then(() => {}, () => {});
+          }
+          break;
       }
     });
 
