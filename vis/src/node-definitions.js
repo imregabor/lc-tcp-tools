@@ -1,5 +1,39 @@
 'use strict';
 
+
+export const nodeFunctions = {
+  vu : {
+    initState : params => {
+      return {
+        max : 0,
+        min : 0,
+
+        // Decay rate constants
+        // lambda from https://en.wikipedia.org/wiki/Exponential_decay
+        maxDecayL : Math.log(2) / params.maxDecayH,
+        minDecayL : Math.log(2) / params.minDecayH
+      }
+    },
+    updateState : (params, state) => {
+      state.maxDecayL = Math.log(2) / params.maxDecayH;
+      state.minDecayL = Math.log(2) / params.minDecayH;
+    }
+  },
+  lr : {
+    initState : params => {
+      return {
+        targetDelayMs : 1000 / params.targetFps, // todo - use this pattern for analyzers
+        lb24 : new Float32Array(24),
+        lm35 : new Float32Array(35)
+      };
+    },
+    updateState : (params, state) => {
+      state.targetDelayMs = 1000 / params.targetFps;
+    }
+
+  }
+};
+
 export const nodeTypes = {
   aa : {
     w : 100,
@@ -154,6 +188,4 @@ export const nodeTypes = {
       }
     }
   }
-
 };
-

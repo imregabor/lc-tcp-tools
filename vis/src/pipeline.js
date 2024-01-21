@@ -3,6 +3,7 @@
 import * as poll from './poll.js';
 import * as ed from './ed.js';
 import * as u from './util.js';
+import * as nodeDefs from './node-definitions.js';
 
 
 export function createPipeline() {
@@ -26,6 +27,9 @@ export function createPipeline() {
 
   var apoll;
   var lastTick;
+
+
+  const nodeFunctions = nodeDefs.nodeFunctions;
 
   // invoked with milliseconds since last call
   const tickEvent = ed.ed();
@@ -250,6 +254,9 @@ export function createPipeline() {
         n.isConnected = false;
         g.nodeIds[n.id] = n;
         n.portStateIds = {};
+        if (nodeFunctions[n.type] && nodeFunctions[n.type].initState) {
+          n.state = nodeFunctions[n.type].initState(n.params);
+        }
       });
       g.edges.forEach(e => {
         g.nodeIds[e.n1id].isConnected = true;
@@ -296,10 +303,20 @@ export function createPipeline() {
     },
     updateParameter : p => {
       console.log('Parameter update', p);
-      graph.nodeIds[p.nodeid].params[p.paramid] = p.value;
-      if (p.nodetype === 'aa') {
+      const node = graph.nodeIds[p.nodeid];
+      node.params[p.paramid] = p.value;
+      if (node.type === 'aa') {
         updateAnalyzers();
       }
+
+      if (nodeFunctions[node.type] && nodeFunctions[node.type].initState) {
+        if (nodeFunctions[node.type].updateState) {
+          nodeFunctions[node.type].updateState(node.params, node.state);
+        } else {
+          node.state = nodeFunctions[node.type].initState(node.params);
+        }
+      }
+
       return ret;
     },
     run : () => {
