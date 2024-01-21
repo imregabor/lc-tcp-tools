@@ -29,6 +29,42 @@ export function addPlaybackControls(parentD3, opts) {
               console.log('Error in mp3 dialog', e);
             });
       });
+  d.append('i')
+      .classed('fa fa-microphone fa-fw', true)
+      .attr('title', 'Capture audio')
+      .on('click', () => {
+        /*
+        navigator.mediaDevices.getUserMedia({
+          audio: true,
+        }).then((stream) => {});
+        */
+
+        navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+              console.log('Devices', devices);
+              const resolveList = [];
+              devices.forEach(d => {
+                if (d.kind !== 'audioinput') {
+                  return;
+                }
+                resolveList.push({
+                  mediaDeviceId : d.deviceId,
+                  mediaDeviceLabel : d.label,
+                  t1 : d.label,
+                  t2 : `deviceId: ${d.deviceId}, groupId: ${d.groupId}`
+                });
+              });
+
+              mp3dialog
+                  .showModal({
+                    title : 'Select capture device',
+                    resolve : v => opts.startCapture(v.mediaDeviceId, v.mediaDeviceLabel)
+                  })
+                  .appendResolvingList(resolveList, d => d.t1, d => d.t2);
+            });
+
+      });
+
   const i2 = d.append('i')
       .classed('fa fa-ellipsis-h fa-fw', true)
       .attr('title', 'Pick other audio source')
@@ -98,6 +134,7 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
   const ctrls = addPlaybackControls(parentD3, {
     startPlaybackFrom : url => audio(url),
     startDecodeFrom : url => load(url),
+    startCapture : (deviceId, deviceLabel) => startCapture(deviceId, deviceLabel),
     tone : f => tone(f),
     stop : () => stop()
   });
@@ -111,6 +148,7 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
 
   var audioContext;
   var sourceNode;
+  var userMediaStream;
   var sampleRate;
   var playing = false;
 
@@ -124,7 +162,8 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
 
   function ensureAudioContext() {
     if (!audioContext) {
-      audioContext = new AudioContext();
+      audioContext = new AudioContext({ latencyHint: 0 });
+      console.log('AudioContext created, baseLatency:', audioContext.baseLatency);
     }
   }
 
@@ -204,6 +243,28 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
 
   }
 
+  function startCapture(deviceId, deviceLabel) {
+    message(`Start capture from ${deviceLabel}`);
+    ret.ensureStop(true);
+    disableButtons();
+    ensureAudioContext();
+
+    navigator.mediaDevices
+        .getUserMedia({ audio : { deviceId : deviceId} })
+        .then(stream => {
+          userMediaStream = stream;
+          sourceNode = audioContext.createMediaStreamSource(stream);
+          sampleRate = audioContext.sampleRate;
+
+          events.contextCreated(ret);
+          lastPlaybackInfo = {
+            audio : `Capture from ${deviceLabel}`
+          };
+
+          ret.start();
+        });
+  }
+
   function tone(f) {
     ret.ensureStop(true);
     message(`Playing ${f} Hz sinewave`);
@@ -241,6 +302,13 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
       adiv.remove();
       a = undefined;
       adiv = undefined;
+    } else if (userMediaStream) {
+      if (userMediaStream.stop) {
+        userMediaStream.stop();
+      } else {
+        userMediaStream.getTracks().forEach(track => track.stop());
+      }
+      userMediaStream = undefined;
     } else {
       sourceNode.stop(0);
     }
@@ -360,7 +428,7 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
 
       if (useAudio) {
         a.node().play();
-      }  else {
+      } else if (!userMediaStream) {
         sourceNode.start(0);
       }
 
