@@ -125,9 +125,17 @@ export function avg(input) {
 export function avgSqr(input) {
   var ret = 0;
   for (var i = 0; i < input.length; i++) {
-    ret = ret + input[i];
+    ret = ret + input[i] * input[i];
   }
   return ret / input.length;
+}
+
+export function avgSqr1(input) {
+  var ret = 0;
+  for (var i = 1; i < input.length; i++) {
+    ret = ret + input[i] * input[i];
+  }
+  return ret / (input.length - 1);
 }
 
 

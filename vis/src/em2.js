@@ -209,13 +209,13 @@ export function initPage() {
     {
       type : 'aa', // [0] audio analyzer
       layout : {
-        label : 'Analyzer 1',
+        label : 'Analyzer',
         x : 200,
         y : 200
       },
       pvals : {
-        fftSize : 512,
-        targetFps : 100
+        fftSize : 1024,
+        targetFps : 200
       }
     },
     {
@@ -273,7 +273,7 @@ export function initPage() {
     {
       type : 'vu', // [7]
       layout : {
-        label : 'VU',
+        label : 'VU 2',
         x : 600,
         y : 200
       }
@@ -677,7 +677,7 @@ export function initPage() {
     const newNode = {
       type : selectedAddNodeType,
       layout : {
-        label : nodeDef.title,
+        label : hoverPreviewG.datum(),
         x : coords[0] - nodeDef.w / 2,
         y : coords[1] - nodeDef.h / 2
       }
@@ -686,6 +686,7 @@ export function initPage() {
     renderNodes();
     connDrag.registerListenersOnPorts(connDragOpts);
     notes.top(`New ${nodeDef.title} node added`);
+    updateAddingNodeOnClick();
     fireTopologyChanged();
   });
 
@@ -697,16 +698,36 @@ export function initPage() {
     .attr('r', 10);
 
   function updateAddingNodeOnClick() {
-    hoverPreviewG.selectAll('*').remove();
     const nodeDef = nodeTypes[selectedAddNodeType];
+
+
+    // use an unique name
+    const labelBase = nodeDef.title;
+    var newNodeLabel = labelBase;
+
+    console.log(nodes);
+    nodes.forEach(n => {
+      if (n.type !== selectedAddNodeType) {
+        return;
+      }
+      const labelSuffix = n.layout.label.split(" ").pop();
+      const v = parseInt(labelSuffix);
+      if (v > 0) {
+        newNodeLabel = labelBase + " " + (v + 1);
+      }
+    });
+    console.log(newNodeLabel)
+
+    hoverPreviewG.selectAll('*').remove();
     const newNode = {
       type : selectedAddNodeType,
       layout : {
-        label : nodeDef.title,
+        label : newNodeLabel,
         x : - nodeDef.w / 2,
         y : - nodeDef.h / 2
       }
     };
+    hoverPreviewG.datum(newNodeLabel);
     renderNodesInto([newNode], hoverPreviewG, false);
   }
 

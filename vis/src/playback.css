@@ -35,6 +35,8 @@ audio {
   height: 32px;
 }
 
+
+
 .playback-extra-controls {
   user-select: none;
   display: inline-block;
@@ -47,6 +49,23 @@ audio {
   padding-right: 16px;
   border-radius: 16px;
   line-height: 32px;
+}
+
+.playback-extra-controls.playback-extra-controls-smaller {
+  font-size: 14px;
+  height: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 10px;
+  line-height: 20px;
+
+}
+
+.playback-extra-controls.playback-extra-controls-nobg {
+  padding-left: unset;
+  padding-right: unset;
+  border-radius: unset;
+  background-color: unset;
 }
 
 .playback-extra-controls.playback-extra-controls-toptab {
@@ -71,20 +90,43 @@ audio {
   cursor: pointer;
   color: #888;
   border-radius: 8px;
-  border: 4px solid #eee;
+  border: 4px solid transparent;
 }
+
+.playback-extra-controls i.red {
+  color: #d2a2a2;
+}
+
+.playback-extra-controls.playback-extra-controls-smaller i {
+  border-width: 2px;
+  border-radius: 2px;
+}
+
 
 .playback-extra-controls i:hover {
   color: #444;
   background-color: #ccc;
-  border: 4px solid #ccc;
+  border-color: #ccc;
+}
+
+.playback-extra-controls i.red:hover {
+  color: #cb181d;
+  background-color: #d2a2a2;
+  border-color: #d2a2a2;
 }
 
 .playback-extra-controls i:active {
   color: #444;
   background-color: #aaa;
-  border: 4px solid #aaa;
+  border-color: #aaa;
 }
+
+.playback-extra-controls i.red:active {
+  color: #891014;
+  background-color: #cb181d;
+  border-color: #cb181d;
+}
+
 
 .playback-extra-controls i.disabled {
   color: #e4e4e4;

@@ -84,12 +84,22 @@ export function addItemsTo(m2, select) {
 
     function dosrc(q) {
       clri.classed('disabled', q === '');
+      const qs = q.toLowerCase().split(" ");
       lstd.selectAll('.list-entry')
         .style('display', d => {
+          for (var qp of qs) {
+            if (!d.sortBase.includes(qp) && !d.filename.includes(qp)) {
+              return 'none';
+            }
+          }
+          return '';
+
+          /*
           if (q === '') {
             return '';
           }
           return (d.sortBase.includes(q) || d.filename.includes(q)) ? '' : 'none';
+          */
         });
       updateMp3Count();
     }
@@ -152,6 +162,11 @@ export function showModal(opts) {
   const m1 = body.append('div')
       .classed('modal-bg', true)
       .on('click', cancel);
+  m1.style('backdrop-filter', 'blur(0px)')
+      .transition()
+      .duration(300)
+      .style('backdrop-filter', 'blur(12px)');
+
   const m2 = m1.append('div')
       .classed('modal-dg', true)
       .on('click', () => event.stopPropagation());

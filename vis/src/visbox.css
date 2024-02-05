@@ -1,0 +1,104 @@
+.visbox-outer {
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  /* padding:  5px; */
+  display: inline-block;
+  position: relative;
+  margin-bottom: 5px;
+  margin-right: 5px;
+  box-sizing: border-box;
+  position: absolute;
+}
+
+.visbox-header {
+  font-size: 14px;
+  display: inline-block;
+  width:  100%;
+  height: 20px;
+  line-height: 20px;
+  position: absolute;
+  top:  0px;
+  left: 0px;
+  background-color: #ddd;
+  color: #666;
+  overflow: hidden;
+  cursor: move;
+}
+
+.visbox-title {
+  position: absolute;
+  left: 3px;
+  overflow: hidden;
+  text-wrap: nowrap;
+}
+
+.visbox-icons {
+  position: absolute;
+  background-color: #ddd; /* Mask underlying title when too compact */
+  right: 0;
+}
+
+.visbox-content {
+  position: absolute;
+  top:  20px;
+  left:  0;
+  right: 0;
+  bottom: 0;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  overflow: hidden;
+  background-color: white;
+}
+
+.visbox-resize-handle { /* not the nicest hack using caret */
+  position: absolute;
+  color: #888;
+  opacity: 0.15;
+  right: -7px;
+  bottom: -7px;
+  font-size: 64px;
+  transform: translateY(0.26em) rotate(-45deg);
+  transition: opacity 0.5s;
+  cursor: move;
+}
+
+.visbox-resize-handle-label {
+  position:  absolute;
+  font-size: 12px;
+  font-family: monospace;
+  top: 10px;
+}
+
+.resizing .visbox-resize-handle {
+  opacity: 1;
+}
+
+.visbox-resize-handle:hover {
+  opacity: 1;
+}
+
+.visbox-resize-placeholder {
+  box-sizing: border-box;
+  position: absolute;
+  border-radius: 5px;
+  left: -2px;
+  top: -2px;
+  border: 2px dotted #666;
+  pointer-events: none;
+}
+
+.visbox-placeholder-hint {
+  position: absolute;
+  left: 0;
+  bottom: -34px;
+  font-size: 14px;
+  font-family: monospace;
+  color: #444;
+  padding: 4px;
+  line-height: 14px;
+  background-color: white;
+  border-radius: 5px;
+  border:  2px solid #ddd;
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}

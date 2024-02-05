@@ -5,15 +5,24 @@ import * as u from './util.js';
 import * as d3 from 'd3';
 
 
-export default function addTo(parentD3, label) {
-  const d = parentD3.append('div').classed('display-scalar', true);
+export default function addTo(parentD3, label, useParentDiv) {
+
+  const d = useParentDiv
+      ? parentD3
+      : parentD3.append('div').classed('display-scalar', true);
+
   const canvas = d.append('canvas').attr('width', 800).attr('height', 64);
 
-  d.append('span').classed('label', true).text(label);
-  const vSpan = d.append('span').classed('value', true);
+  if (label) {
+    d.append('span').classed('display-scalar-label', true).text(label);
+  }
 
-  const minSpan  = d.append('span').classed('limit min', true);
-  const maxSpan  = d.append('span').classed('limit max', true);
+  const vSpan = d.append('span')
+      .classed('display-scalar-value', true)
+      .classed('nolabel', !label);
+
+  const minSpan  = d.append('span').classed('display-scalar-limit min', true);
+  const maxSpan  = d.append('span').classed('display-scalar-limit max', true);
 
   const canvas2d = canvas.node().getContext('2d');
 
@@ -34,12 +43,15 @@ export default function addTo(parentD3, label) {
   var seekpos; // position for seeking
   var onseek; // seek callback
 
-
+  var highlightOutliers = false;
   var lastValue = undefined;
+  var lastPlottedVal = undefined;
+  var lastPlottedY = undefined;
   var nextCx = 0; // next X value to store
   var lastCx = 0; // last X value plotted
 
   function updateCanvasSize(x, y) {
+    lastPlottedVal = undefined;
     cw = x;
     ch = y;
     canvas.attr('width', cw);
@@ -70,6 +82,7 @@ export default function addTo(parentD3, label) {
   var showRange = false;
 
   function updateLimits() {
+    lastPlottedVal = undefined;
     if (wraparound) {
       lastCx = (nextCx + 1) % cw;
     } else {
@@ -112,6 +125,10 @@ export default function addTo(parentD3, label) {
       autoScale = true;
       return ret;
     },
+    highlightOutliers : () => {
+      highlightOutliers = true;
+      return ret;
+    },
     showRange : () => {
       showRange = true;
       rlows = new Array(cw);
@@ -119,11 +136,11 @@ export default function addTo(parentD3, label) {
       return ret;
     },
     ch : v => {
-      updateCanvasSize(cw, v);
+      updateCanvasSize(cw, Math.max(v, 10));
       return ret;
     },
     cw : v => {
-      updateCanvasSize(v, ch);
+      updateCanvasSize(Math.max(v, 10), ch);
       return ret;
     },
     max : v => {
@@ -162,18 +179,18 @@ export default function addTo(parentD3, label) {
         if (v < min) {
           r = true;
           if (v < 0) {
-            min = v * 2;
+            min = v * 1.5;
           } else {
-            min = v / 2;
+            min = v / 1.5;
           }
         }
 
         if (v > max) {
           r = true;
           if (v > 0) {
-            max = v * 2;
+            max = v * 1.5;
           } else {
-            min = v / 2;
+            min = v / 1.5;
           }
 
         }
@@ -196,7 +213,7 @@ export default function addTo(parentD3, label) {
         vSpan.text(valueFormat(lastValue));
       }
 
-      while(lastCx !== nextCx) {
+      while(lastCx !== nextCx && nextCx < cw) { // note possible race with resize
         canvas2d.clearRect((lastCx + 20) % cw, 0, 1, ch);
 
 
@@ -223,7 +240,7 @@ export default function addTo(parentD3, label) {
 
 
         canvas2d.fillStyle = 'black';
-        var y0 = ch - 1 - ch * (vals[lastCx] - min) / (max - min);
+        var y0 = Math.round(ch - 1 - ch * (vals[lastCx] - min) / (max - min));
         if (y0 < 0) {
           y0 = 0;
         }
@@ -231,11 +248,39 @@ export default function addTo(parentD3, label) {
           y0 = ch - 1;
         }
         if (y0 >= 0 && y0 < ch) {
+          if (highlightOutliers) {
+            if (lastPlottedVal && vals[lastCx] > 1.5 * lastPlottedVal) {
+              canvas2d.fillStyle = 'red';
+              canvas2d.fillRect(lastCx - 5, y0 - 5, 11, 11);
+              canvas2d.fillStyle = 'black';
+            }
+            lastPlottedVal = vals[lastCx];
+          }
+
+
           canvas2d.fillRect(lastCx, y0, 1, 1);
+          // canvas2d.fillRect(lastCx, y0, 1, Math.min(5, ch - y0));
+          if (lastCx === 0) {
+            lastPlottedY = undefined;
+          }
+
+
+          if (lastPlottedY) {
+            if (y0 > lastPlottedY) {
+              canvas2d.fillRect(lastCx, lastPlottedY, 1, y0 - lastPlottedY + 1);
+            } else {
+              canvas2d.fillRect(lastCx, y0, 1, lastPlottedY - y0 + 1);
+            }
+
+          } else {
+            canvas2d.fillRect(lastCx, y0, 1, 1);
+          }
+
+
+          lastPlottedY = y0;
+
         }
-
         lastCx = (lastCx + 1) % cw;
-
       }
     },
     clear : () => {
@@ -253,6 +298,12 @@ export default function addTo(parentD3, label) {
       max = initialMax;
       updateLimits();
       ret.render();
+      return ret;
+    },
+    remove : () => {
+      if (!useParentDiv) {
+        d.remove();
+      }
       return ret;
     }
   };

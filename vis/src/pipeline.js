@@ -31,6 +31,7 @@ export function createPipeline() {
 
 
   const nodeFunctions = nodeDefs.nodeFunctions;
+  const nodeTypes = nodeDefs.nodeTypes;
 
   // invoked with milliseconds since last call
   const tickEvent = ed.ed();
@@ -104,7 +105,7 @@ export function createPipeline() {
             ops.value = 0;
           }
           if (ips && ops && ips.updated) {
-            ops.value = u.avgSqr(ips.bins);
+            ops.value = u.avgSqr1(ips.bins);
             ops.updated = true;
           }
           break;
@@ -537,6 +538,30 @@ export function createPipeline() {
      */
     onTick : h => {
       tickEvent.add(h);
+      return ret;
+    },
+    getPortState : portId => portStates[portId],
+    getPortStateInfos : () => {
+      if (!graph) {
+        return;
+      }
+      const ret = [];
+      graph.nodes.forEach(n => {
+        const ports = nodeTypes[n.type].ports;
+        for (var pid in ports) {
+          if (!ports.hasOwnProperty(pid)) {
+            continue;
+          }
+          if (ports[pid].type === 'out' && n.portStateIds[pid]) {
+            ret.push({
+              portStateId : n.portStateIds[pid],
+              nodeId : n.id,
+              nodeLabel : n.label,
+              portLabel : ports[pid].label
+            });
+          }
+        }
+      });
       return ret;
     }
   };

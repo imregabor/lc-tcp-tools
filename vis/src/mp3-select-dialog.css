@@ -5,7 +5,7 @@ body.modal-open {
 
 .modal-bg {
   position: absolute;
-  backdrop-filter:  blur(4px);
+  backdrop-filter:  blur(12px);
   /* background:  rgba(255, 255, 255, 0.95); */
   width: 100%;
   height: 100%;
@@ -32,7 +32,7 @@ body.modal-open {
 
 @media screen and (max-width: 1280px) {
   .modal-dg {
-    width: 95%;
+    width: 85%;
   }
 }
 
@@ -56,6 +56,10 @@ body.modal-open {
   user-select: none;
   cursor: pointer;
   color: #bbb;
+}
+
+.modal-dg h1 i {
+  color: #d2a2a2;
 }
 
 /* See https://colorbrewer2.org/#type=sequential&scheme=Reds&n=8 */
