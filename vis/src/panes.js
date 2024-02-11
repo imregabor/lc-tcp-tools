@@ -116,6 +116,11 @@ export function init() {
     },
     topD3 : () => topc,
     bottomD3 : () => btmc,
+    open : () => {
+      ph = getPageHeight() / 2;
+      adjust();
+      return ret;
+    },
     isOpen : () => ph > 0,
     onOpened : h => { events.opened.add(h); return ret; },
     onClosed : h => { events.closed.add(h); return ret; },

@@ -119,6 +119,9 @@ export function initPage() {
     vp.stop();
   });
 
+
+  p.open();
+
   const maing = svg.append('g');
 
   const uielementsg = svg.append('g');
