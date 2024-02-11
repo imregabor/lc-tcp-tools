@@ -2,25 +2,27 @@
 
 export function niceRound(v) {
   const va = Math.abs(v);
+  var ret;
   if (va > 100) {
-    return Math.round(v);
+    ret = Math.round(v);
   } else if (va >= 10) {
-    return Math.round(v * 10) / 10;
+    ret = Math.round(v * 10) / 10;
   } else if (va >= 1) {
-    return Math.round(va * 100) / 100;
+    ret = Math.round(va * 100) / 100;
   } else if (va >= 0.1) {
-    return Math.round(va * 1000) / 1000;
+    ret = Math.round(va * 1000) / 1000;
   } else if (va >= 0.01) {
-    return Math.round(va * 10000) / 10000;
+    ret = Math.round(va * 10000) / 10000;
   } else if (va >= 0.001) {
-    return Math.round(va * 100000) / 100000;
+    ret = Math.round(va * 100000) / 100000;
   } else if (va >= 0.0001) {
-    return Math.round(va * 1000000) / 1000000;
-  }else if (va >= 0.00001) {
-    return Math.round(va * 10000000) / 10000000;
-  }else {
-    return va;
+    ret = Math.round(va * 1000000) / 1000000;
+  } else if (va >= 0.00001) {
+    ret = Math.round(va * 10000000) / 10000000;
+  } else {
+    ret = va;
   }
+  return ret;
 }
 
 export function calcAWeights(bands, sampleRate) {
