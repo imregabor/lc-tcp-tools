@@ -318,11 +318,42 @@ export default function addTo(parentD3, label) {
       //content.node().getBoundingClientRect().height
       return height - 24;
     },
-    addIcon : (faclass, title, h) => {
-      icons.append('i')
+    addIcon : (faclass, title, h, withFacade) => {
+      const icon = icons.append('i')
           .classed(`fa ${faclass} fa-fw`, true)
           .attr('title', title)
           .on('click', () => h());
+      var currentFaClass = faclass;
+
+      if (withFacade) {
+        const facade = {
+          faclass : a => {
+            icon
+              .classed(currentFaClass, false)
+              .classed(a, true);
+            currentFaClass = a;
+            return facade;
+          },
+          title : a => {
+            icon.attr('title', a);
+            return facade;
+          },
+          setHighlighted : a => {
+            icon.classed('highlighted', !!a);
+            return facade;
+          },
+          isHighlighted : a => icon.classed('highlighted'),
+          remove : () => {
+            icon.remove();
+            return facade;
+          },
+          shown : a => {
+            icon.style('display', a ? '' : 'none');
+            return facade;
+          }
+        };
+        withFacade(facade);
+      }
       return ret;
     },
     setHelpContent : h => {
