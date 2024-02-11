@@ -64,6 +64,7 @@ export function createPipeline() {
         const psId = graph.nodeIds[id].portStateIds.spo;
         const ps = portStates[psId];
         ps.type = 'spectrum';
+        ps.maxf = sampleRate / 2;
         ps.updated = true;
         if (!ps.bins || ps.bins.length !== a.analyzerNode.frequencyBinCount) {
           ps.bins = new Float32Array(a.analyzerNode.frequencyBinCount);
@@ -153,6 +154,7 @@ export function createPipeline() {
             }
           }
           if (ips && ops && ips.updated) {
+            ops.maxf = ips.maxf;
             u.calcMagnitudeFromDb(ips.bins, ops.bins);
             ops.updated = true;
           }
@@ -171,6 +173,7 @@ export function createPipeline() {
           if (node.portStateIds.spo && ips) {
             ops = portStates[node.portStateIds.spo];
             ops.type = 'spectrum';
+            ops.maxf = ips.maxf;
             if (!ops.bins || ops.bins.length !== ips.bins.length) {
               ops.bins = new Float32Array(ips.bins.length);
             }

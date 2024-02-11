@@ -351,18 +351,18 @@ export function init(parentD3) {
           visComponent.clear();
           state = 'wave';
           wave = waveform(pane);
+          vb.fireResize();
         }
         wave.add(values);
-        vb.fireResize();
       },
-      spct: values => {
+      spct: (values, maxf) => {
         if (state !== 'spct') {
           visComponent.clear();
           state = 'spct';
           spct = spectrum(pane);
+          vb.fireResize();
         }
-        spct.add(values);
-        vb.fireResize();
+        spct.add(values, maxf);
       }
 
     };
@@ -390,7 +390,7 @@ export function init(parentD3) {
         return
       }
       if (portState.type === 'spectrum') {
-        visComponent.spct(portState.bins);
+        visComponent.spct(portState.bins, portState.maxf);
         return;
       }
 

@@ -8,6 +8,7 @@ import * as u from './util.js';
 export default function addTo(parentD3) {
   const canvas = parentD3.append('canvas').attr('width', 800).attr('height', 64);
   const canvas2d = canvas.node().getContext('2d');
+  const maxfLabel = parentD3.append('div').classed('display-spectrum-limit maxf', true);
   const maxLabel = parentD3.append('div').classed('display-spectrum-limit max', true);
   const minLabel = parentD3.append('div').classed('display-spectrum-limit min', true);
 
@@ -19,6 +20,7 @@ export default function addTo(parentD3) {
   var min = 0;
 
   var buffer;
+  var lastMaxf;
   var fresh = true;
   var newLimits = false;
 
@@ -29,6 +31,7 @@ export default function addTo(parentD3) {
   function reset() {
     max = 0;
     min = 0;
+    maxfLabel.text('');
     maxLabel.text('');
     minLabel.text('');
     clear();
@@ -52,6 +55,11 @@ export default function addTo(parentD3) {
       minLabel.text(u.niceRound(min));
       maxLabel.text(u.niceRound(max));
     }
+    if (lastMaxf) {
+      maxfLabel.text(`0 - ${u.niceRound(lastMaxf / 1000)} kHz`);
+    } else {
+      maxfLabel.text('');
+    }
   }
 
 
@@ -68,7 +76,8 @@ export default function addTo(parentD3) {
       reset();
       return ret;
     },
-    add : bins => {
+    add : (bins, maxf) => {
+      lastMaxf = maxf;
       if (!buffer || buffer.length !== bins.length) {
         buffer = new Float32Array(bins.length);
       }
@@ -98,6 +107,17 @@ export default function addTo(parentD3) {
       }
       fresh = true;
       canvas2d.clearRect(0,0,cw,ch);
+
+
+      canvas2d.fillStyle = '#ddd';
+
+      const gw = Math.min(cw, buffer.length);
+      for (var f = 1; f <= Math.round(lastMaxf / 1000); f++) {
+        const x = Math.round(gw * f * 1000 / lastMaxf);
+        const tenKhzBar = f % 10 === 0;
+        canvas2d.fillRect(tenKhzBar ? x - 1 : x, 0, tenKhzBar ? 3 : 1, ch);
+      }
+
       canvas2d.fillStyle = 'steelblue';
       if (buffer.length <= cw) {
         // no binning

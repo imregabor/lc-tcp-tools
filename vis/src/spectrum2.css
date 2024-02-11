@@ -4,14 +4,20 @@
   text-align: right;
   display: inline-block;
   position: absolute;
-  right: 6px;
   color:  rgba(0, 0, 0, 0.6);
 }
 
 .display-spectrum-limit.max {
   top:  6px;
+  right: 6px;
 }
 
 .display-spectrum-limit.min {
   bottom:  6px;
+  right: 6px;
+}
+
+.display-spectrum-limit.maxf {
+  top: 6px;
+  left: 6px;
 }
