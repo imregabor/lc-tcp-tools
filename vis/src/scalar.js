@@ -26,7 +26,7 @@ export default function addTo(parentD3, label, useParentDiv) {
 
   const canvas2d = canvas.node().getContext('2d');
 
-  var valueFormat = v => v;
+  var valueFormat = v => u.niceRound(v);
 
   var cw = 800;
   var ch = 64;
