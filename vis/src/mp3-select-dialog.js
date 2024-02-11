@@ -31,7 +31,7 @@ export function loadMp3ListFromServer(srv) {
 
         // see https://stackoverflow.com/questions/6555182/remove-all-special-characters-except-space-from-a-string-using-javascript
         // see https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
-        m.sortBase = m.filename.toLowerCase()
+        m.sortBase = `${m.filename} ${m.dirs.join(' ')}`.toLowerCase()
           .normalize('NFKD').replace(/[\u0300-\u036f]/g, '') // remove accents, diacritics
           .replace(/'/g, '')  // collapse apostrophes
           .replace(/[^a-zA-Z0-9 ]/g, ' ') // all remainig non-alphanumeric characters to space
