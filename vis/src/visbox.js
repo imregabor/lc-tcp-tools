@@ -74,8 +74,8 @@ export default function addTo(parentD3, label) {
       .on('drag', e => {
         tmpw = tmpw + e.dx;
         tmph = tmph + e.dy;
-        width = Math.max(45, Math.round(tmpw / 25) * 25 - 5);
-        height = Math.max(45, Math.round(tmph / 25) * 25 - 5);
+        width = Math.max(120, Math.round(tmpw / 25) * 25 - 5);
+        height = Math.max(70, Math.round(tmph / 25) * 25 - 5);
         placeholder
           .style('width', `${width}px`)
           .style('height', `${height}px`);
@@ -350,7 +350,7 @@ export default function addTo(parentD3, label) {
       return ret;
     }
   };
-  ret.width(95).height(45).left(5).top(5);
+  ret.width(120).height(70).left(5).top(5);
   return ret;
 
 }
