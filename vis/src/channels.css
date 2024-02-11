@@ -1,0 +1,8 @@
+.channels-bottom-overflow-warn {
+  font-size: 48px;
+  position: absolute;
+  bottom: -5px;
+  color: #cb181d;
+  transform: translateX(-50%);
+  left: 50%;
+}

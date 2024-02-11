@@ -77,6 +77,7 @@ export function createPipeline() {
         ps.updated = true;
         if (!ps.samples || ps.samples.length !== a.analyzerNode.fftSize) {
           ps.samples = new Float32Array(a.analyzerNode.fftSize);
+          console.log('!!!!')
         }
         a.analyzerNode.getFloatTimeDomainData(ps.samples);
       }
@@ -101,8 +102,10 @@ export function createPipeline() {
           }
           if (node.portStateIds.eo) {
             ops = portStates[node.portStateIds.eo];
-            ops.type = 'scalar';
-            ops.value = 0;
+            if (ops.type !== 'scalar') {
+              ops.type = 'scalar';
+              ops.value = 0;
+            }
           }
           if (ips && ops && ips.updated) {
             ops.value = u.avgSqr1(ips.bins);
@@ -121,8 +124,10 @@ export function createPipeline() {
           }
           if (node.portStateIds.eo) {
             ops = portStates[node.portStateIds.eo];
-            ops.type = 'scalar';
-            ops.value = 0;
+            if (ops.type !== 'scalar') {
+              ops.type = 'scalar';
+              ops.value = 0;
+            }
           }
           if (ips && ops && ips.updated) {
             ops.value = u.calcTimeDomainEnergy(ips.samples);

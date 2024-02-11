@@ -1,0 +1,17 @@
+.display-waveform-limit {
+  font-family: monospace;
+  font-size: 14px;
+  text-align: right;
+  display: inline-block;
+  position: absolute;
+  right: 6px;
+  color:  rgba(0, 0, 0, 0.6);
+}
+
+.display-waveform-limit.max {
+  top:  6px;
+}
+
+.display-waveform-limit.min {
+  bottom:  6px;
+}

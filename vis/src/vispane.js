@@ -4,6 +4,8 @@ import * as d3 from 'd3';
 import './vispane.css';
 import visbox from './visbox.js';
 import scalar from './scalar.js';
+import waveform from './waveform.js';
+import spectrum from './spectrum2.js';
 import channels from './channels.js';
 import * as poll from './poll.js';
 import { showModal } from './mp3-select-dialog.js';
@@ -126,17 +128,120 @@ export function init(parentD3) {
       .width(170)
       .height(120);
 
+    var chnlBoxesIcon;
+    var chnlTimeSeriesIcon;
+    var chnlTimeSeriesAscendingIcon;
+    var chnlTimeSeriesAscending = true;
+    var chnlBoxesBarsIcon;
+    var chnlBoxesBars;
+    var chnlTimeSeriesBarsIcon;
+    var chnlTimeSeriesBars;
+    var pauseIcon;
+
+
+    vb.addIcon(
+      '', // icon fa class will be overriden
+      '', // title will be overriden
+      () => {
+        chnlBoxesBars = !chnlBoxesBars;
+        chnl && chnl.boxesBars(chnlBoxesBars);
+        chnlBoxesBarsIcon
+            .faclass(chnlBoxesBars ? 'fa-signal' : 'fa-barcode')
+            .title(chnlBoxesBars ? 'Change boxes display - now bars' : 'Change boxes display - now colors');
+      },
+      facade => {
+        chnlBoxesBarsIcon = facade;
+        chnlBoxesBarsIcon.shown(false);
+      });
+    vb.addIcon(
+      '', // icon fa class will be overriden
+      '', // title will be overriden
+      () => {
+        chnlTimeSeriesBars = !chnlTimeSeriesBars;
+        chnl && chnl.timeSeriesBars(chnlTimeSeriesBars);
+        chnlTimeSeriesBarsIcon
+            .faclass(chnlTimeSeriesBars ? 'fa-signal' : 'fa-barcode')
+            .title(chnlTimeSeriesBars ? 'Change time series display - now bars' : 'Change time series display - now colors');
+      },
+      facade => {
+        chnlTimeSeriesBarsIcon = facade;
+        chnlTimeSeriesBarsIcon.shown(false);
+      });
+
+
+    vb.addIcon(
+      'fa-sort-asc',
+      '', // title will be overriden
+      () => {
+        chnlTimeSeriesAscending = !chnlTimeSeriesAscending;
+        chnl && chnl.timeSeriesAscending(chnlTimeSeriesAscending);
+        chnlTimeSeriesAscendingIcon
+            .faclass(chnlTimeSeriesAscending ? 'fa-sort-asc' : 'fa-sort-desc')
+            .title(chnlTimeSeriesAscending ? 'Change time series order - now zero first' : 'Change time series order - now zero last');
+      },
+      facade => {
+        chnlTimeSeriesAscendingIcon = facade;
+        chnlTimeSeriesAscendingIcon.shown(false);
+      });
+    vb.addIcon(
+      'fa-ellipsis-h',
+      'Show boxes display',
+      () => {
+        const newState = !chnlBoxesIcon.isHighlighted();
+        chnlBoxesIcon.setHighlighted(newState);
+        chnl && chnl.showBoxes(newState);
+      },
+      facade => {
+        chnlBoxesIcon = facade;
+        chnlBoxesIcon.shown(false);
+      });
+    vb.addIcon(
+      'fa-align-justify',
+      'Show time series chart',
+      () => {
+        const newState = !chnlTimeSeriesIcon.isHighlighted();
+        chnlTimeSeriesIcon.setHighlighted(newState);
+        chnl && chnl.showTimeSeries(newState);
+      },
+      facade => {
+        chnlTimeSeriesIcon = facade;
+        chnlTimeSeriesIcon.shown(false);
+      });
+    vb.addIcon(
+      'fa-pause',
+      'Pause',
+      () => {
+        const newState = !pauseIcon.isHighlighted();
+        pauseIcon.setHighlighted(newState);
+      },
+      facade => {
+        pauseIcon = facade;
+      });
+
+
 
     const pane = vb.getContentD3();
     var state;
     var sclr;
     var chnl;
+    var wave;
+    var spct;
 
     const visComponent = {
       clear : () => {
         pane.selectAll('*').remove();
         sclr = undefined;
         chnl = undefined;
+        wave = undefined;
+        spct = undefined;
+
+
+        chnlBoxesIcon.shown(false);
+        chnlBoxesBarsIcon.shown(false);
+        chnlTimeSeriesBarsIcon.shown(false);
+        chnlTimeSeriesIcon.shown(false);
+        chnlTimeSeriesAscendingIcon.shown(false);
+
       },
       reset : () => {
         if (state === 'init') {
@@ -151,6 +256,10 @@ export function init(parentD3) {
           sclr.render();
         } else if (chnl) {
           chnl.render();
+        } else if (wave) {
+          wave.render();
+        } else if (spct) {
+          spct.render();
         }
       },
       cw : w => {
@@ -158,6 +267,10 @@ export function init(parentD3) {
           sclr.cw(w);
         } else if (chnl) {
           chnl.cw(w);
+        } else if (wave) {
+          wave.cw(w);
+        } else if (spct) {
+          spct.cw(w);
         }
         return visComponent;
       },
@@ -166,6 +279,10 @@ export function init(parentD3) {
           sclr.ch(h);
         } else if (chnl) {
           chnl.ch(h);
+        } else if (wave) {
+          wave.ch(h);
+        } else if (spct) {
+          spct.ch(h);
         }
         return visComponent;
       },
@@ -201,16 +318,60 @@ export function init(parentD3) {
           visComponent.clear();
           state = 'channels';
           chnl = channels(pane)
-            .min(0).max(1);
+            .min(0).max(1)
+            .showTimeSeries(true)
+            .showBoxes(true)
+            .timeSeriesAscending(true)
+            .boxesBars(true)
+            .timeSeriesBars(true);
+
+          chnlBoxesIcon.shown(true).setHighlighted(true);
+          chnlTimeSeriesIcon.shown(true).setHighlighted(true);
+          chnlTimeSeriesAscending = true;
+          chnlTimeSeriesAscendingIcon
+              .shown(true)
+              .faclass('fa-sort-asc')
+              .title('Change time series order - now zero first');
+          chnlBoxesBars = true;
+          chnlBoxesBarsIcon
+              .shown(true)
+              .faclass('fa-signal')
+              .title('Change boxes display - now bars');
+          chnlTimeSeriesBars = true;
+          chnlTimeSeriesBarsIcon
+              .shown(true)
+              .faclass('fa-signal')
+              .title('Change time series display - now bars');
           vb.fireResize();
         }
         chnl.add(values);
+      },
+      wave: values => {
+        if (state !== 'wave') {
+          visComponent.clear();
+          state = 'wave';
+          wave = waveform(pane);
+        }
+        wave.add(values);
+        vb.fireResize();
+      },
+      spct: values => {
+        if (state !== 'spct') {
+          visComponent.clear();
+          state = 'spct';
+          spct = spectrum(pane);
+        }
+        spct.add(values);
+        vb.fireResize();
       }
 
     };
     visComponent.reset();
 
     const tickHandler = dt => {
+      if (pauseIcon.isHighlighted()) {
+        return;
+      }
       const portState = dataSource.getPortState(portDesc.portStateId);
       if (!portState) {
         visComponent.noPort();
@@ -224,6 +385,14 @@ export function init(parentD3) {
         visComponent.channels(portState.channels);
         return
       }
+      if (portState.type === 'samples') {
+        visComponent.wave(portState.samples);
+        return
+      }
+      if (portState.type === 'spectrum') {
+        visComponent.spct(portState.bins);
+        return;
+      }
 
       visComponent.unsupported(portState.type);
     };
@@ -234,8 +403,8 @@ export function init(parentD3) {
       .addIcon('fa-refresh', 'Reset this chart', () => visComponent.reset())
       .setCloseable()
       .onClose(() => {
-        renderDelayDisplay = undefined;
         sclr = undefined;
+        chnl = undefined;
         removeVisComponent(visComponent);
         events.tick.remove(tickHandler);
       })

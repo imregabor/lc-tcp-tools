@@ -97,6 +97,12 @@ audio {
   color: #d2a2a2;
 }
 
+.playback-extra-controls i.highlighted {
+  color: #00cc00;
+  background-color: #e6ffe6;
+  border-color: #e6ffe6;
+}
+
 .playback-extra-controls.playback-extra-controls-smaller i {
   border-width: 2px;
   border-radius: 2px;
@@ -115,6 +121,13 @@ audio {
   border-color: #d2a2a2;
 }
 
+.playback-extra-controls i.highlighted:hover {
+  color: #18cd18;
+  background-color: #a2d2a2;
+  border-color: #a2d2a2;
+}
+
+
 .playback-extra-controls i:active {
   color: #444;
   background-color: #aaa;
@@ -124,6 +137,12 @@ audio {
 .playback-extra-controls i.red:active {
   color: #891014;
   background-color: #cb181d;
+  border-color: #cb181d;
+}
+
+.playback-extra-controls i.highlighted:active {
+  color:  #108910;
+  background-color: #18cd18;
   border-color: #cb181d;
 }
 
