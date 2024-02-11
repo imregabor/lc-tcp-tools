@@ -86,6 +86,17 @@ audio {
   margin-left:  16px;
 }
 
+.playback-extra-controls i.txt-icon {
+  text-align: center;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  font-style: normal;
+  font-variant: normal;
+  line-height: 1;
+  font-family: monospace;
+  font-weight: 900;
+}
+
 .playback-extra-controls i {
   cursor: pointer;
   color: #888;

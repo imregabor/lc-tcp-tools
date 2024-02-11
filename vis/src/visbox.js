@@ -320,17 +320,34 @@ export default function addTo(parentD3, label) {
     },
     addIcon : (faclass, title, h, withFacade) => {
       const icon = icons.append('i')
-          .classed(`fa ${faclass} fa-fw`, true)
           .attr('title', title)
           .on('click', () => h());
       var currentFaClass = faclass;
+      if (faclass) {
+        icon.classed(`fa ${faclass} fa-fw`, true);
+      }
 
       if (withFacade) {
         const facade = {
+          text : t => {
+            if (currentFaClass) {
+              icon.classed(currentFaClass, false)
+                  .classed('fa fa-fw', false);
+              currentFaClass = undefined;
+            }
+            icon.classed('txt-icon', true)
+                .text(t);
+          },
           faclass : a => {
-            icon
-              .classed(currentFaClass, false)
-              .classed(a, true);
+            if (currentFaClass) {
+              icon.classed(currentFaClass, false);
+            } else {
+              icon.classed('fa fa-fw', true)
+                  .classed('txt-icon', false)
+                  .text('');
+            }
+
+            icon.classed(a, true);
             currentFaClass = a;
             return facade;
           },
