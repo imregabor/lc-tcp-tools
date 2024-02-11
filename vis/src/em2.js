@@ -707,12 +707,15 @@ export function initPage() {
 
     console.log(nodes);
     nodes.forEach(n => {
+      const nlabel = n.layout.label;
       if (n.type !== selectedAddNodeType) {
         return;
       }
-      const labelSuffix = n.layout.label.split(" ").pop();
+      const labelSuffix = nlabel.split(" ").pop();
       const v = parseInt(labelSuffix);
-      if (v > 0) {
+      if (nlabel === labelBase) {
+        newNodeLabel = labelBase + " 2";
+      } else if (v > 0) {
         newNodeLabel = labelBase + " " + (v + 1);
       }
     });
