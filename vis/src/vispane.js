@@ -137,8 +137,36 @@ export function init(parentD3) {
     var chnlTimeSeriesBarsIcon;
     var chnlTimeSeriesBars;
     var pauseIcon;
+    var spctMaxfIcon;
 
-
+    vb.addIcon(
+      '', // text based icon
+      'Max displayed frequency',
+      () => {
+        const oldData = spctMaxfIcon.getData();
+        var freq;
+        if (!oldData) {
+          freq = 1000;
+          spctMaxfIcon.text('\u00A01kHz'); // see https://stackoverflow.com/questions/12882885/how-to-add-nbsp-using-d3-js-selection-text-method
+        } else if (oldData == 1000) {
+          freq = 2000;
+          spctMaxfIcon.text('\u00A02kHz');
+        } else if (oldData == 2000) {
+          freq = 4000;
+          spctMaxfIcon.text('\u00A04kHz');
+        } else {
+          freq = undefined;
+          spctMaxfIcon.text('24kHz');
+        }
+        spctMaxfIcon.setData(freq);
+        spct && spct.freqLimit(freq);
+      },
+      facade => {
+        spctMaxfIcon = facade;
+        spctMaxfIcon.text('24kHz');
+        spctMaxfIcon.shown(false);
+      }
+    );
     vb.addIcon(
       '', // icon fa class will be overriden
       '', // title will be overriden
@@ -235,12 +263,12 @@ export function init(parentD3) {
         wave = undefined;
         spct = undefined;
 
-
         chnlBoxesIcon.shown(false);
         chnlBoxesBarsIcon.shown(false);
         chnlTimeSeriesBarsIcon.shown(false);
         chnlTimeSeriesIcon.shown(false);
         chnlTimeSeriesAscendingIcon.shown(false);
+        spctMaxfIcon.shown(false);
 
       },
       reset : () => {
@@ -358,6 +386,7 @@ export function init(parentD3) {
       spct: (values, maxf) => {
         if (state !== 'spct') {
           visComponent.clear();
+          spctMaxfIcon.shown(true).text('24kHz');
           state = 'spct';
           spct = spectrum(pane);
           vb.fireResize();
