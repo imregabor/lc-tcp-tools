@@ -239,7 +239,7 @@ export default function addTo(parentD3, label, useParentDiv) {
         }
 
 
-        canvas2d.fillStyle = 'black';
+        canvas2d.fillStyle = 'steelblue';
         var y0 = Math.round(ch - 1 - ch * (vals[lastCx] - min) / (max - min));
         if (y0 < 0) {
           y0 = 0;
@@ -252,13 +252,13 @@ export default function addTo(parentD3, label, useParentDiv) {
             if (lastPlottedVal && vals[lastCx] > 1.5 * lastPlottedVal) {
               canvas2d.fillStyle = 'red';
               canvas2d.fillRect(lastCx - 5, y0 - 5, 11, 11);
-              canvas2d.fillStyle = 'black';
+              canvas2d.fillStyle = 'steelblue';
             }
             lastPlottedVal = vals[lastCx];
           }
 
 
-          canvas2d.fillRect(lastCx, y0, 1, 1);
+          //canvas2d.fillRect(lastCx, y0, 1, 1);
           // canvas2d.fillRect(lastCx, y0, 1, Math.min(5, ch - y0));
           if (lastCx === 0) {
             lastPlottedY = undefined;

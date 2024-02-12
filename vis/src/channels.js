@@ -316,7 +316,7 @@ export default function addTo(parentD3) {
             canvas2d.fillStyle = '#eee';
             canvas2d.fillRect(x, 0, boxWidth, boxWidth - h);
 
-            canvas2d.fillStyle = 'black';
+            canvas2d.fillStyle = 'steelblue';
             canvas2d.fillRect(x, boxWidth - h, boxWidth, h);
           } else {
 
@@ -344,7 +344,7 @@ export default function addTo(parentD3) {
 
               const y0 = cy0 + channelHeight - h;
 
-              canvas2d.fillStyle = 'black';
+              canvas2d.fillStyle = 'steelblue';
               canvas2d.fillRect(lastCx, y0, 1, h);
             } else {
               canvas2d.fillStyle = aToColor(v);
