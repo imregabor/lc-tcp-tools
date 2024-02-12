@@ -326,9 +326,15 @@ export default function addTo(parentD3, label) {
       if (faclass) {
         icon.classed(`fa ${faclass} fa-fw`, true);
       }
+      var data;
 
       if (withFacade) {
         const facade = {
+          setData : d => {
+            data = d;
+            return facade;
+          },
+          getData : () => data,
           text : t => {
             if (currentFaClass) {
               icon.classed(currentFaClass, false)
