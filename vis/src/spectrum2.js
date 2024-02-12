@@ -23,6 +23,7 @@ export default function addTo(parentD3) {
   var lastMaxf;
   var fresh = true;
   var newLimits = false;
+  var freqLimit;
 
   function clear() {
     canvas2d.clearRect(0,0,cw,ch);
@@ -56,7 +57,11 @@ export default function addTo(parentD3) {
       maxLabel.text(u.niceRound(max));
     }
     if (lastMaxf) {
-      maxfLabel.text(`0 - ${u.niceRound(lastMaxf / 1000)} kHz`);
+      if (freqLimit && lastMaxf > freqLimit) {
+        maxfLabel.text(`0 - ${u.niceRound(freqLimit / 1000)} kHz (limited)`);
+      } else {
+        maxfLabel.text(`0 - ${u.niceRound(lastMaxf / 1000)} kHz`);
+      }
     } else {
       maxfLabel.text('');
     }
@@ -64,6 +69,11 @@ export default function addTo(parentD3) {
 
 
   const ret = {
+    freqLimit : l => {
+      freqLimit = l;
+      updateLimits();
+      return ret;
+    },
     ch : v => {
       updateCanvasSize(cw, Math.max(v, 10));
       return ret;
@@ -111,17 +121,19 @@ export default function addTo(parentD3) {
 
       canvas2d.fillStyle = '#ddd';
 
-      const gw = Math.min(cw, buffer.length);
-      for (var f = 1; f <= Math.round(lastMaxf / 1000); f++) {
-        const x = Math.round(gw * f * 1000 / lastMaxf);
+      const maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
+      const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf)
+      const gw = Math.min(cw, displayedBinCount);
+      for (var f = 1; f <= Math.round(maxDisplayedFreq / 1000); f++) {
+        const x = Math.round(gw * f * 1000 / maxDisplayedFreq);
         const tenKhzBar = f % 10 === 0;
         canvas2d.fillRect(tenKhzBar ? x - 1 : x, 0, tenKhzBar ? 3 : 1, ch);
       }
 
       canvas2d.fillStyle = 'steelblue';
-      if (buffer.length <= cw) {
+      if (displayedBinCount <= cw) {
         // no binning
-        for (var i = 0; i < buffer.length; i++) {
+        for (var i = 0; i < displayedBinCount; i++) {
           var h = Math.round(ch * (buffer[i] - min) / (max - min));
           if (h < 1) {
             h = 1;
@@ -131,8 +143,8 @@ export default function addTo(parentD3) {
       } else {
         // some pixels will have > 1 bars
         for (var i = 0; i < cw; i++) {
-          const b1 = Math.floor(buffer.length * i / cw); // inclusive
-          const b2 = Math.floor(buffer.length * (i + 1) / cw); // exclusive
+          const b1 = Math.floor(displayedBinCount * i / cw); // inclusive
+          const b2 = Math.floor(displayedBinCount * (i + 1) / cw); // exclusive
           var mx = buffer[b1];
           for (var j = b1 + 1; j < b2; j++) {
             if (buffer[j] > mx) {
