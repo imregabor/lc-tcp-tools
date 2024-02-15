@@ -1,0 +1,190 @@
+'use strict';
+
+// See see https://en.wikipedia.org/wiki/Piano_key_frequencies
+
+/**
+ * Create 88 key layout.
+ *
+ * @param w    Area width in pixels
+ * @param h    Area height in pixels
+ * @param spaceForExtended keep space around for extended 108 key piano keys (but still render 88 keys)
+ */
+export function layout88keys(w, h, spaceForExtended) {
+  var whiteKeyCount = 52;
+  var whiteKeyWidth = Math.floor((w - 1) / (spaceForExtended ? whiteKeyCount + 12 : whiteKeyCount));
+  var blackKeyWidth = Math.floor(whiteKeyWidth / 2);
+  if (blackKeyWidth % 2 === 0) {
+    blackKeyWidth = blackKeyWidth + 1;
+  }
+  var whiteKeyHeight = whiteKeyWidth * 3;
+  if (h < whiteKeyHeight * 3) {
+    whiteKeyHeight = Math.round(ch / 3);
+  }
+  const key0x = Math.floor((w - whiteKeyWidth * whiteKeyCount - 1) / 2);
+  const ret = {
+    whiteKeyCount : whiteKeyCount,
+    whiteKeyWidth : whiteKeyWidth,
+    blackKeyWidth : blackKeyWidth,
+    whiteKeyHeight : whiteKeyHeight,
+    blackKeyHeight : Math.round(whiteKeyHeight / 2),
+    keyAreaHeight : whiteKeyHeight + 15,
+    key0x : key0x,
+    lastx : key0x + whiteKeyCount * whiteKeyWidth,
+    cw : w,
+    ch : h,
+
+    firstKeyNote : 5, // 0-based 7 note index 0..6 for C..B(aka H)
+    firstKeyOctave : 0 // first (partial) octave on a 88 key piano is 0
+  };
+  return ret;
+}
+
+export function renderKeys(k, canvas2d) {
+  canvas2d.fillStyle = 'black';
+  canvas2d.fillRect(
+      k.key0x, 0,
+      k.whiteKeyWidth * k.whiteKeyCount + 1, k.whiteKeyHeight
+  );
+
+  canvas2d.fillStyle = 'white';
+
+  for (var i = 0; i < k.whiteKeyCount; i++) {
+    canvas2d.fillRect(
+        k.key0x + 1 + i * k.whiteKeyWidth, 0,
+        k.whiteKeyWidth - 1, k.whiteKeyHeight - 1
+    );
+  }
+
+  canvas2d.fillStyle = 'black';
+  for (var i = 0; i < k.whiteKeyCount - 1; i++) {
+    const note = (k.firstKeyNote + i) % 7;
+    if (note === 2 || note === 6) {
+      continue;
+    }
+
+    // plot black key for this white key
+    canvas2d.fillRect(
+        k.key0x + (1 + i) * k.whiteKeyWidth - (k.blackKeyWidth - 1) / 2, 0,
+        k.blackKeyWidth, k.blackKeyHeight
+    );
+  }
+}
+
+export function renderGrid(k, canvas2d) {
+  canvas2d.fillStyle = '#ddd';
+  canvas2d.font = "14px monospace";
+
+  for (var i = 0; i <= k.whiteKeyCount; i++) {
+    const note = (k.firstKeyNote + i) % 7;
+    const octave = Math.floor((k.firstKeyNote + i) / 7) + k.firstKeyOctave;
+    const gh = k.ch - k.whiteKeyHeight - 15;
+    const x0 = k.key0x + i * k.whiteKeyWidth;
+    if (note === 0) {
+      canvas2d.fillStyle = '#bbb';
+      canvas2d.fillText(octave, x0 + 2, 15 + k.whiteKeyHeight);
+      canvas2d.fillStyle = '#ddd';
+    }
+
+    canvas2d.fillRect(
+      note === 0 ? x0 - 1 : x0,
+      k.whiteKeyHeight,
+      note === 0 ? 3 : 1,
+      gh
+    );
+  }
+
+  canvas2d.fillStyle = '#bbb';
+  var firstDrawn = false;
+  for (var d = 10; d <= 10000; d = d * 10) {
+    for (var b = 1; b <= 9; b++) {
+      const f = d * b;
+      const x = f2x(k, f);
+      if (x < 0 /* k.key0x */) {
+        continue;
+      }
+      if (x >= k.cw /* k.lastx */) {
+        return;
+      }
+      if (!firstDrawn || b === 1) {
+        firstDrawn = true;
+        const l = f >= 1000 ? `${f / 1000} kHz` : `${f} Hz`;
+        canvas2d.fillText(l, x + 4, k.ch - 2);
+      }
+      canvas2d.fillRect(
+        b === 1 ? x - 1 : x,
+        k.ch - 15,
+        b === 1 ? 3 : 1,
+        15
+      );
+    }
+  }
+}
+
+/** Frequency of a 88-key piano key (1-based index). */
+export function key2f(key) {
+  return Math.pow(2, (key - 49) / 12) * 440;
+}
+
+/** Screen X coordinate of a 88-key piano key (1-based index). */
+export function key2x(k, n) {
+  // on 88 key piano
+  const pianoOctave = Math.floor((n + 8) / 12);
+
+  // 12 key based note (0..11) for (C..B aka H) on piano
+  const note = n + 8 - 12 * pianoOctave;
+
+  // 7-based white key offset within the octave on piano, 0-based
+  var pianoWko;
+  if (note < 5) {
+    pianoWko = Math.floor(note / 2);
+  } else  {
+    pianoWko = Math.ceil(note / 2);
+  }
+
+  // 0.5 for black key
+  var bko = 0;
+  if (note < 5 && note % 2 === 1) {
+    bko = 0.5;
+  } else if (note > 5 && note % 2 === 0) {
+    bko = 0.5;
+  }
+
+  const screenOctave = pianoOctave - k.firstKeyOctave;
+
+  const x = k.key0x + (screenOctave * 7 + pianoWko - k.firstKeyNote + bko + 0.5) * k.whiteKeyWidth;
+  return x;
+}
+
+// Interpolated screen X coordinate of a frequency
+export function f2x(k, f) {
+  // key number on a 88-key piano; 1-based
+  //
+  //          |   ###   |   ###  ###   |   ###  ###  ###   |
+  //          |   ###   |   ###  ###   |   ###  ###  ###   |
+  //          |   ###   |   ###  ###   |   ###  ###  ###   |
+  //          |    |    |    |    |    |    |    |    |    |
+  //          |    |    |    |    |    |    |    |    |    |
+  //          +----+----+----+----+----+----+----+----+----+--
+  // key n:     1  2  3 |  4 5  6 7  8    9 10 11 ....     |
+  // note12:    9  10 11|  0 1  2 3  4    5 6  7 8  9 10 11|
+  // wko:       5     6 |  0    1    2    3    4    5    6 |
+  // ovtave:  ---- 0 -->|<-------------- 1 --------------->|
+  // note:      A     B |  C    D    E    F    G    A    B
+
+  const n = 12 * Math.log2(f / 440) + 49; // A440 / A4 is key 49
+
+  const n0 = Math.floor(n);
+  const n1 = Math.ceil(n);
+
+  if (n0 === n1) {
+    // hit note
+    return key2x(k, n0);
+  }
+
+  // need interpolation
+  const x0 = key2x(k, n0);
+  const x1 = key2x(k, n1);
+  const f0 = key2f(n0);
+  const f1 = key2f(n1);
+  return Math.round(x0 + (x1 - x0) * (f - f0) / (f1 - f0));
+}
