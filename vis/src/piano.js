@@ -188,3 +188,96 @@ export function f2x(k, f) {
   const f1 = key2f(n1);
   return Math.round(x0 + (x1 - x0) * (f - f0) / (f1 - f0));
 }
+
+export function layoutFftBins(keys, binCount, maxf) {
+  const ret = {
+    wideBarCount : 0,
+    wideBarBinIndex : [],
+    wideBarX : [],
+    narrowBarCount : 0,
+    narrowBarX : [],
+    narrowBarFirstBin : [],
+    narrowBarLastBin : []
+  };
+
+  const binWidth = maxf / binCount;
+  const halfBinWidth = binWidth / 2;
+
+
+
+  var x0 = Math.round(f2x(keys, halfBinWidth));
+  var wideBars = true;
+  for (var bin = 1; bin < binCount; bin++) {
+    const centerFreq = bin * binWidth;
+    const upperFreq = centerFreq + halfBinWidth;
+    const x1 = Math.round(f2x(keys, upperFreq));
+
+    if (x1 < 0) {
+      // outside screen
+      x0 = x1;
+      continue;
+    }
+
+    if (x0 >= keys.cw) {
+      // outside screen
+      break;
+    }
+
+    if (wideBars) {
+      if (ret.wideBarCount === 0) {
+        ret.wideBarX[0] = Math.max(0, x0);
+      }
+
+      if (x1 - x0 > 1) {
+        // wide bin
+        ret.wideBarX.push(x1);
+        ret.wideBarBinIndex.push(bin);
+        ret.wideBarCount++;
+      } else {
+        wideBars = false;
+      }
+    }
+    if (!wideBars) { // might be set in the previous if; cannot be an else branch
+      if (ret.narrowBarCount == 0 || x1 > ret.narrowBarX[ret.narrowBarCount - 1]) {
+        // first narrow bar or new X coordinate
+        ret.narrowBarX.push(x1);
+        ret.narrowBarFirstBin.push(bin);
+        ret.narrowBarLastBin.push(bin);
+        ret.narrowBarCount++;
+      } else {
+        // add to the previous
+        ret.narrowBarLastBin[ret.narrowBarCount - 1] = bin;
+      }
+    }
+
+    x0 = x1;
+  }
+
+
+  return ret;
+}
+
+export function renderBins(keys, bars, buffer, min, max, canvas2d) {
+  canvas2d.fillStyle = 'steelblue';
+  for (var i = 0; i < bars.wideBarCount; i++) {
+    const bin = bars.wideBarBinIndex[i];
+    var h = Math.round((keys.ch - keys.keyAreaHeight - 15) * (buffer[bin] - min) / (max - min));
+    if (h < 1) {
+      h = 1;
+    }
+    canvas2d.fillRect(bars.wideBarX[i], keys.ch - h - 15, bars.wideBarX[i + 1] - bars.wideBarX[i], h);
+  }
+  var nextX = bars.wideBarCount ? bars.wideBarX[bars.wideBarCount] : 0;
+  for (var i = 0; i < bars.narrowBarCount; i++) {
+    const x = bars.narrowBarX[i];
+    var maxh = 1;
+
+    for (var bin = bars.narrowBarFirstBin[i]; bin <= bars.narrowBarLastBin[i]; bin++) {
+      var h = Math.round((keys.ch - keys.keyAreaHeight - 15) * (buffer[bin] - min) / (max - min));
+      maxh = Math.max(h, maxh);
+    }
+
+    canvas2d.fillRect(nextX, keys.ch - maxh - 15, x - nextX + 1, maxh);
+    nextX = x + 1;
+  }
+}
