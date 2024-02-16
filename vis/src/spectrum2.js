@@ -3,6 +3,7 @@
 import './spectrum2.css';
 import * as d3 from 'd3';
 import * as u from './util.js';
+import * as piano from './piano.js';
 
 
 export default function addTo(parentD3) {
@@ -24,6 +25,7 @@ export default function addTo(parentD3) {
   var fresh = true;
   var newLimits = false;
   var freqLimit;
+  var displayLogScale = false;
 
   function clear() {
     canvas2d.clearRect(0,0,cw,ch);
@@ -56,11 +58,12 @@ export default function addTo(parentD3) {
       minLabel.text(u.niceRound(min));
       maxLabel.text(u.niceRound(max));
     }
+    const bw = buffer && lastMaxf ? `, ${u.niceRound(lastMaxf / buffer.length)} Hz / bin` : '';
     if (lastMaxf) {
       if (freqLimit && lastMaxf > freqLimit) {
-        maxfLabel.text(`0 - ${u.niceRound(freqLimit / 1000)} kHz (limited)`);
+        maxfLabel.text(`0 - ${u.niceRound(freqLimit / 1000)} kHz (limited)${bw}`);
       } else {
-        maxfLabel.text(`0 - ${u.niceRound(lastMaxf / 1000)} kHz`);
+        maxfLabel.text(`0 - ${u.niceRound(lastMaxf / 1000)} kHz${bw}`);
       }
     } else {
       maxfLabel.text('');
@@ -69,6 +72,11 @@ export default function addTo(parentD3) {
 
 
   const ret = {
+    setLogScale : l => {
+      displayLogScale = l;
+      updateLimits();
+      return ret;
+    },
     freqLimit : l => {
       freqLimit = l;
       updateLimits();
@@ -90,6 +98,7 @@ export default function addTo(parentD3) {
       lastMaxf = maxf;
       if (!buffer || buffer.length !== bins.length) {
         buffer = new Float32Array(bins.length);
+        updateLimits();
       }
       for (var i = 0; i < buffer.length; i++) {
         const v = bins[i];
@@ -116,13 +125,61 @@ export default function addTo(parentD3) {
         updateLimits();
       }
       fresh = true;
+
       canvas2d.clearRect(0,0,cw,ch);
+
+      if (displayLogScale) {
+        // TODO: auto parametrize based on frequency limits (?)
+
+        var keys = piano.layout88keys(cw, ch, true);
+
+        // TODO: paint keys/grid once (on separate canvas layer(s)), dont overwrite
+        piano.renderKeys(keys, canvas2d);
+        piano.renderGrid(keys, canvas2d);
+
+        var bars = piano.layoutFftBins(keys, buffer.length, lastMaxf);
+        piano.renderBins(keys, bars, buffer, min, max, canvas2d);
+        return;
+
+        // TODO: precalculate
+        const maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
+        const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf);
+
+        canvas2d.fillStyle = 'steelblue';
+
+        for (var bin = 1; bin < displayedBinCount; bin++) {
+          const freq = bin * lastMaxf / buffer.length;
+          const x = piano.f2x(keys, freq);
+
+          /*
+          var x;
+          if (n0 === n1) {
+            x = x0;
+          } else {
+            x = Math.round(x0 + (x1 - x0) * (f - f0) / (f1 - f0));
+          }
+          if (x < 0 || x >= cw) {
+            continue;
+          }
+          */
+
+          var h = Math.round((ch - keys.keyAreaHeight - 15) * (buffer[bin] - min) / (max - min));
+          if (h < 1) {
+            h = 1;
+          }
+          canvas2d.fillRect(x, ch - h - 15, 1, h);
+          // console.log(bin, x, h)
+        }
+        return;
+      }
+
 
 
       canvas2d.fillStyle = '#ddd';
 
       const maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
-      const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf)
+      const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf);
+
       const gw = Math.min(cw, displayedBinCount);
       for (var f = 1; f <= Math.round(maxDisplayedFreq / 1000); f++) {
         const x = Math.round(gw * f * 1000 / maxDisplayedFreq);

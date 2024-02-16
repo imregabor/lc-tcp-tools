@@ -138,6 +138,21 @@ export function init(parentD3) {
     var chnlTimeSeriesBars;
     var pauseIcon;
     var spctMaxfIcon;
+    var spctNotesIcon;
+
+    vb.addIcon(
+      'fa-music',
+      'Display log (musical) frequency scale',
+      () => {
+        const newState = !spctNotesIcon.isHighlighted();
+        spctNotesIcon.setHighlighted(newState);
+        spct && spct.setLogScale(newState);
+      },
+      facade => {
+        spctNotesIcon = facade;
+        spctNotesIcon.shown(false);
+      }
+    );
 
     vb.addIcon(
       '', // text based icon
@@ -269,6 +284,7 @@ export function init(parentD3) {
         chnlTimeSeriesIcon.shown(false);
         chnlTimeSeriesAscendingIcon.shown(false);
         spctMaxfIcon.shown(false);
+        spctNotesIcon.shown(false);
 
       },
       reset : () => {
@@ -387,6 +403,7 @@ export function init(parentD3) {
         if (state !== 'spct') {
           visComponent.clear();
           spctMaxfIcon.shown(true).text('24kHz');
+          spctNotesIcon.shown(true).setHighlighted(false);
           state = 'spct';
           spct = spectrum(pane);
           vb.fireResize();
@@ -427,7 +444,13 @@ export function init(parentD3) {
     };
     vb.autoPlace()
       .onResize(() => {
-        visComponent.cw(vb.getContentWidth()).ch(vb.getContentHeight());
+        const w = vb.getContentWidth();
+        const h = vb.getContentHeight();
+        if (!w || !h) { // TODO investigate
+          console.log('Invalid resizes size; w:', w, 'h:', h);
+        } else {
+          visComponent.cw(w).ch(h);
+        }
       })
       .addIcon('fa-refresh', 'Reset this chart', () => visComponent.reset())
       .setCloseable()
