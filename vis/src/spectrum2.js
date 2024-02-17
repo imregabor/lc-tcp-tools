@@ -158,7 +158,6 @@ export default function addTo(parentD3) {
       if (newLimits) {
         updateLimits();
       }
-      fresh = true;
 
       const maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
       const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf);
@@ -212,9 +211,14 @@ export default function addTo(parentD3) {
           const clry = (wfally + 30) % wfallH + wfallY0;
           canvas2d.clearRect(0,clry,cw,1);
 
-          wfally = (wfally + 1) % wfallH;
+          if (!fresh) {
+            // avoid when render called without prior add
+            wfally = (wfally + 1) % wfallH;
+          }
 
         }
+        fresh = true;
+
         return;
       }
 
@@ -308,8 +312,13 @@ export default function addTo(parentD3) {
       if (displayWaterfall) {
         const clry = (wfally + 30) % wfallH + wfallY0;
         canvas2d.clearRect(0,clry,cw,1);
-        wfally = (wfally + 1) % wfallH;
+
+        if (!fresh) {
+          wfally = (wfally + 1) % wfallH;
+        }
       }
+      fresh = true;
+
     }
 
   };
