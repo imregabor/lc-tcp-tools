@@ -126,6 +126,10 @@ export default function addTo(parentD3) {
       }
       fresh = true;
 
+      const maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
+      const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf);
+
+
       canvas2d.clearRect(0,0,cw,ch);
 
       if (displayLogScale) {
@@ -138,38 +142,7 @@ export default function addTo(parentD3) {
         piano.renderGrid(keys, canvas2d);
 
         var bars = piano.layoutFftBins(keys, buffer.length, lastMaxf);
-        piano.renderBins(keys, bars, buffer, min, max, canvas2d);
-        return;
-
-        // TODO: precalculate
-        const maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
-        const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf);
-
-        canvas2d.fillStyle = 'steelblue';
-
-        for (var bin = 1; bin < displayedBinCount; bin++) {
-          const freq = bin * lastMaxf / buffer.length;
-          const x = piano.f2x(keys, freq);
-
-          /*
-          var x;
-          if (n0 === n1) {
-            x = x0;
-          } else {
-            x = Math.round(x0 + (x1 - x0) * (f - f0) / (f1 - f0));
-          }
-          if (x < 0 || x >= cw) {
-            continue;
-          }
-          */
-
-          var h = Math.round((ch - keys.keyAreaHeight - 15) * (buffer[bin] - min) / (max - min));
-          if (h < 1) {
-            h = 1;
-          }
-          canvas2d.fillRect(x, ch - h - 15, 1, h);
-          // console.log(bin, x, h)
-        }
+        piano.renderBins(keys, bars, buffer, min, max, displayedBinCount, canvas2d);
         return;
       }
 
@@ -177,8 +150,6 @@ export default function addTo(parentD3) {
 
       canvas2d.fillStyle = '#ddd';
 
-      const maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
-      const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf);
 
       const gw = Math.min(cw, displayedBinCount);
       for (var f = 1; f <= Math.round(maxDisplayedFreq / 1000); f++) {

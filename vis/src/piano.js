@@ -257,10 +257,13 @@ export function layoutFftBins(keys, binCount, maxf) {
   return ret;
 }
 
-export function renderBins(keys, bars, buffer, min, max, canvas2d) {
+export function renderBins(keys, bars, buffer, min, max, displayedBinCount, canvas2d) {
   canvas2d.fillStyle = 'steelblue';
   for (var i = 0; i < bars.wideBarCount; i++) {
     const bin = bars.wideBarBinIndex[i];
+    if (displayedBinCount && displayedBinCount <= bin) {
+      return;
+    }
     var h = Math.round((keys.ch - keys.keyAreaHeight - 15) * (buffer[bin] - min) / (max - min));
     if (h < 1) {
       h = 1;
@@ -270,9 +273,16 @@ export function renderBins(keys, bars, buffer, min, max, canvas2d) {
   var nextX = bars.wideBarCount ? bars.wideBarX[bars.wideBarCount] : 0;
   for (var i = 0; i < bars.narrowBarCount; i++) {
     const x = bars.narrowBarX[i];
+    const firstBin = bars.narrowBarFirstBin[i];
+    const lastBin = bars.narrowBarLastBin[i]; // inclusive
+
+    if (displayedBinCount && displayedBinCount <= firstBin) {
+      return;
+    }
+
     var maxh = 1;
 
-    for (var bin = bars.narrowBarFirstBin[i]; bin <= bars.narrowBarLastBin[i]; bin++) {
+    for (var bin = firstBin; bin <= lastBin; bin++) {
       var h = Math.round((keys.ch - keys.keyAreaHeight - 15) * (buffer[bin] - min) / (max - min));
       maxh = Math.max(h, maxh);
     }
