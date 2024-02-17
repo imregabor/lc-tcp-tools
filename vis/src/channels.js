@@ -3,8 +3,7 @@
 import './channels.css';
 import * as d3 from 'd3';
 import '@fortawesome/fontawesome-free/css/all.css'
-import chroma from 'chroma-js';
-
+import * as colorScales from './color-scales.js';
 
 export default function addTo(parentD3) {
   const canvas = parentD3.append('canvas').attr('width', 800).attr('height', 64);
@@ -48,21 +47,7 @@ export default function addTo(parentD3) {
 
   var wraparound; // wrap around happened: all data in buffers are valid
 
-   const vToColor = chroma
-    //.scale(['#300000', '#d41111', '#eded5e', '#ffffe6', '#ffffff'])
-    // see https://colorbrewer2.org/#type=sequential&scheme=YlOrBr&n=9
-    // .scale(['#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506'])
-    .scale(['#fff7bc', '#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506'])
-    .correctLightness();
-
-  function aToColor(a) {
-    if (a < 0) {
-      a = 0;
-    } else if (a > 1) {
-      a = 1;
-    }
-    return vToColor(a);
-  }
+  const aToColor = colorScales.yellowish();
 
   function clear() {
     canvas2d.clearRect(0,0,cw,ch);
