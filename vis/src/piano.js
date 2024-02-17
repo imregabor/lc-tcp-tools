@@ -81,7 +81,7 @@ export function renderGrid(k, h, canvas2d) {
     const x0 = k.key0x + i * k.whiteKeyWidth;
     if (note === 0) {
       canvas2d.fillStyle = '#bbb';
-      canvas2d.fillText(octave, x0 + 2, 15 + k.whiteKeyHeight);
+      canvas2d.fillText(octave, x0 + 4, 15 + k.whiteKeyHeight);
       canvas2d.fillStyle = '#ddd';
     }
 
@@ -108,7 +108,7 @@ export function renderGrid(k, h, canvas2d) {
       if (!firstDrawn || b === 1) {
         firstDrawn = true;
         const l = f >= 1000 ? `${f / 1000} kHz` : `${f} Hz`;
-        canvas2d.fillText(l, x + 4, k.ch - 2);
+        canvas2d.fillText(l, x + 6, k.ch - 2);
       }
       canvas2d.fillRect(
         b === 1 ? x - 1 : x,
