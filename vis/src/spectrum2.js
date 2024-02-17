@@ -179,22 +179,22 @@ export default function addTo(parentD3) {
 
         if (displayBars) {
           barsH = displayWaterfall
-              ? Math.round((ch - keys.keyAreaHeight - 15) * 0.3)
+              ? Math.round((ch - keys.keyAreaHeight - 15) * 0.25)
               : ch - keys.keyAreaHeight - 15;
           if (barsH < 50) {
             barsH = 50;
           }
-          barsY0 = keys.keyAreaHeight;
-          barsY1 = barsY0 + barsH;
         }
+        barsY0 = keys.keyAreaHeight;
+        barsY1 = barsY0 + barsH; // waterfall layout will depend on this even when no bars shown
         if (displayWaterfall) {
           wfallH = ch - barsY1 - 15;
           if (wfallH < 0) {
             wfallH = 0;
           }
-          wfallY0 = barsY1;
-          wfallY1 = wfallY0 + wfallH;
         }
+        wfallY0 = barsY1;
+        wfallY1 = wfallY0 + wfallH;
 
         canvas2d.clearRect(0,barsY0,cw,barsH);
 
@@ -218,8 +218,27 @@ export default function addTo(parentD3) {
         return;
       }
 
-      canvas2d.clearRect(0,0,cw,ch);
+      // display lin scale
+      if (displayBars) {
+        barsH = displayWaterfall
+            ? Math.round(ch * 0.25)
+            : ch;
+        if (barsH < 50) {
+          barsH = 50;
+        }
+        barsY0 = 0;
+        barsY1 = barsY0 + barsH;
+      }
+      if (displayWaterfall) {
+        wfallH = ch - barsY1;
+        if (wfallH < 0) {
+          wfallH = 0;
+        }
+        wfallY0 = barsY1;
+        wfallY1 = wfallY0 + wfallH;
+      }
 
+      canvas2d.clearRect(0,barsY0,cw,barsH);
 
       canvas2d.fillStyle = '#ddd';
 
@@ -228,36 +247,68 @@ export default function addTo(parentD3) {
       for (var f = 1; f <= Math.round(maxDisplayedFreq / 1000); f++) {
         const x = Math.round(gw * f * 1000 / maxDisplayedFreq);
         const tenKhzBar = f % 10 === 0;
-        canvas2d.fillRect(tenKhzBar ? x - 1 : x, 0, tenKhzBar ? 3 : 1, ch);
+        canvas2d.fillRect(tenKhzBar ? x - 1 : x, 0, tenKhzBar ? 3 : 1, barsH);
       }
 
       canvas2d.fillStyle = 'steelblue';
       if (displayedBinCount <= cw) {
         // no binning
-        for (var i = 0; i < displayedBinCount; i++) {
-          var h = Math.round(ch * (buffer[i] - min) / (max - min));
-          if (h < 1) {
-            h = 1;
+        if (displayBars) {
+          for (var i = 0; i < displayedBinCount; i++) {
+            var h = Math.round(barsH * (buffer[i] - min) / (max - min));
+            if (h < 1) {
+              h = 1;
+            }
+            canvas2d.fillRect(i, barsH - h, 1, h);
           }
-          canvas2d.fillRect(i, ch - h, 1, h);
         }
+        if (displayWaterfall) {
+          for (var i = 0; i < displayedBinCount; i++) {
+            const a = (buffer[i] - min) / (max - min);
+            canvas2d.fillStyle = aToColor(a);
+            canvas2d.fillRect(i, wfally + wfallY0, 1, 1);
+          }
+        }
+
       } else {
         // some pixels will have > 1 bars
-        for (var i = 0; i < cw; i++) {
-          const b1 = Math.floor(displayedBinCount * i / cw); // inclusive
-          const b2 = Math.floor(displayedBinCount * (i + 1) / cw); // exclusive
-          var mx = buffer[b1];
-          for (var j = b1 + 1; j < b2; j++) {
-            if (buffer[j] > mx) {
-              mx = buffer[j];
+        if (displayBars) {
+          for (var i = 0; i < cw; i++) {
+            const b1 = Math.floor(displayedBinCount * i / cw); // inclusive
+            const b2 = Math.floor(displayedBinCount * (i + 1) / cw); // exclusive
+            var mx = buffer[b1];
+            for (var j = b1 + 1; j < b2; j++) {
+              if (buffer[j] > mx) {
+                mx = buffer[j];
+              }
             }
+            var h = Math.round(barsH * (mx - min) / (max - min));
+            if (h < 1) {
+              h = 1;
+            }
+            canvas2d.fillRect(i, barsH - h, 1, h);
           }
-          var h = Math.round(ch * (mx - min) / (max - min));
-          if (h < 1) {
-            h = 1;
-          }
-          canvas2d.fillRect(i, ch - h, 1, h);
         }
+        if (displayWaterfall) {
+          for (var i = 0; i < cw; i++) {
+            const b1 = Math.floor(displayedBinCount * i / cw); // inclusive
+            const b2 = Math.floor(displayedBinCount * (i + 1) / cw); // exclusive
+            var mx = buffer[b1];
+            for (var j = b1 + 1; j < b2; j++) {
+              if (buffer[j] > mx) {
+                mx = buffer[j];
+              }
+            }
+            const a = (mx - min) / (max - min);
+            canvas2d.fillStyle = aToColor(a);
+            canvas2d.fillRect(i, wfally + wfallY0, 1, 1);
+          }
+        }
+      }
+      if (displayWaterfall) {
+        const clry = (wfally + 30) % wfallH + wfallY0;
+        canvas2d.clearRect(0,clry,cw,1);
+        wfally = (wfally + 1) % wfallH;
       }
     }
 
