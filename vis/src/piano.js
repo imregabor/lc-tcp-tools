@@ -205,9 +205,9 @@ export function layoutFftBins(keys, binCount, maxf) {
 
 
 
-  var x0 = Math.round(f2x(keys, halfBinWidth));
+  var x0 = 0; // Math.round(f2x(keys, halfBinWidth));
   var wideBars = true;
-  for (var bin = 1; bin < binCount; bin++) {
+  for (var bin = 0; bin < binCount; bin++) {
     const centerFreq = bin * binWidth;
     const upperFreq = centerFreq + halfBinWidth;
     const x1 = Math.round(f2x(keys, upperFreq));
