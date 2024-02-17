@@ -28,6 +28,7 @@ export default function addTo(parentD3) {
 
   // state for boxes (instantenous value) display
   var showBoxes = true;
+  var boxesY0 = undefined;
   var boxWidth;
   var boxHsep;
   var boxX0;
@@ -66,6 +67,7 @@ export default function addTo(parentD3) {
   function clear() {
     canvas2d.clearRect(0,0,cw,ch);
     channelsY0 = 0;
+    boxesY0 = 0;
 
 
     if (channels) {
@@ -79,11 +81,12 @@ export default function addTo(parentD3) {
           boxHsep = 5;
         }
 
-        boxWidth = Math.floor((cw - (channels - 1) * boxHsep ) / channels);
+        boxWidth = Math.floor((cw - (channels + 1) * boxHsep ) / channels); // left and right boxHsep margins
+        if (boxWidth > ch - 2 * boxHsep) {
+          boxWidth = ch - 2 * boxHsep;
+        }
         if (boxWidth < 3) {
           boxWidth = 3;
-        } else if (boxWidth > ch) {
-          boxWidth = ch;
         }
 
         boxX0 = Math.round((cw - (channels - 1) * boxHsep - channels * boxWidth) / 2 );
@@ -91,16 +94,22 @@ export default function addTo(parentD3) {
           boxX0 = 0;
         }
 
+        if (showTimeSeries) {
+          boxesY0 = boxHsep;
+        } else {
+          boxesY0 = Math.round((ch - boxWidth) / 2)
+        }
+        channelsY0 = boxesY0 + boxWidth + boxHsep;
+
         canvas2d.fillStyle = '#eee';
         for (var i = 0; i < channels; i++) {
-          canvas2d.fillRect(boxX0 + i * (boxWidth + boxHsep), 0, boxWidth, boxWidth);
+          canvas2d.fillRect(boxX0 + i * (boxWidth + boxHsep), boxesY0, boxWidth, boxWidth);
         }
 
         if (!boxValues || boxValues.length !== channels) {
           boxValues = new Array(channels);
         }
 
-        channelsY0 = boxWidth + boxHsep;
       }
 
       if (showTimeSeries) {
@@ -314,14 +323,13 @@ export default function addTo(parentD3) {
             }
 
             canvas2d.fillStyle = '#eee';
-            canvas2d.fillRect(x, 0, boxWidth, boxWidth - h);
+            canvas2d.fillRect(x, boxesY0, boxWidth, boxWidth - h);
 
             canvas2d.fillStyle = 'steelblue';
-            canvas2d.fillRect(x, boxWidth - h, boxWidth, h);
+            canvas2d.fillRect(x, boxesY0 + boxWidth - h, boxWidth, h);
           } else {
-
             canvas2d.fillStyle = aToColor((v - min) / (max - min));
-            canvas2d.fillRect(x, 0, boxWidth, boxWidth);
+            canvas2d.fillRect(x, boxesY0, boxWidth, boxWidth);
           }
         }
       }
