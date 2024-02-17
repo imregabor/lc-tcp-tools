@@ -70,14 +70,14 @@ export function renderKeys(k, canvas2d) {
   }
 }
 
-export function renderGrid(k, canvas2d) {
+export function renderGrid(k, h, canvas2d) {
   canvas2d.fillStyle = '#ddd';
   canvas2d.font = "14px monospace";
 
   for (var i = 0; i <= k.whiteKeyCount; i++) {
     const note = (k.firstKeyNote + i) % 7;
     const octave = Math.floor((k.firstKeyNote + i) / 7) + k.firstKeyOctave;
-    const gh = k.ch - k.whiteKeyHeight - 15;
+    const gh = h + 15; //  k.ch - k.whiteKeyHeight - 15;
     const x0 = k.key0x + i * k.whiteKeyWidth;
     if (note === 0) {
       canvas2d.fillStyle = '#bbb';
@@ -257,18 +257,52 @@ export function layoutFftBins(keys, binCount, maxf) {
   return ret;
 }
 
-export function renderBins(keys, bars, buffer, min, max, displayedBinCount, canvas2d) {
+export function renderWfallLine(keys, y, bars, buffer, min, max, aToColor, displayedBinCount, canvas2d) {
+  for (var i = 0; i < bars.wideBarCount; i++) {
+    const bin = bars.wideBarBinIndex[i];
+    if (displayedBinCount && displayedBinCount <= bin) {
+      return;
+    }
+    var a = (buffer[bin] - min) / (max - min);
+    canvas2d.fillStyle = aToColor(a);
+    canvas2d.fillRect(bars.wideBarX[i], y, bars.wideBarX[i + 1] - bars.wideBarX[i], 1);
+  }
+  var nextX = bars.wideBarCount ? bars.wideBarX[bars.wideBarCount] : 0;
+  for (var i = 0; i < bars.narrowBarCount; i++) {
+    const x = bars.narrowBarX[i];
+    const firstBin = bars.narrowBarFirstBin[i];
+    const lastBin = bars.narrowBarLastBin[i]; // inclusive
+
+    if (displayedBinCount && displayedBinCount <= firstBin) {
+      return;
+    }
+
+    var maxa = 0;
+
+    for (var bin = firstBin; bin <= lastBin; bin++) {
+      var a = (buffer[bin] - min) / (max - min);
+      maxa = Math.max(a, maxa);
+    }
+    canvas2d.fillStyle = aToColor(maxa);
+
+    canvas2d.fillRect(nextX, y, x - nextX + 1, 1);
+    nextX = x + 1;
+  }
+
+}
+
+export function renderBins(keys, y0, y1, ah, bars, buffer, min, max, displayedBinCount, canvas2d) {
   canvas2d.fillStyle = 'steelblue';
   for (var i = 0; i < bars.wideBarCount; i++) {
     const bin = bars.wideBarBinIndex[i];
     if (displayedBinCount && displayedBinCount <= bin) {
       return;
     }
-    var h = Math.round((keys.ch - keys.keyAreaHeight - 15) * (buffer[bin] - min) / (max - min));
+    var h = Math.round(ah * (buffer[bin] - min) / (max - min));
     if (h < 1) {
       h = 1;
     }
-    canvas2d.fillRect(bars.wideBarX[i], keys.ch - h - 15, bars.wideBarX[i + 1] - bars.wideBarX[i], h);
+    canvas2d.fillRect(bars.wideBarX[i], y1 - h, bars.wideBarX[i + 1] - bars.wideBarX[i], h);
   }
   var nextX = bars.wideBarCount ? bars.wideBarX[bars.wideBarCount] : 0;
   for (var i = 0; i < bars.narrowBarCount; i++) {
@@ -283,11 +317,11 @@ export function renderBins(keys, bars, buffer, min, max, displayedBinCount, canv
     var maxh = 1;
 
     for (var bin = firstBin; bin <= lastBin; bin++) {
-      var h = Math.round((keys.ch - keys.keyAreaHeight - 15) * (buffer[bin] - min) / (max - min));
+      var h = Math.round(ah * (buffer[bin] - min) / (max - min));
       maxh = Math.max(h, maxh);
     }
 
-    canvas2d.fillRect(nextX, keys.ch - maxh - 15, x - nextX + 1, maxh);
+    canvas2d.fillRect(nextX, y1 - maxh, x - nextX + 1, maxh);
     nextX = x + 1;
   }
 }

@@ -139,6 +139,52 @@ export function init(parentD3) {
     var pauseIcon;
     var spctMaxfIcon;
     var spctNotesIcon;
+    var spctBarsIcon;
+    var spctWaterfallIcon;
+
+    vb.addIcon(
+      'fa-area-chart',
+      'Display spectrum bar chart',
+      () => {
+        const newState = !spctBarsIcon.isHighlighted();
+        spctBarsIcon.setHighlighted(newState);
+        spct && spct.setDisplayBars(newState);
+      },
+      facade => {
+        spctBarsIcon = facade;
+        spctBarsIcon.shown(false);
+      }
+    );
+
+    vb.addIcon(
+      'fa-tint',
+      'Display waterfall chart (spectrogram)',
+      () => {
+        const newState = !spctWaterfallIcon.isHighlighted();
+        spctWaterfallIcon.setHighlighted(newState);
+        spct && spct.setDisplayWaterfall(newState);
+      },
+      facade => {
+        spctWaterfallIcon = facade;
+        spctWaterfallIcon.shown(false);
+      }
+    );
+
+
+    vb.addIcon(
+      'fa-music',
+      'Display log (musical) frequency scale',
+      () => {
+        const newState = !spctNotesIcon.isHighlighted();
+        spctNotesIcon.setHighlighted(newState);
+        spct && spct.setLogScale(newState);
+      },
+      facade => {
+        spctNotesIcon = facade;
+        spctNotesIcon.shown(false);
+      }
+    );
+
 
     vb.addIcon(
       'fa-music',
@@ -285,6 +331,8 @@ export function init(parentD3) {
         chnlTimeSeriesAscendingIcon.shown(false);
         spctMaxfIcon.shown(false);
         spctNotesIcon.shown(false);
+        spctBarsIcon.shown(false);
+        spctWaterfallIcon.shown(false);
 
       },
       reset : () => {
@@ -404,6 +452,8 @@ export function init(parentD3) {
           visComponent.clear();
           spctMaxfIcon.shown(true).text('24kHz');
           spctNotesIcon.shown(true).setHighlighted(false);
+          spctBarsIcon.shown(true).setHighlighted(true);
+          spctWaterfallIcon.shown(true).setHighlighted(false);
           state = 'spct';
           spct = spectrum(pane);
           vb.fireResize();
