@@ -30,7 +30,78 @@ export default function addTo(parentD3) {
   var displayWaterfall = false;
   var wfally = 0;
 
+  // derived from settings in layout()
+  const l = {
+    maxDisplayedFreq : 0,
+    displayedBinCount : 0,
+    keys : undefined,
+    barsH : 0,
+    barsY0 : 0,
+    barsY1 : 0,
+    wfallH : 0,
+    wfallY0 : 0,
+    wfallY1 : 0,
+    bars : undefined
+  };
+
   const aToColor = colorScales.yellowish();
+
+
+
+
+  function layout() {
+    if (!buffer || !lastMaxf) {
+      return;
+    }
+    l.maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
+    l.displayedBinCount = Math.round(buffer.length * l.maxDisplayedFreq / lastMaxf);
+    if (displayLogScale) {
+      l.keys = piano.layout88keys(cw, ch, true);
+      l.bars = piano.layoutFftBins(l.keys, buffer.length, lastMaxf);
+      if (displayBars) {
+        l.barsH = displayWaterfall
+            ? Math.round((ch - l.keys.keyAreaHeight - 15) * 0.25)
+            : ch - l.keys.keyAreaHeight - 15;
+        if (l.barsH < 50) {
+          l.barsH = 50;
+        }
+      } else {
+        l.barsH = 0;
+      }
+      l.barsY0 = l.keys.keyAreaHeight;
+      l.barsY1 = l.barsY0 + l.barsH; // waterfall layout will depend on this even when no bars shown
+      if (displayWaterfall) {
+        l.wfallH = ch - l.barsY1 - 15;
+        if (l.wfallH < 0) {
+          l.wfallH = 0;
+        }
+      }
+      l.wfallY0 = l.barsY1;
+      l.wfallY1 = l.wfallY0 + l.wfallH;
+    } else {
+      if (displayBars) {
+        l.barsH = displayWaterfall
+            ? Math.round(ch * 0.25)
+            : ch;
+        if (l.barsH < 50) {
+          l.barsH = 50;
+        }
+      } else {
+        l.barsH = 0;
+      }
+      l.barsY0 = 0;
+      l.barsY1 = l.barsY0 + l.barsH;
+      if (displayWaterfall) {
+        l.wfallH = ch - l.barsY1;
+        if (l.wfallH < 0) {
+          l.wfallH = 0;
+        }
+        l.wfallY0 = l.barsY1;
+        l.wfallY1 = l.wfallY0 + l.wfallH;
+      }
+    }
+  }
+
 
   function clear() {
     canvas2d.clearRect(0,0,cw,ch);
@@ -44,6 +115,7 @@ export default function addTo(parentD3) {
     maxLabel.text('');
     minLabel.text('');
     clear();
+    layout();
   }
 
   function updateCanvasSize(x, y) {
@@ -52,11 +124,11 @@ export default function addTo(parentD3) {
     canvas.attr('width', cw);
     canvas.attr('height', ch);
     clear();
+    layout();
   }
   updateCanvasSize(cw, ch);
 
   function updateLimits() {
-    newLimits = false;
     if (min === 0 && max === 0) {
       minLabel.text('');
       maxLabel.text('');
@@ -80,26 +152,27 @@ export default function addTo(parentD3) {
   const ret = {
     setLogScale : l => {
       displayLogScale = l;
-      updateLimits();
       clear();
+      layout();
       return ret;
     },
     setDisplayBars : l => {
       displayBars = l;
-      updateLimits();
       clear();
+      layout();
       return ret;
     },
     setDisplayWaterfall : l => {
       displayWaterfall = l;
-      updateLimits();
       clear();
+      layout();
       return ret;
     },
     freqLimit : l => {
       freqLimit = l;
       updateLimits();
       clear();
+      layout();
       return ret;
     },
     ch : v => {
@@ -115,10 +188,13 @@ export default function addTo(parentD3) {
       return ret;
     },
     add : (bins, maxf) => {
+      if (!lastMaxf) {
+        newLimits = true;
+      }
       lastMaxf = maxf;
       if (!buffer || buffer.length !== bins.length) {
         buffer = new Float32Array(bins.length);
-        updateLimits();
+        newLimits = true;
       }
       for (var i = 0; i < buffer.length; i++) {
         const v = bins[i];
@@ -142,121 +218,70 @@ export default function addTo(parentD3) {
     },
     render : () => {
       if (newLimits) {
+        newLimits = false;
         updateLimits();
+        layout();
       }
 
-      const maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
-      const displayedBinCount = Math.round(buffer.length * maxDisplayedFreq / lastMaxf);
-
-
-
-      var barsH = 0;
-      var barsY0 = 0;
-      var barsY1 = 0;
-      var wfallH = 0;
-      var wfallY0 = 0;
-      var wfallY1 = 0;
 
       if (displayLogScale) {
         // TODO: auto parametrize based on frequency limits (?)
-
-        var keys = piano.layout88keys(cw, ch, true);
-
-        if (displayBars) {
-          barsH = displayWaterfall
-              ? Math.round((ch - keys.keyAreaHeight - 15) * 0.25)
-              : ch - keys.keyAreaHeight - 15;
-          if (barsH < 50) {
-            barsH = 50;
-          }
-        }
-        barsY0 = keys.keyAreaHeight;
-        barsY1 = barsY0 + barsH; // waterfall layout will depend on this even when no bars shown
-        if (displayWaterfall) {
-          wfallH = ch - barsY1 - 15;
-          if (wfallH < 0) {
-            wfallH = 0;
-          }
-        }
-        wfallY0 = barsY1;
-        wfallY1 = wfallY0 + wfallH;
-
-        canvas2d.clearRect(0,barsY0,cw,barsH);
+        canvas2d.clearRect(0, l.barsY0, cw, l.barsH);
 
         // TODO: paint keys/grid once (on separate canvas layer(s)), dont overwrite
-        piano.renderKeys(keys, canvas2d);
-        piano.renderGrid(keys, barsH, canvas2d);
+        piano.renderKeys(l.keys, canvas2d);
+        piano.renderGrid(l.keys, l.barsH, canvas2d);
 
-        var bars = piano.layoutFftBins(keys, buffer.length, lastMaxf);
         if (displayBars) {
-          piano.renderBins(keys, barsY0, barsY1, barsH, bars, buffer, min, max, displayedBinCount, canvas2d);
+          piano.renderBins(l.keys, l.barsY0, l.barsY1, l.barsH, l.bars, buffer, min, max, l.displayedBinCount, canvas2d);
         }
         if (displayWaterfall) {
-          piano.renderWfallLine(keys, wfally + wfallY0, bars, buffer, min, max, aToColor, displayedBinCount, canvas2d);
+          piano.renderWfallLine(l.keys, wfally + l.wfallY0, l.bars, buffer, min, max, aToColor, l.displayedBinCount, canvas2d);
 
-          const clry = (wfally + 30) % wfallH + wfallY0;
-          canvas2d.clearRect(0,clry,cw,1);
+          const clry = (wfally + 30) % l.wfallH + l.wfallY0;
+          canvas2d.clearRect(0, clry, cw, 1);
 
           if (!fresh) {
             // avoid when render called without prior add
-            wfally = (wfally + 1) % wfallH;
+            wfally = (wfally + 1) % l.wfallH;
           }
-
         }
         fresh = true;
-
         return;
       }
 
       // display lin scale
-      if (displayBars) {
-        barsH = displayWaterfall
-            ? Math.round(ch * 0.25)
-            : ch;
-        if (barsH < 50) {
-          barsH = 50;
-        }
-        barsY0 = 0;
-        barsY1 = barsY0 + barsH;
-      }
-      if (displayWaterfall) {
-        wfallH = ch - barsY1;
-        if (wfallH < 0) {
-          wfallH = 0;
-        }
-        wfallY0 = barsY1;
-        wfallY1 = wfallY0 + wfallH;
-      }
 
-      canvas2d.clearRect(0,barsY0,cw,barsH);
+
+      canvas2d.clearRect(0,l.barsY0,cw,l.barsH);
 
       canvas2d.fillStyle = '#ddd';
 
 
-      const gw = Math.min(cw, displayedBinCount);
-      for (var f = 1; f <= Math.round(maxDisplayedFreq / 1000); f++) {
-        const x = Math.round(gw * f * 1000 / maxDisplayedFreq);
+      const gw = Math.min(cw, l.displayedBinCount);
+      for (var f = 1; f <= Math.round(l.maxDisplayedFreq / 1000); f++) {
+        const x = Math.round(gw * f * 1000 / l.maxDisplayedFreq);
         const tenKhzBar = f % 10 === 0;
-        canvas2d.fillRect(tenKhzBar ? x - 1 : x, 0, tenKhzBar ? 3 : 1, barsH);
+        canvas2d.fillRect(tenKhzBar ? x - 1 : x, 0, tenKhzBar ? 3 : 1, l.barsH);
       }
 
       canvas2d.fillStyle = 'steelblue';
-      if (displayedBinCount <= cw) {
+      if (l.displayedBinCount <= cw) {
         // no binning
         if (displayBars) {
-          for (var i = 0; i < displayedBinCount; i++) {
-            var h = Math.round(barsH * (buffer[i] - min) / (max - min));
+          for (var i = 0; i < l.displayedBinCount; i++) {
+            var h = Math.round(l.barsH * (buffer[i] - min) / (max - min));
             if (h < 1) {
               h = 1;
             }
-            canvas2d.fillRect(i, barsH - h, 1, h);
+            canvas2d.fillRect(i, l.barsH - h, 1, h);
           }
         }
         if (displayWaterfall) {
-          for (var i = 0; i < displayedBinCount; i++) {
+          for (var i = 0; i < l.displayedBinCount; i++) {
             const a = (buffer[i] - min) / (max - min);
             canvas2d.fillStyle = aToColor(a);
-            canvas2d.fillRect(i, wfally + wfallY0, 1, 1);
+            canvas2d.fillRect(i, wfally + l.wfallY0, 1, 1);
           }
         }
 
@@ -264,25 +289,25 @@ export default function addTo(parentD3) {
         // some pixels will have > 1 bars
         if (displayBars) {
           for (var i = 0; i < cw; i++) {
-            const b1 = Math.floor(displayedBinCount * i / cw); // inclusive
-            const b2 = Math.floor(displayedBinCount * (i + 1) / cw); // exclusive
+            const b1 = Math.floor(l.displayedBinCount * i / cw); // inclusive
+            const b2 = Math.floor(l.displayedBinCount * (i + 1) / cw); // exclusive
             var mx = buffer[b1];
             for (var j = b1 + 1; j < b2; j++) {
               if (buffer[j] > mx) {
                 mx = buffer[j];
               }
             }
-            var h = Math.round(barsH * (mx - min) / (max - min));
+            var h = Math.round(l.barsH * (mx - min) / (max - min));
             if (h < 1) {
               h = 1;
             }
-            canvas2d.fillRect(i, barsH - h, 1, h);
+            canvas2d.fillRect(i, l.barsH - h, 1, h);
           }
         }
         if (displayWaterfall) {
           for (var i = 0; i < cw; i++) {
-            const b1 = Math.floor(displayedBinCount * i / cw); // inclusive
-            const b2 = Math.floor(displayedBinCount * (i + 1) / cw); // exclusive
+            const b1 = Math.floor(l.displayedBinCount * i / cw); // inclusive
+            const b2 = Math.floor(l.displayedBinCount * (i + 1) / cw); // exclusive
             var mx = buffer[b1];
             for (var j = b1 + 1; j < b2; j++) {
               if (buffer[j] > mx) {
@@ -291,16 +316,16 @@ export default function addTo(parentD3) {
             }
             const a = (mx - min) / (max - min);
             canvas2d.fillStyle = aToColor(a);
-            canvas2d.fillRect(i, wfally + wfallY0, 1, 1);
+            canvas2d.fillRect(i, wfally + l.wfallY0, 1, 1);
           }
         }
       }
       if (displayWaterfall) {
-        const clry = (wfally + 30) % wfallH + wfallY0;
+        const clry = (wfally + 30) % l.wfallH + l.wfallY0;
         canvas2d.clearRect(0,clry,cw,1);
 
         if (!fresh) {
-          wfally = (wfally + 1) % wfallH;
+          wfally = (wfally + 1) % l.wfallH;
         }
       }
       fresh = true;
