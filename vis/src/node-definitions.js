@@ -103,7 +103,7 @@ export const nodeTypes = {
   aw : {
     w : 130,
     h : 130,
-    title : 'a-weights',
+    title : 'A-weights',
     ports : {
       spo : {
         type : 'out',

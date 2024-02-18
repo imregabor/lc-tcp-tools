@@ -241,7 +241,7 @@ export function initPage() {
     {
       type : 'aw', // [3]
       layout : {
-        label : 'Fletcher a-weights',
+        label : 'A-weights',
         x : 600,
         y : 400
       }
