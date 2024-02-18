@@ -1,3 +1,9 @@
+.spectrum2-canvas {
+  position: absolute;
+  left : 0;
+  top :0;
+}
+
 .display-spectrum-limit {
   font-family: monospace;
   font-size: 14px;

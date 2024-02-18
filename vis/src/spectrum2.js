@@ -7,8 +7,14 @@ import * as piano from './piano.js';
 import * as colorScales from './color-scales.js';
 
 export default function addTo(parentD3) {
-  const canvas = parentD3.append('canvas').attr('width', 800).attr('height', 64);
+  const canvas_underlay = parentD3.append('canvas')
+      .classed('spectrum2-canvas', true)
+      .attr('width', 800).attr('height', 64);
+  const canvas = parentD3.append('canvas')
+      .classed('spectrum2-canvas', true)
+      .attr('width', 800).attr('height', 64);
   const canvas2d = canvas.node().getContext('2d');
+  const canvas2d_underlay = canvas_underlay.node().getContext('2d');
   const maxfLabel = parentD3.append('div').classed('display-spectrum-limit maxf', true);
   const maxLabel = parentD3.append('div').classed('display-spectrum-limit max', true);
   const minLabel = parentD3.append('div').classed('display-spectrum-limit min', true);
@@ -53,6 +59,7 @@ export default function addTo(parentD3) {
     if (!buffer || !lastMaxf) {
       return;
     }
+    canvas2d_underlay.clearRect(0,0,cw,ch);
     l.maxDisplayedFreq = freqLimit ? Math.min(freqLimit, lastMaxf) : lastMaxf;
     l.displayedBinCount = Math.round(buffer.length * l.maxDisplayedFreq / lastMaxf);
     if (displayLogScale) {
@@ -83,6 +90,20 @@ export default function addTo(parentD3) {
     }
     l.wfallY0 = l.barsY1;
     l.wfallY1 = l.wfallY0 + l.wfallH;
+
+    if (displayLogScale) {
+      piano.renderKeys(l.keys, canvas2d_underlay);
+      piano.renderGrid(l.keys, l.barsH, canvas2d_underlay);
+    } else {
+      canvas2d_underlay.fillStyle = '#ddd';
+      const gw = Math.min(cw, l.displayedBinCount);
+      for (var f = 1; f <= Math.round(l.maxDisplayedFreq / 1000); f++) {
+        const x = Math.round(gw * f * 1000 / l.maxDisplayedFreq);
+        const tenKhzBar = f % 10 === 0;
+        canvas2d_underlay.fillRect(tenKhzBar ? x - 1 : x, 0, tenKhzBar ? 3 : 1, l.barsH);
+      }
+    }
+
   }
 
 
@@ -106,6 +127,8 @@ export default function addTo(parentD3) {
     ch = y;
     canvas.attr('width', cw);
     canvas.attr('height', ch);
+    canvas_underlay.attr('width', cw);
+    canvas_underlay.attr('height', ch);
     clear();
     layout();
   }
@@ -211,10 +234,6 @@ export default function addTo(parentD3) {
         // TODO: auto parametrize based on frequency limits (?)
         canvas2d.clearRect(0, l.barsY0, cw, l.barsH);
 
-        // TODO: paint keys/grid once (on separate canvas layer(s)), dont overwrite
-        piano.renderKeys(l.keys, canvas2d);
-        piano.renderGrid(l.keys, l.barsH, canvas2d);
-
         if (displayBars) {
           piano.renderBins(l.keys, l.barsY0, l.barsY1, l.barsH, l.bars, buffer, min, max, l.displayedBinCount, canvas2d);
         }
@@ -237,16 +256,6 @@ export default function addTo(parentD3) {
 
 
       canvas2d.clearRect(0,l.barsY0,cw,l.barsH);
-
-      canvas2d.fillStyle = '#ddd';
-
-
-      const gw = Math.min(cw, l.displayedBinCount);
-      for (var f = 1; f <= Math.round(l.maxDisplayedFreq / 1000); f++) {
-        const x = Math.round(gw * f * 1000 / l.maxDisplayedFreq);
-        const tenKhzBar = f % 10 === 0;
-        canvas2d.fillRect(tenKhzBar ? x - 1 : x, 0, tenKhzBar ? 3 : 1, l.barsH);
-      }
 
       canvas2d.fillStyle = 'steelblue';
       if (l.displayedBinCount <= cw) {
