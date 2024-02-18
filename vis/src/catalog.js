@@ -24,4 +24,9 @@ export function initPage() {
   body.append('a')
       .attr('href', '/#3d')
       .text('3D visualize');
+  body.append('br');
+  body.append('a')
+      .attr('href', '#colorscale')
+      .text('Color scale stuff');
+  body.append('br');
 }
