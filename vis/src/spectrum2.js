@@ -58,48 +58,31 @@ export default function addTo(parentD3) {
     if (displayLogScale) {
       l.keys = piano.layout88keys(cw, ch, true);
       l.bars = piano.layoutFftBins(l.keys, buffer.length, lastMaxf);
-      if (displayBars) {
-        l.barsH = displayWaterfall
-            ? Math.round((ch - l.keys.keyAreaHeight - 15) * 0.25)
-            : ch - l.keys.keyAreaHeight - 15;
-        if (l.barsH < 50) {
-          l.barsH = 50;
-        }
-      } else {
-        l.barsH = 0;
+    }
+
+    const dy0 = displayLogScale ? l.keys.keyAreaHeight : 0;
+    const dh = ch - (displayLogScale ? (l.keys.keyAreaHeight + 15) : 0);
+
+    if (displayBars) {
+      l.barsH = displayWaterfall
+          ? Math.round(dh * 0.25)
+          : dh;
+      if (l.barsH < 50) {
+        l.barsH = 50;
       }
-      l.barsY0 = l.keys.keyAreaHeight;
-      l.barsY1 = l.barsY0 + l.barsH; // waterfall layout will depend on this even when no bars shown
-      if (displayWaterfall) {
-        l.wfallH = ch - l.barsY1 - 15;
-        if (l.wfallH < 0) {
-          l.wfallH = 0;
-        }
-      }
-      l.wfallY0 = l.barsY1;
-      l.wfallY1 = l.wfallY0 + l.wfallH;
     } else {
-      if (displayBars) {
-        l.barsH = displayWaterfall
-            ? Math.round(ch * 0.25)
-            : ch;
-        if (l.barsH < 50) {
-          l.barsH = 50;
-        }
-      } else {
-        l.barsH = 0;
-      }
-      l.barsY0 = 0;
-      l.barsY1 = l.barsY0 + l.barsH;
-      if (displayWaterfall) {
-        l.wfallH = ch - l.barsY1;
-        if (l.wfallH < 0) {
-          l.wfallH = 0;
-        }
-        l.wfallY0 = l.barsY1;
-        l.wfallY1 = l.wfallY0 + l.wfallH;
+      l.barsH = 0;
+    }
+    l.barsY0 = dy0;
+    l.barsY1 = l.barsY0 + l.barsH; // waterfall layout will depend on this even when no bars shown
+    if (displayWaterfall) {
+      l.wfallH = dh - l.barsH;
+      if (l.wfallH < 0) {
+        l.wfallH = 0;
       }
     }
+    l.wfallY0 = l.barsY1;
+    l.wfallY1 = l.wfallY0 + l.wfallH;
   }
 
 
