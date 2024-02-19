@@ -9,6 +9,23 @@ export const nodeFunctions = {
       return {};
     }
   },
+  mh : {
+    initState : params => {
+      params.decay = +params.decay;
+      params.sustain = +params.sustain;
+      return {
+
+        // Decay rate constants
+        // lambda from https://en.wikipedia.org/wiki/Exponential_decay
+        decayL : Math.log(2) / params.decay
+      }
+    },
+    updateState : (params, state) => {
+      params.decay = +params.decay;
+      params.sustain = +params.sustain;
+      state.decayL = Math.log(2) / params.decay;
+    }
+  },
   vu : {
     initState : params => {
       return {
@@ -160,6 +177,43 @@ export const nodeTypes = {
         x : 110,
         y : 40,
         l : 50
+      }
+    }
+  },
+  mh : {
+    w : 100,
+    h : 130,
+    title : 'Max hold',
+    ports : {
+      in : {
+        type : 'in',
+        label : 'In',
+        x : -20,
+        y : 40,
+        l : 50
+      },
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 120,
+        y : 40,
+        l : 50
+      }
+    },
+    params : {
+      sustain : {
+        label: 'sustain',
+        initial : 0,
+        x : 5,
+        y : 70,
+        len : 85
+      },
+      decay : {
+        label: 'decay',
+        initial : 150,
+        x : 5,
+        y : 85,
+        len : 85
       }
     }
   },

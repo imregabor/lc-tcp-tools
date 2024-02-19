@@ -187,6 +187,85 @@ export function createPipeline() {
             ops.updated = true;
           }
           break;
+        case 'mh':
+          var ips;
+          var ops;
+          if (node.portStateIds.in) {
+            ips = portStates[node.portStateIds.in];
+            if (ips.type !== 'scalar' && ips.type !== 'spectrum' && ips.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "scalar", "spectrum" or "channels" as input, got "${ips.type}"`);
+            }
+          }
+          if (node.portStateIds.out && ips) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = ips.type;
+
+            switch (ips.type) {
+              case 'scalar':
+                if (!ops.value) {
+                  ops.value = 0;
+                  ops.channels = undefined;
+                  ops.bins = undefined;
+                  state.holdFrom = 0;
+                }
+                break;
+              case 'channels':
+                if (!ops.channels || ops.channels.length !== ips.channels.length) {
+                  ops.value = undefined;
+                  ops.channels = new Float32Array(ips.channels.length);
+                  ops.bins = undefined;
+                  state.holdFrom = new Array(ips.channels.length);
+                }
+                break;
+              case 'spectrum':
+                ops.maxf = ips.maxf;
+                if (!ops.bins || ops.bins.length !== ips.bins.length) {
+                  ops.value = undefined;
+                  ops.channels = undefined;
+                  ops.bins = new Float32Array(ips.bins.length);
+                  state.holdFrom = new Array(ips.bins.length);
+                }
+                break;
+            }
+          }
+          if (ips && ops && ips.updated) {
+            const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
+            state.lastUpdate = now; // todo - common implementation
+            const decay = Math.exp( -state.decayL * dt);
+            switch (ips.type) {
+              case 'channels':
+              case 'spectrum':
+                const ia = ips.type === 'channels' ? ips.channels : ips.bins;
+                const oa = ips.type === 'channels' ? ops.channels : ops.bins;
+                for (var i = 0; i < oa.length; i++) {
+                  if (!node.params.sustain || (state.holdFrom[i] + node.params.sustain) <= now) {
+                    oa[i] = oa[i] * decay;
+                  }
+                  if (ia[i] > oa[i]) {
+                    oa[i] = ia[i];
+                    if (node.params.sustain) {
+                      state.holdFrom[i] = now;
+                    }
+                  }
+                }
+                break;
+              case 'scalar':
+                if (!node.params.sustain || (state.holdFrom + node.params.sustain) <= now) {
+                  ops.value = ops.value * decay;
+                }
+                if (ips.value > ops.value) {
+                  ops.value = ips.value;
+                  if (node.params.sustain) {
+                    state.holdFrom = now;
+                  }
+                }
+                break;
+            }
+            ops.updated = true;
+          }
+
+          break;
         case 'vu':
           var ips;
           var ops;
