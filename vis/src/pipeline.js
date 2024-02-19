@@ -194,7 +194,7 @@ export function createPipeline() {
             ips = portStates[node.portStateIds.ein];
             if (ips.type !== 'scalar') {
               // TODO: better error handling; in graph init time
-              throw new Error('Expected "scalar" as input');
+              throw new Error(`Expected "scalar" as input, got "${ips.type}"`);
             }
           }
           if (node.portStateIds.out) {
@@ -204,7 +204,6 @@ export function createPipeline() {
             if (!ops.channels || ops.channels.length !== node.params.channels) {
               ops.channels = new Float32Array(node.params.channels);
             }
-
           }
           if (ips && ops && ips.updated) {
             const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
@@ -477,14 +476,9 @@ export function createPipeline() {
         });
       }
 
-
       g.dagOrderIds = [];
       g.nodes.forEach(n => g.dagOrderIds.push(n.id));
       g.dagOrderIds.sort((a, b) => dagLevels[a] - dagLevels[b]);
-
-
-
-
 
       console.log('Processing graph set', g);
 
@@ -512,18 +506,36 @@ export function createPipeline() {
       return ret;
     },
     run : () => {
-      console.log('Run');
+      console.log('[pipeline] Run');
       lastTick = Date.now(); // avoid reporting large first dt value
       apoll.start();
       return ret;
     },
     stop : () => {
-      console.log('Stop');
+      console.log('[pipeline] Stop');
       apoll.stop();
       return ret;
     },
     reset : () => {
-      console.log('Reset');
+      console.log('[pipeline] Reset');
+      graph && graph.nodes.forEach(n => {
+        if (nodeFunctions[n.type] && nodeFunctions[n.type].initState) {
+          n.state = nodeFunctions[n.type].initState(n.params);
+        }
+      });
+      if (portStates) {
+        for (var id in portStates) {
+          if (!portStates.hasOwnProperty(id)) {
+            continue;
+          }
+          const p = portStates[id];
+          p.value = undefined;
+          p.bins = undefined;
+          p.channels = undefined;
+          p.maxf = undefined;
+          p.updated = false;
+        }
+      }
       return ret;
     },
     // Interface for visualizations
@@ -531,6 +543,7 @@ export function createPipeline() {
      * No visualization callbacks will be invoked.
      */
     pauseVisData : () => {
+      console.log('[pipeline] Pause visualization');
       visDataEnabled = false;
       return ret;
     },
@@ -538,6 +551,7 @@ export function createPipeline() {
      * Invoke visualization callbacks.
      */
     resumeVisData : () => {
+      console.log('[pipeline] Resume visualization');
       visDataEnabled = true;
       return ret;
     },
