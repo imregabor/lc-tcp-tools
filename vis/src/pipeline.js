@@ -321,6 +321,140 @@ export function createPipeline() {
             ops.updated = true;
           }
           break;
+        case 'sb':
+          var ips;
+          var ops;
+          if (node.portStateIds.in) {
+            ips = portStates[node.portStateIds.in];
+            if (ips.type !== 'spectrum') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "spectrum" as input, got ${ips.type}`);
+            }
+          }
+          if (node.portStateIds.out) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = 'channels';
+
+            if (!ops.channels || ops.channels.length !== node.params.channels) {
+              ops.channels = new Float32Array(node.params.channels);
+            }
+          }
+          if (ips && ops && ips.updated) {
+            if (state.binCount !== ips.bins.length || state.maxFreq !== ips.maxf) {
+              console.log('Subbands bin layout');
+              // TODO: parameter validation, corner cases
+              //  - invalid frequencies, freq out of range, hi <= lo (except for 2 ch)
+              //  - 1 or 2 ch
+
+              const binWidth = ips.maxf / ips.bins.length;
+
+              state.binCount = ips.bins.length;
+              state.maxFreq = ips.maxf;
+
+              state.max = new Float32Array(node.params.channels);
+              state.chBin0 = [];
+              state.chBin1 = [];
+              state.chBin0a = [];
+              state.chBin1a = [];
+
+              // middle channel count:           mcc = channels - 2
+
+              // channel width (ratio of freqs): cw
+              // channels are equal widths, so   (hi / lo) = cw ^ mcc
+              //                                 cw = (hi / lo) ^ 1/mcc
+              const cw = Math.pow(node.params.hf / node.params.lf, 1 / (node.params.channels - 2));
+
+
+              console.log('binWidth:', binWidth, 'binCount:', state.binCount, 'maxFreq:', state.maxFreq, 'cw:', cw);
+
+              // position to first channel (LPF) cutoff
+              var lastFreq = node.params.lf;
+              var lastPartialBin = lastFreq / binWidth;
+              var lastBinUpper = Math.ceil(lastPartialBin);
+              var lastBinLower = Math.floor(lastPartialBin);
+              var lastLowerPart = lastPartialBin - lastBinLower;
+              var lastUpperPart = lastBinUpper - lastPartialBin;
+
+              // first channel: LPF
+              state.chBin0.push(0)
+              state.chBin1.push(lastBinUpper); // inclusve
+              state.chBin0a.push(lastBinUpper === 0 ? 0 : 1); // for single bin channel last "a" is used
+              state.chBin1a.push(lastLowerPart); // for single bin channel last "a" is used
+
+
+              // step through inner channels
+              for (var i = 0; i < node.params.channels - 2; i++) {
+                // next freq is current middle channel upper end
+                const nextFreq = lastFreq * cw;
+                const nextPartialBin = nextFreq / binWidth;
+                const nextBinUpper = Math.ceil(nextPartialBin);
+                const nextBinLower = Math.floor(nextPartialBin);
+                const nextLowerPart = nextPartialBin - nextBinLower;
+                const nextUpperPart = nextBinUpper - nextPartialBin;
+
+                state.chBin0.push(lastBinLower);
+                state.chBin1.push(nextBinUpper);
+                state.chBin0a.push(lastBinLower === nextBinUpper ? 0 : lastUpperPart); // for single bin channel last "a" is used
+                state.chBin1a.push(lastBinLower === nextBinUpper ? lastUpperPart + nextLowerPart : nextLowerPart); // for single bin channel last "a" is used
+
+                lastFreq = nextFreq;
+                lastPartialBin = nextPartialBin;
+                lastBinUpper = nextBinUpper;
+                lastBinLower = nextBinLower;
+                lastLowerPart = nextLowerPart;
+                lastUpperPart = nextUpperPart;
+
+                console.log('Next upper freq for intermediate bin:', nextFreq);
+              }
+
+
+              // last channel: HPF
+              state.chBin0.push(lastBinLower)
+              state.chBin1.push(state.binCount - 1);
+              state.chBin0a.push(lastUpperPart);
+              state.chBin1a.push(1);
+
+              //const b1 = node.params.hf / binWidth;
+              console.log('subbands bins layouted. Params: ', node.params, 'state:', state);
+            }
+
+            const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
+            state.lastUpdate = now; // todo - common implementation
+
+
+            const maxDecay = Math.exp( -state.maxDecayL * dt);
+
+
+            for (var i = 0; i < state.chBin0.length; i++) {
+              const firstBinIndex = state.chBin0[i];
+              const lastBinIndex = state.chBin1[i];
+              var d = 0;
+              var sume = 0;
+              for (var bin = firstBinIndex; bin <= lastBinIndex; bin++) {
+                var a = 1;
+                if (bin === lastBinIndex) {
+                  a = state.chBin1a[i];
+                } else if (bin === firstBinIndex) {
+                  a = state.chBin0a[i];
+                }
+                const e = a * ips.bins[bin] * ips.bins[bin];
+                sume = sume + e;
+                d = d + a;
+              }
+              const chi = sume / d;
+              ops.channels[i] = chi;
+
+              state.max[i] = maxDecay * state.max[i];
+              if (chi > state.max[i]) {
+                state.max[i] = chi;
+              }
+            }
+            for (var i = 0; i < state.chBin0.length; i++) {
+              ops.channels[i] = ops.channels[i] / state.max[i];
+            }
+            ops.updated = true;
+          }
+          break;
         case 'lr':
           var ipsLb24;
           var ipsLm35;

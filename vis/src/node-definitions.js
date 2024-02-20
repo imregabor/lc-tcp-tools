@@ -43,6 +43,32 @@ export const nodeFunctions = {
       state.minDecayL = Math.log(2) / params.minDecayH;
     }
   },
+  sb : {
+    initState : params => {
+      // we will need to know bin count and max frequency to do the actual splitting
+      // will do in tick handling on-demand when params mismatch
+      return {
+        maxDecayL : Math.log(2) / params.maxDecayH,
+        max : undefined,
+        binCount : 0,
+        maxFreq : 0,
+        chBin0 : undefined,
+        chBin1 : undefined,
+        chBin0a : undefined,
+        chBin1a : undefined
+      };
+    },
+    updateState : (params, state) => {
+      state.max = undefined;
+      state.maxDecayL = Math.log(2) / params.maxDecayH;
+      state.binCount = 0;
+      state.maxFreq = 0;
+      state.chBin0 = undefined;
+      state.chBin1 = undefined;
+      state.chBin0a = undefined;
+      state.chBin1a = undefined;
+    }
+  },
   lr : {
     initState : params => {
       return {
@@ -259,6 +285,57 @@ export const nodeTypes = {
         y : 100,
         len : 85
       },
+    }
+  },
+  sb : {
+    w : 130,
+    h : 130,
+    title : 'Subbands',
+    ports : {
+      in : {
+        type : 'in',
+        label : 'FD [lin mag]',
+        x : -20,
+        y : 40,
+        l : 70
+      },
+      out : {
+        type : 'out',
+        label : 'Channels',
+        x : 150,
+        y : 40,
+        l : 70
+      }
+    },
+    params : {
+      channels : {
+        label: 'channels',
+        initial : 8,
+        x : 5,
+        y : 70,
+        len : 115
+      },
+      lf : {
+        label: 'Low freq',
+        initial : 100,
+        x : 5,
+        y : 85,
+        len : 115
+      },
+      hf : {
+        label: 'High freq',
+        initial : 3500,
+        x : 5,
+        y : 100,
+        len : 115
+      },
+      maxDecayH : {
+        label: 'Max decay',
+        initial : 5000,
+        x : 5,
+        y : 115,
+        len : 115
+      }
     }
   },
   lr : {
