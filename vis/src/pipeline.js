@@ -168,7 +168,6 @@ export function createPipeline() {
               // TODO: better error handling; in graph init time
               throw new Error(`Expected "spectrum" as input, got ${ips.type}`);
             }
-
           }
           if (node.portStateIds.spo && ips) {
             ops = portStates[node.portStateIds.spo];
@@ -211,7 +210,7 @@ export function createPipeline() {
                 }
                 break;
               case 'channels':
-                if (!ops.channels || ops.channels.length !== ips.channels.length) {
+                if (!ops.channels || ops.channels.length !== ips.channels.length || !state.holdFrom || state.holdFrom.length !== ips.channels.length) {
                   ops.value = undefined;
                   ops.channels = new Float32Array(ips.channels.length);
                   ops.bins = undefined;
@@ -220,7 +219,7 @@ export function createPipeline() {
                 break;
               case 'spectrum':
                 ops.maxf = ips.maxf;
-                if (!ops.bins || ops.bins.length !== ips.bins.length) {
+                if (!ops.bins || ops.bins.length !== ips.bins.length || !state.holdFrom || state.holdFrom.length !== ips.bins.length) {
                   ops.value = undefined;
                   ops.channels = undefined;
                   ops.bins = new Float32Array(ips.bins.length);
