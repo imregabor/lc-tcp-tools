@@ -44,7 +44,7 @@ export function init(parentD3) {
   parentD3.classed('pane-for-visualizations', true);
 
   const bd = visbox(parentD3, 'Add...')
-      .width(170)
+      .width(245)
       .height(120)
       .autoPlace()
       .setHelpContent('Add various visualization components.')
@@ -56,7 +56,7 @@ export function init(parentD3) {
       return;
     }
     const vb = visbox(parentD3, 'Tick delay')
-      .width(170)
+      .width(245)
       .height(120);
 
     const s = scalar(vb.getContentD3(), undefined, true)
@@ -86,7 +86,7 @@ export function init(parentD3) {
       return;
     }
     const vb = visbox(parentD3, 'Render delay')
-      .width(170)
+      .width(245)
       .height(120);
 
     const s = scalar(vb.getContentD3(), undefined, true)
@@ -125,7 +125,7 @@ export function init(parentD3) {
   function addPortState(portDesc) {
     console.log('Add port state visualization', portDesc);
     const vb = visbox(parentD3, `${portDesc.nodeLabel}/${portDesc.portLabel}`)
-      .width(170)
+      .width(245)
       .height(120);
 
     var chnlBoxesIcon;
