@@ -123,6 +123,8 @@ export default function addTo(parentD3) {
   function reset() {
     max = 0;
     min = 0;
+    buffer = undefined;
+    buffers = undefined;
     buffersValids = 0;
     maxfLabel.text('');
     maxLabel.text('');
@@ -244,6 +246,10 @@ export default function addTo(parentD3) {
       return ret;
     },
     render : () => {
+      if (!buffer) {
+        return;
+      }
+
       if (newLimits) {
         newLimits = false;
         updateLimits();

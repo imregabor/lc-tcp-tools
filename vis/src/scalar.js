@@ -300,6 +300,7 @@ export default function addTo(parentD3, label, useParentDiv) {
       ret.render();
       return ret;
     },
+    softReset : () => ret.reset(), // softReset is provided by compound components
     remove : () => {
       if (!useParentDiv) {
         d.remove();

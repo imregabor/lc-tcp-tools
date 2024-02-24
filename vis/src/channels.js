@@ -286,6 +286,7 @@ export default function addTo(parentD3) {
       return ret;
     },
     reset : () => {
+      reset();
       return ret;
     },
     render : () => {

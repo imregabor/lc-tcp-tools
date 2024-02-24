@@ -343,6 +343,17 @@ export function init(parentD3) {
         pane.append('span').text('?');
         state = 'init';
       },
+      softReset : () => {
+        if (sclr) {
+          sclr.reset();
+        } else if (chnl) {
+          chnl.reset();
+        } else if (wave) {
+          wave.reset();
+        } else if (spct) {
+          spct.reset();
+        }
+      },
       render : () => {
         if (sclr) {
           sclr.render();
@@ -502,7 +513,8 @@ export function init(parentD3) {
           visComponent.cw(w).ch(h);
         }
       })
-      .addIcon('fa-refresh', 'Reset this chart', () => visComponent.reset())
+      .addIcon('fa-fast-backward', 'Soft reset this chart', () => visComponent.softReset())
+      .addIcon('fa-refresh', 'Hard reset this chart', () => visComponent.reset())
       .setCloseable()
       .onClose(() => {
         sclr = undefined;
@@ -522,6 +534,9 @@ export function init(parentD3) {
     visComponents.forEach(c => c.reset());
   }
 
+  function softResetAll() {
+    visComponents.forEach(c => c.softReset());
+  }
 
   /*
   bd.append('a')
@@ -563,9 +578,15 @@ export function init(parentD3) {
   bd.append('br');
   bd.append('a')
     .attr('href', '#')
-    .attr('title', 'Reset all')
+    .attr('title', 'Hard reset all')
     .on('click', () => { event.preventDefault(); resetAll(); })
-    .text('Reset all displays');
+    .text('Hard reset all displays');
+  bd.append('br');
+  bd.append('a')
+    .attr('href', '#')
+    .attr('title', 'Soft reset all')
+    .on('click', () => { event.preventDefault(); softResetAll(); })
+    .text('Soft reset all displays');
   bd.append('br');
 
   const ret = {
@@ -587,6 +608,10 @@ export function init(parentD3) {
       animationLoop.stop();
       return ret;
 
+    },
+    softReset : () => {
+      softResetAll();
+      return ret;
     },
     reset : () => {
       resetAll();

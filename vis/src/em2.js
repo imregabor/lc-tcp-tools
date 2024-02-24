@@ -95,7 +95,7 @@ export function initPage() {
   events.parametersChanged.add(pipeline.updateParameter);
   playback.onContextCreated(pipeline.setCtx);
   playback.onPlaybackStarted(() => {
-    vp.reset();
+    vp.softReset();
     if (p.isOpen()) {
       vp.start();
     }
