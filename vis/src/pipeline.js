@@ -375,15 +375,25 @@ export function createPipeline() {
               var lastLowerPart = lastPartialBin - lastBinLower;
               var lastUpperPart = lastBinUpper - lastPartialBin;
 
-              // first channel: LPF
-              state.chBin0.push(0)
-              state.chBin1.push(lastBinUpper); // inclusve
-              state.chBin0a.push(lastBinUpper === 0 ? 0 : 1); // for single bin channel last "a" is used
-              state.chBin1a.push(lastLowerPart); // for single bin channel last "a" is used
+              if (node.params.doLpf) {
+                // first channel: LPF
+                state.chBin0.push(0)
+                state.chBin1.push(lastBinUpper); // inclusve
+                state.chBin0a.push(lastBinUpper === 0 ? 0 : 1); // for single bin channel last "a" is used
+                state.chBin1a.push(lastLowerPart); // for single bin channel last "a" is used
+              }
 
+
+              var innerChCount = node.params.channels;
+              if (node.params.doHpf) {
+                innerChCount = innerChCount - 1;
+              }
+              if (node.params.doLpf) {
+                innerChCount = innerChCount - 1;
+              }
 
               // step through inner channels
-              for (var i = 0; i < node.params.channels - 2; i++) {
+              for (var i = 0; i < innerChCount; i++) {
                 // next freq is current middle channel upper end
                 const nextFreq = lastFreq * cw;
                 const nextPartialBin = nextFreq / binWidth;
@@ -407,12 +417,13 @@ export function createPipeline() {
                 console.log('Next upper freq for intermediate bin:', nextFreq);
               }
 
-
-              // last channel: HPF
-              state.chBin0.push(lastBinLower)
-              state.chBin1.push(state.binCount - 1);
-              state.chBin0a.push(lastUpperPart);
-              state.chBin1a.push(1);
+              if (node.params.doHpf) {
+                // last channel: HPF
+                state.chBin0.push(lastBinLower)
+                state.chBin1.push(state.binCount - 1);
+                state.chBin0a.push(lastUpperPart);
+                state.chBin1a.push(1);
+              }
 
               //const b1 = node.params.hf / binWidth;
               console.log('subbands bins layouted. Params: ', node.params, 'state:', state);
@@ -441,12 +452,31 @@ export function createPipeline() {
                 sume = sume + e;
                 d = d + a;
               }
-              const chi = sume / d;
+              const chi = node.params.doAvg ? sume / d : sume;
               ops.channels[i] = chi;
 
               state.max[i] = maxDecay * state.max[i];
               if (chi > state.max[i]) {
                 state.max[i] = chi;
+              }
+            }
+            if (node.params.maxSpill) {
+              for (var i = 0; i < state.max.length; i++) {
+                const mi = state.max[i];
+                const s1 =
+                    ((i > 0) && (node.params.spillXpf || !node.params.doLpf))
+                    ? state.max[i - 1] * node.params.maxSpill
+                    : 0;
+                const s2 =
+                    ((i < state.max.length - 1) && (node.params.spillXpf || !node.params.doHpf))
+                    ? state.max[i + 1] * node.params.maxSpill
+                    : 0;
+                if (mi < s1) {
+                  state.max[i] = s1;
+                }
+                if (mi < s2) {
+                  state.max[i] = s2;
+                }
               }
             }
             for (var i = 0; i < state.chBin0.length; i++) {

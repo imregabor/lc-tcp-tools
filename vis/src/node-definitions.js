@@ -289,7 +289,7 @@ export const nodeTypes = {
   },
   sb : {
     w : 130,
-    h : 130,
+    h : 205,
     title : 'Subbands',
     ports : {
       in : {
@@ -334,6 +334,41 @@ export const nodeTypes = {
         initial : 5000,
         x : 5,
         y : 115,
+        len : 115
+      },
+      maxSpill : {
+        label: 'Max spill',
+        initial : 0,
+        x : 5,
+        y : 130,
+        len : 115
+      },
+      spillXpf : {
+        label: 'Spill from xPF',
+        initial : 0,
+        x : 5,
+        y : 145,
+        len : 115
+      },
+      doAvg : {
+        label: 'Do AVG',
+        initial : 0,
+        x : 5,
+        y : 160,
+        len : 115
+      },
+      doLpf : {
+        label: 'Do LPF band',
+        initial : 0,
+        x : 5,
+        y : 175,
+        len : 115
+      },
+      doHpf : {
+        label: 'Do HPF band',
+        initial : 0,
+        x : 5,
+        y : 190,
         len : 115
       }
     }
