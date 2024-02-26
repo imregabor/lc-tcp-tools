@@ -9,6 +9,8 @@ import urllib.parse
 import json
 import pprint
 import sys
+import datetime
+
 
 from os.path import join, getsize
 
@@ -30,6 +32,8 @@ for root, dirs, files in os.walk('.'):
 
     p = os.path.join(root, file)
     size = os.path.getsize(p);
+    ctime = round(os.path.getctime(p));
+    ctimeutc = str(datetime.datetime.utcfromtimestamp(ctime));
     pstr = str(p)[2:]
 
     if os.sep == '\\':
@@ -45,6 +49,8 @@ for root, dirs, files in os.walk('.'):
       'ext' : ext[1:],
       'url' : purl,
       'size' : size,
+      'ctime' : ctime,
+      'ctimeutc' : ctimeutc,
       'dirs' : dirs[:-1]
     })
 
