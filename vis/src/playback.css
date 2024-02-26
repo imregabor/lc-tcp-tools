@@ -35,6 +35,12 @@ audio {
   height: 32px;
 }
 
+@media screen and (max-width: 1024px) {
+  audio {
+    width: 300px;
+  }
+}
+
 
 
 .playback-extra-controls {
