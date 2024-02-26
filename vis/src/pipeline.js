@@ -459,6 +459,9 @@ export function createPipeline() {
               ops.channels[i] = chi;
 
               state.max[i] = maxDecay * state.max[i];
+              if (node.params.maxFloor > state.max[i]) {
+                state.max[i] = node.params.maxFloor;
+              }
               if (chi > state.max[i]) {
                 state.max[i] = chi;
               }
