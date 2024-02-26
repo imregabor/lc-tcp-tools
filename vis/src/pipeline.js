@@ -460,16 +460,16 @@ export function createPipeline() {
                 state.max[i] = chi;
               }
             }
-            if (node.params.maxSpill) {
+            if (node.params.maxSpillHbc) {
               for (var i = 0; i < state.max.length; i++) {
                 const mi = state.max[i];
                 const s1 =
                     ((i > 0) && (node.params.spillXpf || !node.params.doLpf))
-                    ? state.max[i - 1] * node.params.maxSpill
+                    ? state.max[i - 1] * state.maxSpill
                     : 0;
                 const s2 =
                     ((i < state.max.length - 1) && (node.params.spillXpf || !node.params.doHpf))
-                    ? state.max[i + 1] * node.params.maxSpill
+                    ? state.max[i + 1] * state.maxSpill
                     : 0;
                 if (mi < s1) {
                   state.max[i] = s1;

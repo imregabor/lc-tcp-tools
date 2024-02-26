@@ -55,7 +55,19 @@ export const nodeFunctions = {
         chBin0 : undefined,
         chBin1 : undefined,
         chBin0a : undefined,
-        chBin1a : undefined
+        chBin1a : undefined,
+
+        // maxSpill ^ maxSpillHbc = 0.5; use negative to infinite; 0 to turn ogg
+        // maxSpill = 0.5 ^ (1/maxSpillHbc)
+        // maxSpillHbc = log(0.5) / log(maxSpill)
+        // maxSpill 0.85 -> maxSpillHbc 4.3
+        // maxSpill 0.9  -> maxSpillHbc 6.6
+        // maxSpill 0.95 -> maxSpillHbc 13.5
+        maxSpill : (params.maxSpillHbc < 0)
+            ? 1.0
+            : (params.maxSpillHbc === 0)
+                ? 0.0
+                : Math.pow(0.5, 1 / params.maxSpillHbc)
       };
     },
     updateState : (params, state) => {
@@ -67,6 +79,11 @@ export const nodeFunctions = {
       state.chBin1 = undefined;
       state.chBin0a = undefined;
       state.chBin1a = undefined;
+      state.maxSpill = (params.maxSpillHbc < 0)
+          ? 1.0
+          : (params.maxSpillHbc === 0)
+              ? 0.0
+              : Math.pow(0.5, 1 / params.maxSpillHbc);
     }
   },
   lr : {
@@ -288,7 +305,7 @@ export const nodeTypes = {
     }
   },
   sb : {
-    w : 130,
+    w : 140,
     h : 205,
     title : 'Subbands',
     ports : {
@@ -313,63 +330,63 @@ export const nodeTypes = {
         initial : 8,
         x : 5,
         y : 70,
-        len : 115
+        len : 125
       },
       lf : {
         label: 'Low freq',
         initial : 100,
         x : 5,
         y : 85,
-        len : 115
+        len : 125
       },
       hf : {
         label: 'High freq',
         initial : 3500,
         x : 5,
         y : 100,
-        len : 115
+        len : 125
       },
       maxDecayH : {
         label: 'Max decay',
         initial : 5000,
         x : 5,
         y : 115,
-        len : 115
+        len : 125
       },
-      maxSpill : {
-        label: 'Max spill',
+      maxSpillHbc : {
+        label: 'Max spill b to 1/2',
         initial : 0,
         x : 5,
         y : 130,
-        len : 115
+        len : 125
       },
       spillXpf : {
         label: 'Spill from xPF',
         initial : 0,
         x : 5,
         y : 145,
-        len : 115
+        len : 125
       },
       doAvg : {
         label: 'Do AVG',
         initial : 0,
         x : 5,
         y : 160,
-        len : 115
+        len : 125
       },
       doLpf : {
         label: 'Do LPF band',
         initial : 0,
         x : 5,
         y : 175,
-        len : 115
+        len : 125
       },
       doHpf : {
         label: 'Do HPF band',
         initial : 0,
         x : 5,
         y : 190,
-        len : 115
+        len : 125
       }
     }
   },
