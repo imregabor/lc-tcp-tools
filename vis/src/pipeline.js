@@ -515,6 +515,7 @@ export function createPipeline() {
             for (var i = 0; i < channelCount; i++) {
               state.lb24[i] = Math.max(state.lb24[i], ipsLb24.channels[i]);
             }
+            state.lb24valid = true;
             maybeSend = true;
           }
 
@@ -523,6 +524,7 @@ export function createPipeline() {
             for (var i = 0; i < channelCount; i++) {
               state.lm35[i] = Math.max(state.lm35[i], ipsLm35.channels[i]);
             }
+            state.lm35valid = true;
             maybeSend = true;
           }
 
@@ -531,14 +533,16 @@ export function createPipeline() {
             state.lastSend = now;
             var url = '/api/setBulk100';
             var sepChar = '?';
-            if (ipsLb24) {
+            if (ipsLb24 && state.lb24valid) {
               url = url + sepChar + 'm1=' + u.channelsToBulk100(state.lb24);
               state.lb24.fill(0);
+              state.lb24valid = false;
               sepChar = '&';
             }
-            if (ipsLm35) {
+            if (ipsLm35 && state.lm35valid) {
               url = url + sepChar + 'm2=' + u.channelsToBulk100(state.lm35);
               state.lm35.fill(0);
+              state.lm35valid = false;
               sepChar = '&';
             }
 
