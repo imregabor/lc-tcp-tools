@@ -40,6 +40,14 @@ while read line ; do
     echo " -> found (so far found: ${FOUNDCT}, converted: ${CONVCT})."
   else
     CONVCT=$(( $CONVCT + 1 ))
+
+    echo
+    echo
+    echo
+    echo " ***********************************************************************************************"
+    echo
+    echo
+    echo
     echo " -> not found, converting/copying (so far found: ${FOUNDCT}, converted: ${CONVCT})."
 
     PARENT=$(readlink -m "${MP3}/..")
@@ -47,6 +55,8 @@ while read line ; do
     if [ "${EXT}" == "mkv" ] ; then EXT="matroska" ; fi
     TMPFILE="./tmp.${EXT}"
 
+    echo "  INPUT:   ${line}"
+    echo "  MP3:     ${MP3}"
     echo "  PARENT:  ${PARENT}"
     echo "  EXT:     ${EXT}"
     echo "  TMPFILE: ${TMPFILE}"
@@ -71,6 +81,14 @@ while read line ; do
       ffmpeg  -f "${EXT}" -i "${TMPFILE}" -b:a 320K -vn -f mp3 pipe: > "${MP3}" < /dev/null
       rm "${TMPFILE}"
       echo "  DONE"
+      echo
+      echo
+      echo
+      echo " ***********************************************************************************************"
+      echo
+      echo
+      echo
+
     fi
 
     echo
