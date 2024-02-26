@@ -31,7 +31,7 @@ export function loadMp3ListFromServer(srv) {
 
         // see https://stackoverflow.com/questions/6555182/remove-all-special-characters-except-space-from-a-string-using-javascript
         // see https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
-        m.sortBase = `${m.filename} ${m.dirs.join(' ')}`.toLowerCase()
+        m.sortBase = `${m.filename} ${m.dirs.join(' ')} ${m.ctimeutc}`.toLowerCase()
           .normalize('NFKD').replace(/[\u0300-\u036f]/g, '') // remove accents, diacritics
           .replace(/'/g, '')  // collapse apostrophes
           .replace(/[^a-zA-Z0-9 ]/g, ' ') // all remainig non-alphanumeric characters to space
@@ -88,7 +88,7 @@ export function addItemsTo(m2, select) {
       lstd.selectAll('.list-entry')
         .style('display', d => {
           for (var qp of qs) {
-            if (!d.sortBase.includes(qp) && !d.filename.includes(qp)) {
+            if (!d.sortBase.includes(qp) && !d.filename.includes(qp) && !d.ctimeutc.includes(qp)) {
               return 'none';
             }
           }
@@ -119,7 +119,7 @@ export function addItemsTo(m2, select) {
 
     entries.append('span')
         .classed('t2', true)
-        .text(d => formatSize(d.size) + ' ' + d.ext + ' (' + d.dirs.join('/') + ')');
+        .text(d => `${formatSize(d.size)} ${d.ext} (${d.dirs.join('/')} @ ${d.ctimeutc})`);
 
     updateMp3Count();
 
