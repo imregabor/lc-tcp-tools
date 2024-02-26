@@ -261,7 +261,7 @@ export const nodeTypes = {
     }
   },
   vu : {
-    w : 100,
+    w : 120,
     h : 130,
     title : 'VU',
     ports : {
@@ -275,7 +275,7 @@ export const nodeTypes = {
       out : {
         type : 'out',
         label : 'Channels',
-        x : 120,
+        x : 140,
         y : 40,
         l : 50
       }
@@ -286,22 +286,29 @@ export const nodeTypes = {
         initial : 24,
         x : 5,
         y : 70,
-        len : 85
+        len : 105
       },
       maxDecayH : {
         label: 'max decay',
         initial : 5000,
         x : 5,
         y : 85,
-        len : 85
+        len : 105
       },
       minDecayH : {
         label: 'min decay',
         initial : 5000,
         x : 5,
         y : 100,
-        len : 85
+        len : 105
       },
+      maxFloor : {
+        label: 'max floor',
+        initial : 0.0001,
+        x : 5,
+        y : 115,
+        len : 105
+      }
     }
   },
   sb : {

@@ -296,6 +296,9 @@ export function createPipeline() {
             const vl = value / 1.5;
 
             state.max = maxDecay * (state.max - vh) + vh;
+            if (node.params.maxFloor > state.max) {
+              state.max = node.params.maxFloor;
+            }
             if (value > state.max) {
               state.max = vh;
             }
