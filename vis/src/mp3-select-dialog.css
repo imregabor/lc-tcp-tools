@@ -97,6 +97,13 @@ body.modal-open {
   margin-bottom: 10px;
 }
 
+.modal-dg .ptext-row code {
+  display: block;
+  border: 1px solid #ccc;
+  padding: 5px;
+  background-color: #fafafa;
+  overflow-x: auto;
+}
 
 .modal-dg .src {
   margin-bottom: 10px;

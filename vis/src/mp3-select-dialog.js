@@ -203,6 +203,10 @@ export function showModal(opts) {
       m2_body.append('div').classed('ptext-row', true).text(t);
       return ret;
     },
+    appendCode : t => {
+      m2_body.append('div').classed('ptext-row', true).append('pre').append('code').text(t);
+      return ret;
+    },
     appendKV : (k, v) => {
       const d1 = m2_body.append('div').classed('modal-kv-row', true);
       d1.append('div').classed('modal-kv-k', true).text(k);
