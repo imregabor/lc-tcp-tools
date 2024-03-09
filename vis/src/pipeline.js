@@ -36,6 +36,9 @@ export function createPipeline() {
   // invoked with milliseconds since last call
   const tickEvent = ed.ed();
 
+  const errEvent = ed.ed();
+
+
   function tick() {
     const now = Date.now();
     const sampleRate = ctxFrontend.sampleRate();
@@ -55,6 +58,11 @@ export function createPipeline() {
       }
 
       const a = analyzers[id];
+
+      if (a.err) {
+        continue;
+      }
+
       const shouldCall = !a.lastCall || (a.lastCall + a.targetDelayMs <= now);
       if (!shouldCall) {
         continue;
@@ -642,7 +650,24 @@ export function createPipeline() {
       na.found = true;
       na.targetFps = n.params.targetFps;
       na.targetDelayMs = 1000 / n.params.targetFps;
-      na.analyzerNode.fftSize = n.params.fftSize;
+      try {
+        na.analyzerNode.fftSize = n.params.fftSize;
+        if (na.err) {
+          na.err.err = false;
+          console.log('Fixed', na.err);
+          errEvent(na.err);
+        }
+        na.err = false;
+      } catch (e) {
+        na.err = {
+          err : true,
+          nodeId : n.id,
+          nodeLabel : n.label,
+          message: e.message
+        };
+        console.log('Error:', e);
+        errEvent(na.err);
+      }
       maxFps = Math.max(maxFps, na.targetFps);
     });
 
@@ -677,6 +702,10 @@ export function createPipeline() {
 
 
   const ret = {
+    onError : h => {
+      errEvent.add(h);
+      return ret;
+    },
     setCtx : ctxFe => {
       console.log('AudioContext frontend set');
       ctxFrontend = ctxFe;

@@ -93,6 +93,41 @@ export function initPage() {
   const pipeline = pl.createPipeline();
   events.topologyChanged.add(pipeline.setGraph);
   events.parametersChanged.add(pipeline.updateParameter);
+  pipeline.onError(e => {
+    console.log('PIPELINE ERROR EVENT', e);
+    if (e.nodeId) {
+      const nodeG = nodelayerg.select(`#${e.nodeId}`);
+      if (nodeG) {
+        nodeG.select('rect.box').classed('err', e.err);
+
+        if (!e.err) {
+          nodeG.select('g.node-err-mark').remove();
+        } else {
+          const markG = nodeG.append('g').classed('node-err-mark', true);
+          markG.attr('transform', d => `translate(15, -20)`);
+          markG.append('path')
+              .attr('d', 'M -15 9 l 15 -26 l 15 26 l -30 0 Z');
+          markG.append('text')
+              .attr('text-anchor', 'middle')
+              .attr('alignment-baseline', 'middle')
+              .attr('x', 0)
+              .attr('y', 0)
+              .text('!');
+          markG.append('title').text(e.message);
+          markG.on('click', () => {
+            dg.showModal({
+              title: 'Error',
+              ok : () => {}
+            })
+            .appendKV('Node ID:', e.nodeId)
+            .appendKV('Node label:', e.nodeLabel)
+            .appendP('Error message:')
+            .appendCode(e.message);
+          });
+        }
+      }
+    }
+  });
   playback.onContextCreated(pipeline.setCtx);
   playback.onPlaybackStarted(() => {
     vp.softReset();

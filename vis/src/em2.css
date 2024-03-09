@@ -83,6 +83,30 @@ rect.box {
 
 }
 
+rect.box.err {
+  stroke: #5b0b0c;
+  fill:  #fee9e7;
+
+}
+
+g.node-err-mark {
+  cursor: help;
+}
+
+g.node-err-mark text {
+  fill: #5b0b0c;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+g.node-err-mark path {
+  stroke: #5b0b0c;
+  stroke-width: 2px;
+  fill: #fee9e7;
+}
+
+
 rect.param-bg-rect {
   stroke: none;
   fill: rgba(0, 0, 0, 0);
