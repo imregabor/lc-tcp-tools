@@ -1,7 +1,17 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const path = require('path');
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
+import path from 'path';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+
+// see https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
+
+//module.exports = {
+export default {
   entry: './src/entry.js',
   devtool: 'source-map',
   plugins: [

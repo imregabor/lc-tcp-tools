@@ -6,6 +6,9 @@ import * as u from './util.js';
 import * as nodeDefs from './node-definitions.js';
 import * as d3 from 'd3';
 
+export function a() {
+  return 4;
+}
 
 export function createPipeline() {
   // AudioContext frontend; currently playback instance is passed
@@ -95,6 +98,28 @@ export function createPipeline() {
     graph.dagOrderIds.forEach(id => {
       const node = graph.nodeIds[id];
       const state = node.state;
+
+      const f = {
+        node : node,
+        state : state,
+        input : (portLabel, expectedType) => {
+          const psid = node.portStateIds[portLabel];
+          if (!psid) {
+            // input port is not connected
+            return null;
+          }
+          const ps = portStates[psid];
+          if (expectedType && ps.type && ps.type !== expectedType) {
+            throw new Error(`Expected "${expectedType}" as input, got "${ps.type}"`);
+          }
+          return ps;
+        },
+        outputScalar : portLabel => {
+          const psid = node.portStateIds[portLabel];
+        }
+      };
+
+
       switch (node.type) {
         case 'aa':
           // analyzers already processed
