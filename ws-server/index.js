@@ -273,6 +273,7 @@ app.get('/api/status', (req, res) => {
   res.json(ret);
 });
 
+//  curl -X POST http://localhost:3000/api/sendToAll?data=135
 app.post('/api/sendToAll', (req, res) => {
   try {
     console.log('sendToAll ' + req.query.data);
