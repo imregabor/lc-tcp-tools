@@ -1,0 +1,28 @@
+div.top-nav-cnt {
+  border-bottom: 1px solid #ccc;
+  margin: 0px;
+  margin-bottom: 20px;
+  padding: 8px;
+  background-color: #e8e8e8;
+  display: flex;
+  justify-content: space-between;
+}
+
+.top-nav-label {
+  font-weight: bold;
+  font-style: italic;
+}
+
+i.top-nav-btn-icon {
+  color:  #808080;
+  margin-right: 0.5em;
+  cursor: pointer;
+}
+
+i.top-nav-btn-icon:hover {
+  color:  #000000;
+}
+
+i.top-nav-btn-icon:active {
+  color:  #a0a0a0;
+}

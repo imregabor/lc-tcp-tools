@@ -17,6 +17,16 @@ export function getMp3Servers(cb) {
     });
 }
 
+export function getServerUrls(result, error) {
+  const req = d3.json('/api/restApiListeningAddresses');
+  if (result) {
+    req.then(result, error);
+  } else {
+    return req;
+  }
+}
+
+
 export function stopPlayback() {
   fetch('/api/stop-playback', {
     method: 'POST'
