@@ -1,58 +1,58 @@
 body {
-	margin: 0px;
-	background-color: black;
-	font-family: sans-serif;
-	user-select: none;
+  margin: 0px;
+  background-color: black;
+  font-family: sans-serif;
+  user-select: none;
 }
 
 div.fps {
-	border-bottom: 1px solid #ccc;
-	margin: 0px;
-	margin-bottom: 20px;
-	padding: 8px;
-	background-color: #e8e8e8;
+  border-bottom: 1px solid #ccc;
+  margin: 0px;
+  margin-bottom: 20px;
+  padding: 8px;
+  background-color: #e8e8e8;
 }
 
 div.fps div.counter-group {
-	display: inline-block;
+  display: inline-block;
 }
 
 div.fps div.counter-group.hidden {
-	display: none;
+  display: none;
 }
 
 
 div.fps a.modelink {
-	margin-right: 1em;
-	color:  #b0b0b0;
+  margin-right: 1em;
+  color:  #b0b0b0;
 }
 
 div.fps a.modelink:hover {
-	color:  #000000;
+  color:  #000000;
 }
 
 div.fps a.modelink:active {
-	color:  #a3dca3
+  color:  #a3dca3
 }
 
 
 div.fps .label {
-	margin-right: 0.5em;
+  margin-right: 0.5em;
 }
 
 div.fps .value {
-	margin-right: 1em;
-	width: 3em;
-	display: inline-block;
+  margin-right: 1em;
+  width: 3em;
+  display: inline-block;
 }
 
 
 div.status-info {
-	display: block;
-	font-family: monospace;
-	color:  white;
+  display: block;
+  font-family: monospace;
+  color:  white;
 }
 
 div.status-info.hidden {
-	display : none;
+  display : none;
 }
