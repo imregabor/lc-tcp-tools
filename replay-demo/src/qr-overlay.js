@@ -6,12 +6,17 @@ import QRCode from 'qrcode';
 
 export default function show() {
   const div = d3.select('body').append('div').classed('qr-overlay', true);
+  div.style('opacity', 0).transition().duration(300).style('opacity', 1);
 
-  div.on('click', () => div.remove());
+  function removeDiv() {
+    div.transition().duration(300).style('opacity', 0).remove();
+  }
+
+  div.on('click', () => removeDiv());
   d3.select('body').on('keydown', e => {
     if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') {
       d3.select('body').on('keydown', null);
-      div.remove();
+      removeDiv();
     }
   });
 
