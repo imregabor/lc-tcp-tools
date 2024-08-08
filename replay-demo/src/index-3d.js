@@ -15,8 +15,10 @@ export function initPage() {
 
   // upper left control div
   const ulcd = d3.select('body').append('div').classed('ul-ctrl', true);
+  ulcd.append('a').classed('modelink', true).attr('href', '/vis/#catalog').attr('title', 'Start page')
+    .append('i').classed('fa fa-home', true);
   ulcd.append('a').classed('modelink', true).attr('href', '#2d').attr('title', 'Switch to 2D').text('2D');
-  ulcd.append('a').classed('modelink', true).attr('href', 'vis').attr('title', 'Switch to effect machine')
+  ulcd.append('a').classed('modelink', true).attr('href', '/vis/#vis2').attr('title', 'Switch to effect machine')
     .append('i').classed('fa fa-music', true);
 
 

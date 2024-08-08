@@ -69,11 +69,15 @@ export function initPage() {
   const fpsdiv = body.append('div').classed('fps', true);
 
   fpsdiv
-      .append('a').classed('modelink', true).attr('href', '#3d').attr('title', 'Switch to 3D')
-      .append('i').classed('fa fa-cube', true);
+      .append('a').classed('modelink', true).attr('href', '/vis/#catalog').attr('title', 'Start page')
+      .append('i').classed('fa fa-home', true);
 
   fpsdiv
-     .append('a').classed('modelink', true).attr('href', 'vis').attr('title', 'Switch to effect machine')
+      .append('a').classed('modelink', true).attr('href', '#3d').attr('title', 'Switch to 3D')
+      .text('3D');
+
+  fpsdiv
+     .append('a').classed('modelink', true).attr('href', '/vis/#vis2').attr('title', 'Switch to effect machine')
      .append('i').classed('fa fa-music', true);
 
 
@@ -170,8 +174,6 @@ export function initPage() {
         for (const url of urls) {
           overlay.add(url.url, url.name, url.url);
         }
-
-
       });
     }
   });
