@@ -8,6 +8,10 @@ export default function show() {
   const div = d3.select('body').append('div').classed('qr-overlay', true);
   div.style('opacity', 0).transition().duration(300).style('opacity', 1);
 
+  const header = div.append('div').classed('qr-header-footer', true);
+  const items = div.append('div').classed('qr-items', true);
+  const footer = div.append('div').classed('qr-header-footer', true);
+
   function removeDiv() {
     div.transition().duration(300).style('opacity', 0).remove();
   }
@@ -21,8 +25,16 @@ export default function show() {
   });
 
   const ret = {
+    header : t => {
+      header.text(t);
+      return ret;
+    },
+    footer : t => {
+      footer.text(t);
+      return ret;
+    },
     add : (qr, label1, label2) => {
-      const item = div.append('div').classed('qr-item', true);
+      const item = items.append('div').classed('qr-item', true);
       if (label1) {
         item.append('div').classed('qr-label-1', true).text(label1);
       }

@@ -170,7 +170,9 @@ export function initPage() {
     title : 'Send to mobile',
     onClick : () => {
       apiClient.getServerUrls(urls => {
-        const overlay = qrOverlay();
+        const overlay = qrOverlay()
+          .header('Server listening interfaces')
+          .footer('Click/tap or ESC/SPACE/ENTER to close');
         for (const url of urls) {
           overlay.add(url.url, url.name, url.url);
         }

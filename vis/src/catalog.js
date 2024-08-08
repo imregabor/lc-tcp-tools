@@ -20,7 +20,9 @@ export function initPage() {
       'onClick' : () => {
         apiClient.getServerUrls().then(urls => {
           console.log('Show QR overlay for urls:', urls);
-          const overlay = qrOverlay();
+          const overlay = qrOverlay()
+            .header('Server listening interfaces')
+            .footer('Click/tap or ESC/SPACE/ENTER to close');
           for (const url of urls) {
             overlay.add(url.url, url.name, url.url);
           }
