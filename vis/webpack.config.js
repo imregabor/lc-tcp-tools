@@ -3,6 +3,7 @@
 
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 // see https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 import { fileURLToPath } from 'url';
@@ -15,6 +16,14 @@ export default {
   entry: './src/entry.js',
   devtool: 'source-map',
   plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        // see https://stackoverflow.com/questions/37298215/add-favicon-with-react-and-webpack
+        {
+          from: './src/favicon.png'
+        },
+      ]
+    }),
     new HtmlWebpackPlugin({
       // see https://gauger.io/fonticon/
       // and https://stackoverflow.com/questions/37298215/add-favicon-with-react-and-webpack
