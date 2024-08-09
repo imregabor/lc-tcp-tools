@@ -1,6 +1,23 @@
-body.catalog-page {
+html.catalog-page {
+  overflow: hidden;
+  height: 100%;
+}
+
+.catalog-page body {
+  overflow: hidden;
   margin: 0px;
+  height: 100%;
   background-color: black;
   font-family: sans-serif;
   user-select: none;
+}
+
+.catalog-page-container {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+.catalog-page-main-area {
+  flex-grow: 1;
 }

@@ -1,0 +1,38 @@
+.btn-box-container {
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: relative;
+}
+
+.btn-box-button {
+  cursor: pointer;
+  position: absolute;
+  background-color: #ccc;
+  box-sizing: border-box;
+  border-radius: 10px;
+  color: #808080;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-box-button i {
+  margin-right: 0.5em;
+}
+
+.btn-box-button:hover {
+  color: #000;
+  background-color: #ddd;
+}
+
+.btn-box-button:active {
+  color: #a0a0a0;
+  background-color: #eee;
+}

@@ -5,14 +5,17 @@ import * as d3 from 'd3';
 import addTopNav from './top-nav.js';
 import * as apiClient from './api-client.js';
 import qrOverlay from './qr-overlay.js';
+import * as btnBox from './btn-box.js';
 
 export function initPage() {
   d3.select('html')
-    .style('overflow', 'hidden'); // in css it would pollute other pages
-  const body = d3.select('body').classed('catalog-page', true);
+    .classed('catalog-page', true);  // avoid css polluting other pages
+
+  const body = d3.select('body');
+  const ctr = body.append('div').classed('catalog-page-container', true);
 
 
-  const topNav = addTopNav(body)
+  const topNav = addTopNav(ctr)
     .label('LC tools')
     .addButtonIcon({
       'style' : 'fa-solid fa-paper-plane',
@@ -30,28 +33,36 @@ export function initPage() {
       }
     });
 
-  body.append('a')
-      .attr('href', '#vis')
-      .text('Effect machine + player');
-  body.append('br');
-  body.append('a')
-      .attr('href', '#vis2')
-      .text('Effect machine 2 + player');
-  body.append('br');
-  body.append('a')
-      .attr('href', '#rc')
-      .text('Remote controller');
-  body.append('br');
-  body.append('a')
-      .attr('href', '/#2d')
-      .text('2D visualize');
-  body.append('br');
-  body.append('a')
-      .attr('href', '/#3d')
-      .text('3D visualize');
-  body.append('br');
-  body.append('a')
-      .attr('href', '#colorscale')
-      .text('Color scale stuff');
-  body.append('br');
+  const buttons = btnBox.addTo(ctr.append('div').classed('catalog-page-main-area', true))
+    .addButton({
+      faclass : 'fa-music',
+      text : 'Effects + player',
+      onClick : () => window.location.href = '/vis/#vis2'
+    })
+    .addButton({
+      faclass : 'fa-th',
+      text : 'Remote controller',
+      onClick : () => window.location.href = '/vis/#rc'
+    })
+    .addButton({
+      faclass : 'fa-eye',
+      text : '2D visualize',
+      onClick : () => window.location.href = '/#2d'
+    })
+    .addButton({
+      faclass : 'fa-eye',
+      text : '3D visualize',
+      onClick : () => window.location.href = '/#3d'
+    })
+    .addButton({
+      faclass : 'fa-music',
+      text : 'OLD Effects + player',
+      onClick : () => window.location.href = '/vis/#vis'
+    })
+    .addButton({
+      faclass : 'fa-tint',
+      text : 'Color scale stuff',
+      onClick : () => window.location.href = '/vis/#colorscale'
+    })
+    .layout();
 }
