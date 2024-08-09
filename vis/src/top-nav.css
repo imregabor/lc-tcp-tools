@@ -7,7 +7,14 @@ div.top-nav-cnt {
   justify-content: space-between;
 }
 
+div.top-nav-cell {
+  display: flex;
+  align-items: center;
+}
+
 .top-nav-label {
+  color:  #808080;
+  font-size: 125%;
   font-weight: bold;
   font-style: italic;
 }

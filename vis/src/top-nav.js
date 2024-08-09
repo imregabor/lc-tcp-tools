@@ -7,8 +7,8 @@ import * as statusIcons from './top-nav-status-icons.js';
 export function addTo(parentD3) {
 
   const div = parentD3.append('div').classed('top-nav-cnt', true);
-  const left = div.append('div');
-  const right = div.append('div');
+  const left = div.append('div').classed('top-nav-cell', true);
+  const right = div.append('div').classed('top-nav-cell', true);
 
   const ret = {
     statusIconStyles : statusIcons.statusIconStyles,
