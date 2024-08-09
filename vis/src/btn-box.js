@@ -1,6 +1,7 @@
 'use strict';
 
 import './btn-box.css';
+import * as scw from './size-change-watcher.js';
 
 export function addTo(parentD3) {
   const div = parentD3.append('div').classed('btn-box-container', true);
@@ -11,6 +12,8 @@ export function addTo(parentD3) {
   var cols = 0;
   var rows = 0;
   const sep = 15;
+
+  var polling = false;
 
   const ret = {
     setButtonCount : n => {
@@ -37,7 +40,7 @@ export function addTo(parentD3) {
       buttonDivs.push(btnDiv);
       return ret;
     },
-    layout : () => {
+    layout : doTransition => {
       if (!buttonDivs.length) {
         throw new Error('Button count is not already');
       }
@@ -67,12 +70,17 @@ export function addTo(parentD3) {
       for (var i = 0; i < buttonCount; i++) {
         const x = i % cols;
         const y = Math.floor(i / cols);
-        buttonDivs[i]
+        (doTransition ? buttonDivs[i].transition().duration(200) : buttonDivs[i])
             .style('font-size', `${fs}px`)
             .style('width', `${w}px`)
             .style('height', `${h}px`)
             .style('left', `${Math.round(sep + (bcr.width  - sep) * x / cols)}px`)
             .style('top',  `${Math.round(sep + (bcr.height - sep) * y / rows)}px`);
+      }
+
+      if (!polling) {
+        polling = true;
+        scw.watchForSizeChange(div, () => ret.layout(true));
       }
     }
   };
