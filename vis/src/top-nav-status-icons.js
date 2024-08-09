@@ -19,7 +19,7 @@ export function addStatusIcon(d3sel, opts) {
       icon.attr('title', opts.titles.unknown);
       return ret;
     },
-    ok : () => {
+    ok : titleExtra => {
       icon
           .classed(opts.styles.err, false)
           .classed(opts.styles.warn, false)
@@ -27,7 +27,8 @@ export function addStatusIcon(d3sel, opts) {
           .classed(opts.styles.ok, true)
           .classed('err warn', false)
           .classed('ok', true);
-      icon.attr('title', opts.titles.ok);
+      const title = titleExtra ? `${opts.titles.ok} ${titleExtra}` : opts.titles.ok;
+      icon.attr('title', title);
       return ret;
     },
     err : () => {

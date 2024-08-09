@@ -79,13 +79,16 @@ export function initPage() {
 
 
   // Periodic status info update
+  var lastSent;
   function updateStatusIconsOk(statusInfo) {
-    restApiIcon.ok();
+    const dt = Date.now() - lastSent;
+    restApiIcon.ok(`ping: ${dt} ms`);
   }
   function updateStatusIconsErr(statusInfo) {
     restApiIcon.err();
   }
   function pingStatusInfo() {
+    lastSent = Date.now();
     apiClient.getStatusInfo(updateStatusIconsOk, updateStatusIconsErr, 150);
   }
   function pollStatusInfo() {
