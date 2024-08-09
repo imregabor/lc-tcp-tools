@@ -2,7 +2,7 @@
 
 import './catalog.css';
 import * as d3 from 'd3';
-import addTopNav from './top-nav.js';
+import * as topNavs from './top-nav.js';
 import * as apiClient from './api-client.js';
 import qrOverlay from './qr-overlay.js';
 import * as btnBox from './btn-box.js';
@@ -15,8 +15,19 @@ export function initPage() {
   const ctr = body.append('div').classed('catalog-page-container', true);
 
 
-  const topNav = addTopNav(ctr)
-    .label('LC tools')
+  const topNav = topNavs.addTo(ctr)
+    .label('LC tools');
+  const restApiIcon = topNav.addStatusIcon({
+    styles: topNav.statusIconStyles.network,
+    titles : {
+      unknown : 'REST API availability is unknown',
+      warn : 'REST API availability is unknown',
+      err : 'REST API is not reachable',
+      ok : 'REST API is up',
+    }
+  });
+  topNav
+    .sep()
     .addButtonIcon({
       'style' : 'fa-solid fa-paper-plane',
       'title' : 'Send to mobile',
@@ -65,4 +76,22 @@ export function initPage() {
       onClick : () => window.location.href = '/vis/#colorscale'
     })
     .layout();
+
+
+  // Periodic status info update
+  function updateStatusIconsOk(statusInfo) {
+    restApiIcon.ok();
+  }
+  function updateStatusIconsErr(statusInfo) {
+    restApiIcon.err();
+  }
+  function pingStatusInfo() {
+    apiClient.getStatusInfo(updateStatusIconsOk, updateStatusIconsErr, 150);
+  }
+  function pollStatusInfo() {
+    pingStatusInfo();
+    setTimeout(pollStatusInfo, 1000);
+  }
+  pollStatusInfo();
+
 }

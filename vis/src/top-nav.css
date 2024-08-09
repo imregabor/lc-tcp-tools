@@ -12,6 +12,12 @@ div.top-nav-cnt {
   font-style: italic;
 }
 
+.top-nav-sep {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+
 i.top-nav-btn-icon {
   color:  #808080;
   margin-right: 0.5em;
@@ -25,3 +31,4 @@ i.top-nav-btn-icon:hover {
 i.top-nav-btn-icon:active {
   color:  #a0a0a0;
 }
+

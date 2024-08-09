@@ -2,6 +2,14 @@
 
 import * as d3 from 'd3';
 
+export function getStatusInfo(result, error, timeout) {
+  // see https://stackoverflow.com/questions/46946380/fetch-api-request-timeout
+  // see https://d3js.org/d3-fetch
+  // see https://fetch.spec.whatwg.org/#requestinit
+  const requestInit =  timeout ?  { signal: AbortSignal.timeout(timeout) } : undefined;
+  d3.json('/api/status', requestInit )
+     .then(result, error);
+}
 
 /** Callback called for each mp3 server address */
 export function getMp3Servers(cb) {

@@ -1,0 +1,26 @@
+i.top-nav-status {
+  color:  #808080;
+  margin-right: 0.5em;
+  cursor: help;
+}
+
+i.top-nav-status.err {
+  outline:  5px solid #993a1a;
+  background-color: #993a1a;
+  color: #d99f8c;
+  border-radius: 5px;
+}
+
+i.top-nav-status.ok {
+  outline:  5px solid #126d12;
+  background-color: #126d12;
+  color:  #a8f0a8;
+  border-radius: 5px;
+}
+
+i.top-nav-status.warn {
+  outline:  5px solid #afaf1d;
+  background-color: #afaf1d;
+  color:  #eded91;
+  border-radius: 5px;
+}
