@@ -7,8 +7,31 @@ export function addStatusIcon(d3sel, opts) {
   const icon = d3sel.append('i')
       .classed('fa fa-fw top-nav-status', true)
       .classed(opts.styles.common, true);
+  const badge = icon.append('i')
+      .classed('fa fa-fw top-nav-status-badge', true)
+      .style('opacity', 0);
 
   const ret = {
+    badgeOff : (transitionDuration, transitionDelay) => {
+      (transitionDuration
+          ? badge.transition().duration(transitionDuration).delay(transitionDelay ? transitionDelay : 0)
+          : badge
+      )
+        .style('opacity', 0);
+      return ret;
+    },
+    badge : (faclass, transitionDuration, transitionDelay) => {
+      badge
+        .attr('class', null)
+        .classed(faclass, true)
+        .classed('fa fa-fw top-nav-status-badge', true);
+      (transitionDuration
+          ? badge.transition().duration(transitionDuration).delay(transitionDelay ? transitionDelay : 0)
+          : badge
+      )
+        .style('opacity', 1);
+      return ret;
+    },
     unknown : () => {
       icon
           .classed(opts.styles.ok, false)
