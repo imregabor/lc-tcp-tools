@@ -1,5 +1,27 @@
 'use strict';
 
+export function pad00(n) {
+  const s = "00" + n;
+  return s.substr(s.length - 2);
+}
+
+export function formatTimeMs(t) {
+  if (t == 0) {
+    return 0;
+  }
+  if (t < 1000) {
+    return `${t} ms`;
+  }
+  if (t < 60000) {
+    return `${Math.floor(t / 100) / 10} s`
+  }
+  const s = Math.floor(t / 1000) % 60;
+  const m = Math.floor(t / 60000) % 60;
+  const h = Math.floor(t / 3600000);
+
+  return `${h === 0 ? "":h + ":"}${pad00(m)}:${pad00(s)}`;
+}
+
 export function niceRound(v) {
   const va = Math.abs(v);
   var ret;
