@@ -80,20 +80,28 @@ export function initPage() {
 
   // Periodic status info update
   var lastSent;
+  function updateStatusIconsSent() {
+    lastSent = Date.now();
+    restApiIcon.badge('fa-heart lightblue', 200);
+  }
   function updateStatusIconsOk(statusInfo) {
     const dt = Date.now() - lastSent;
-    restApiIcon.ok(`ping: ${dt} ms`);
+    restApiIcon
+        .ok(`ping: ${dt} ms`)
+        .badgeOff(500, 200);
   }
   function updateStatusIconsErr(statusInfo) {
-    restApiIcon.err();
+    restApiIcon
+        .err()
+        .badgeOff(500, 200);
   }
   function pingStatusInfo() {
-    lastSent = Date.now();
+    updateStatusIconsSent();
     apiClient.getStatusInfo(updateStatusIconsOk, updateStatusIconsErr, 150);
   }
   function pollStatusInfo() {
     pingStatusInfo();
-    setTimeout(pollStatusInfo, 1000);
+    setTimeout(pollStatusInfo, 2000);
   }
   pollStatusInfo();
 
