@@ -5,11 +5,13 @@ div.top-nav-cnt {
   background-color: #e8e8e8;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 div.top-nav-cell {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .top-nav-label {
@@ -17,7 +19,26 @@ div.top-nav-cell {
   font-size: 125%;
   font-weight: bold;
   font-style: italic;
+  margin-right: 1em;
+  text-wrap: nowrap;
 }
+
+.top-nav-kv-cont {
+  color:  #808080;
+  font-size: 85%;
+  display: flex;
+  margin-right: 1em;
+  align-items: center;
+}
+
+.top-nav-kv-key {
+  margin-right: 1em;
+}
+
+.top-nav-kv-value {
+  font-family: monospace;
+}
+
 
 .top-nav-sep {
   margin-left: 1em;

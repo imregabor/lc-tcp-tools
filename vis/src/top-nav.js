@@ -16,6 +16,12 @@ export function addTo(parentD3) {
       left.append('div').classed('top-nav-label', true).text(t);
       return ret;
     },
+    kv : (k, title) => {
+      const cd = left.append('div').classed('top-nav-kv-cont', true).attr('title', title);
+      const kd = cd.append('div').classed('top-nav-kv-key', true).text(k);
+      const vd = cd.append('div').classed('top-nav-kv-value', true);
+      return vd;
+    },
     sep : () => {
       right.append('span').classed('top-nav-sep', true);
       return ret;
