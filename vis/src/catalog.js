@@ -6,6 +6,7 @@ import * as topNavs from './top-nav.js';
 import * as apiClient from './api-client.js';
 import qrOverlay from './qr-overlay.js';
 import * as btnBox from './btn-box.js';
+import * as u from './util.js';
 
 export function initPage() {
   d3.select('html')
@@ -17,6 +18,8 @@ export function initPage() {
 
   const topNav = topNavs.addTo(ctr)
     .label('LC tools');
+
+  const uptimeDiv = topNav.kv('Uptime:', 'WS server reported uptime').text('---');
   const restApiIcon = topNav.addStatusIcon({
     styles: topNav.statusIconStyles.network,
     titles : {
@@ -86,11 +89,13 @@ export function initPage() {
   }
   function updateStatusIconsOk(statusInfo) {
     const dt = Date.now() - lastSent;
+    uptimeDiv.text(u.formatTimeMs(statusInfo.uptime));
     restApiIcon
         .ok(`ping: ${dt} ms`)
         .badgeOff(500, 200);
   }
   function updateStatusIconsErr(statusInfo) {
+    uptimeDiv.text('----');
     restApiIcon
         .err()
         .badgeOff(500, 200);
