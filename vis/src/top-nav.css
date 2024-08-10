@@ -10,8 +10,9 @@ div.top-nav-cnt {
 
 div.top-nav-cell {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
+  line-height: 1.75em;
 }
 
 .top-nav-label {
