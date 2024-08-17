@@ -54,7 +54,7 @@ if (options.mp3srv) {
 const starttime = Date.now();
 const listeningPort = 12345;
 const fwdPort = 23;
-const fwdHost = '192.168.10.101';
+const fwdHost = '192.168.22.10';
 // const fwdHost = '192.168.10.102';
 // const fwdHost = 'localhost';
 // const host = '192.168.10.101';

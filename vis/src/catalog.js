@@ -33,7 +33,16 @@ export function initPage() {
       err : 'REST API is not reachable',
       ok : 'REST API is up',
     }
-  });
+  }).unknown();
+  const srvFwdConnIcon = topNav.addStatusIcon({
+    styles: topNav.statusIconStyles.plug,
+    titles : {
+      unknown : 'Server forwarding connection is in unknown state',
+      warn : 'Server forwarding connection is in unknown state',
+      err : 'Server forwarding connection is not connected',
+      ok : 'Server forwarding connection is connected',
+    }
+  }).unknown();
   topNav
     .sep()
     .addButtonIcon({
@@ -120,6 +129,11 @@ export function initPage() {
     restApiIcon
         .ok(`ping: ${dt} ms`)
         .badgeOff(500, 200);
+    if (statusInfo.fwdConnStatus.connected) {
+      srvFwdConnIcon.ok();
+    } else {
+      srvFwdConnIcon.err();
+    }
   }
   function updateStatusIconsErr(statusInfo) {
     uptimeDiv.text('----');
@@ -131,6 +145,7 @@ export function initPage() {
     restApiIcon
         .err()
         .badgeOff(500, 200);
+    srvFwdConnIcon.unknown();
   }
   function pingStatusInfo() {
     updateStatusIconsSent();

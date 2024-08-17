@@ -3,6 +3,8 @@ i.top-nav-status {
   margin-right: 0.5em;
   cursor: help;
   position: relative;
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 i.top-nav-status.clickable {
