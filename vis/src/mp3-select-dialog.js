@@ -200,18 +200,27 @@ export function showModal(opts) {
       return ret;
     },
     appendP : t => {
-      m2_body.append('div').classed('ptext-row', true).text(t);
+      appendDynamicP(t);
       return ret;
+    },
+    appendDynamicP : t => {
+      return m2_body.append('div').classed('ptext-row', true).text(t);
     },
     appendCode : t => {
-      m2_body.append('div').classed('ptext-row', true).append('pre').append('code').text(t);
+      appendDynamicCode(t);
       return ret;
     },
+    appendDynamicCode : t => {
+      return m2_body.append('div').classed('ptext-row', true).append('pre').append('code').text(t);
+    },
     appendKV : (k, v) => {
+      ret.appendDynamicKV(k, v);
+      return ret;
+    },
+    appendDynamicKV : (k, v) => {
       const d1 = m2_body.append('div').classed('modal-kv-row', true);
       d1.append('div').classed('modal-kv-k', true).text(k);
-      d1.append('div').classed('modal-kv-v', true).text(v);
-      return ret;
+      return d1.append('div').classed('modal-kv-v', true).text(v);
     },
     appendResolvingList(data, t1format, t2format) {
       const lstd = m2_body.append('div').classed('lst', true);

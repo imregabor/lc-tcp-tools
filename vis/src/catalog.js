@@ -7,6 +7,8 @@ import * as apiClient from './api-client.js';
 import qrOverlay from './qr-overlay.js';
 import * as btnBox from './btn-box.js';
 import * as u from './util.js';
+import * as d from './mp3-select-dialog.js';
+
 
 export function initPage() {
   d3.select('html')
@@ -21,6 +23,9 @@ export function initPage() {
 
   const uptimeDiv = topNav.kv('Uptime:', 'WS server reported uptime').text('---');
   const restApiIcon = topNav.addStatusIcon({
+    onClick : () => {
+      showStatusDetails();
+    },
     styles: topNav.statusIconStyles.network,
     titles : {
       unknown : 'REST API availability is unknown',
@@ -80,6 +85,22 @@ export function initPage() {
     })
     .layout();
 
+  var statusDetailsD3s = undefined;
+
+  function showStatusDetails() {
+    statusDetailsD3s = {};
+    const m = d.showModal({
+      title : 'WS server status',
+      reject : () => statusDetailsD3s = undefined
+    });
+    statusDetailsD3s.uptime = m.appendDynamicKV('Uptime', '.....');
+    statusDetailsD3s.lastping = m.appendDynamicKV('Last ping', '.....');
+    m.appendH2('Raw status JSON');
+    statusDetailsD3s.statusjson = m.appendDynamicCode('.....');
+    pollStatusInfo();
+  }
+
+
 
   // Periodic status info update
   var lastSent;
@@ -90,12 +111,23 @@ export function initPage() {
   function updateStatusIconsOk(statusInfo) {
     const dt = Date.now() - lastSent;
     uptimeDiv.text(u.formatTimeMs(statusInfo.uptime));
+    if (statusDetailsD3s) {
+      statusDetailsD3s.uptime.text(u.formatTimeMs(statusInfo.uptime));
+      statusDetailsD3s.lastping.text(`${dt} ms`);
+      statusDetailsD3s.statusjson.text(JSON.stringify(statusInfo, null, 2));
+    }
+
     restApiIcon
         .ok(`ping: ${dt} ms`)
         .badgeOff(500, 200);
   }
   function updateStatusIconsErr(statusInfo) {
     uptimeDiv.text('----');
+    if (statusDetailsD3s) {
+      statusDetailsD3s.uptime.text('----');
+      statusDetailsD3s.lastping.text('----');
+      statusDetailsD3s.statusjson.text('----');
+    }
     restApiIcon
         .err()
         .badgeOff(500, 200);
@@ -104,9 +136,17 @@ export function initPage() {
     updateStatusIconsSent();
     apiClient.getStatusInfo(updateStatusIconsOk, updateStatusIconsErr, 150);
   }
+  var statusInfoTimeout = undefined;
   function pollStatusInfo() {
+    if (statusInfoTimeout) {
+      clearTimeout(statusInfoTimeout);
+      statusInfoTimeout = undefined;
+    }
     pingStatusInfo();
-    setTimeout(pollStatusInfo, 2000);
+    statusInfoTimeout = setTimeout(() => {
+      statusInfoTimeout = undefined;
+      pollStatusInfo();
+    }, statusDetailsD3s ? 500 : 2000);
   }
   pollStatusInfo();
 
