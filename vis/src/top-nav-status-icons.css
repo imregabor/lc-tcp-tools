@@ -5,6 +5,18 @@ i.top-nav-status {
   position: relative;
 }
 
+i.top-nav-status.clickable {
+  cursor: pointer;
+}
+
+i.top-nav-status.clickable:hover {
+  box-shadow: black 0 0 10px 5px;
+}
+
+i.top-nav-status.clickable:active {
+  box-shadow: black 0 0 5px 10px;
+}
+
 i.top-nav-status.err {
   outline:  5px solid #993a1a;
   background-color: #993a1a;

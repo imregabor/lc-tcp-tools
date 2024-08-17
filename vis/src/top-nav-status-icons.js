@@ -11,6 +11,10 @@ export function addStatusIcon(d3sel, opts) {
       .classed('fa fa-fw top-nav-status-badge', true)
       .style('opacity', 0);
 
+  if (opts.onClick) {
+    icon.classed('clickable', true).on('click', opts.onClick);
+  }
+
   const ret = {
     badgeOff : (transitionDuration, transitionDelay) => {
       (transitionDuration
