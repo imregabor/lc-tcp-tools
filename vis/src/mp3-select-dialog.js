@@ -200,14 +200,14 @@ export function showModal(opts) {
       return ret;
     },
     appendP : t => {
-      appendDynamicP(t);
+      ret.appendDynamicP(t);
       return ret;
     },
     appendDynamicP : t => {
       return m2_body.append('div').classed('ptext-row', true).text(t);
     },
     appendCode : t => {
-      appendDynamicCode(t);
+      ret.appendDynamicCode(t);
       return ret;
     },
     appendDynamicCode : t => {
