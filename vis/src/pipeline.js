@@ -370,6 +370,113 @@ export function createPipeline() {
             ops.updated = true;
           }
           break;
+        case 'linCombine':
+          var ipsa;
+          var ips0;
+          var ips1;
+          var ops;
+          if (node.portStateIds.a) {
+            ipsa = portStates[node.portStateIds.a];
+            if (ipsa.type !== 'scalar') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "scalar" as input "a", got "${ipsa.type}"`);
+            }
+          }
+          if (node.portStateIds.in0) {
+            ips0 = portStates[node.portStateIds.in0];
+            if (ips0.type !== 'scalar' && ips0.type !== 'spectrum' && ips0.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "scalar", "spectrum" or "channels" as input 0, got "${ips0.type}"`);
+            }
+          }
+          if (node.portStateIds.in1) {
+            ips1 = portStates[node.portStateIds.in1];
+            if (ips1.type !== 'scalar' && ips1.type !== 'spectrum' && ips1.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "scalar", "spectrum" or "channels" as input 1, got "${ips1.type}"`);
+            }
+          }
+          if (ips0 && ips1) {
+            if (ips0.type !== ips1.type) {
+              throw new Error(`Expected matching input types, got input 0 type "${ips0.type}", input 1 type: "${ips1.type}"`);
+            }
+            if (ips0.type === 'spectrum') {
+              // be restrictive with merging spectrums
+              if (ips0.maxf !== ips1.maxf) {
+                throw new Error(`Expected matching spectrum max freqs, got input 0 maxf "${ips0.maxf}", input 1 maxf: "${ips1.maxf}"`);
+              }
+              if (ips0.bins.length !== ips1.bins.length) {
+                throw new Error(`Expected matching spectrum bins, got input 0 bins "${ips0.bins.length}", input 1 bins: "${ips1.bins.length}"`);
+              }
+            }
+          }
+
+          if (node.portStateIds.out && (ips0 || ips1)) {
+            ops = portStates[node.portStateIds.out];
+
+            const refps0 = ips0 ? ips0 : ips1;
+            const refps1 = ips1 ? ips1 : ips0;
+
+            ops.type = refps0.type;
+
+            switch (refps0.type) {
+              case 'scalar':
+                if (!ops.value) {
+                  ops.value = 0;
+                  ops.channels = undefined;
+                  ops.bins = undefined;
+                  state.holdFrom = 0;
+                }
+                break;
+              case 'channels':
+                const channelCount = Math.max(refps0.channels.length, refps1.channels.length);
+                if (!ops.channels || ops.channels.length !== channelCount) {
+                  ops.value = undefined;
+                  ops.channels = new Float32Array(channelCount);
+                  ops.bins = undefined;
+                }
+                break;
+              case 'spectrum':
+                // note that spectrums are expected to match
+                ops.maxf = refps0.maxf;
+                if (!ops.bins || ops.bins.length !== refps0.bins.length) {
+                  ops.value = undefined;
+                  ops.channels = undefined;
+                  ops.bins = new Float32Array(refps0.bins.length);
+                }
+                break;
+            }
+          }
+          if ((ips0 || ips1) && ops && ((ips0 && ips0.updated) || (ips1 && ips1.updated) || (ipsa && ipsa.updated))) {
+            const refps0 = ips0 ? ips0 : ips1;
+            const refps1 = ips1 ? ips1 : ips0;
+            var a = ipsa ? ipsa.value : 0;
+            if (a < 0) {
+              a = 0;
+            } else if (a > 1) {
+              a = 1;
+            }
+            state.lastUpdate = now; // todo - common implementation
+            switch (refps0.type) {
+              case 'channels':
+              case 'spectrum':
+                const ia0 = refps0.type === 'channels' ? refps0.channels : refps0.bins;
+                const ia1 = refps0.type === 'channels' ? refps1.channels : refps1.bins;
+                const oa =  refps0.type === 'channels' ? ops.channels : ops.bins;
+
+                for (var i = 0; i < oa.length; i++) {
+                  const v0 = i < ia0.length ? ia0[i] : 0;
+                  const v1 = i < ia1.length ? ia1[i] : 0;
+                  oa[i] = (1 - a) * v0 + a * v1;
+                }
+                break;
+              case 'scalar':
+                ops.value = (1 - a) * refps0.value + a * refps1.value;
+                break;
+            }
+            ops.updated = true;
+          }
+          break;
         case 'channelRemap':
           var ips;
           var ops;

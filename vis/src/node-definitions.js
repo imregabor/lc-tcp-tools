@@ -41,6 +41,15 @@ export const nodeFunctions = {
       params.clip = +params.clip;
     }
   },
+  linCombine : {
+    initState : params => {
+      return {
+
+      };
+    },
+    updateState : (params, state) => {
+    }
+  },
   channelRemap : {
     initState : params => {
       params.mode = +params.mode;
@@ -377,6 +386,43 @@ Output values are clipped to \`0 - 1\` interval.`,
         y : 100,
         len : 85
       }
+    }
+  },
+  linCombine : {
+    w : 100,
+    h : 130,
+    title : 'Linear combine',
+    ports : {
+      a : {
+        type : 'in',
+        label : 'a',
+        x : -20,
+        y : 40,
+        l : 50
+      },
+      in0 : {
+        type : 'in',
+        label : 'In0',
+        x : -20,
+        y : 80,
+        l : 50
+      },
+      in1 : {
+        type : 'in',
+        label : 'In1',
+        x : -20,
+        y : 110,
+        l : 50
+      },
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 120,
+        y : 40,
+        l : 50
+      }
+    },
+    params : {
     }
   },
   channelRemap : {
