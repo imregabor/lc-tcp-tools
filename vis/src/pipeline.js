@@ -341,12 +341,23 @@ export function createPipeline() {
               state.min = vl;
             }
 
-            var on = node.params.channels * (value - state.min) / (state.max - state.min);
+            const normalized = (value - state.min) / (state.max - state.min);
+
+
+            var onValue = node.params.onValueA * normalized + node.params.onValueB;
+            if (onValue < 0) {
+              onValue = 0;
+            } else if (onValue > 1) {
+              onValue = 1;
+            }
+            console.log(normalized, onValue)
+
+            var on = node.params.channels * normalized * onValue;
 
             for (var i = 0; i < node.params.channels; i++) {
-              if (on >= 1) {
-                ops.channels[i] = 1;
-                on = on - 1;
+              if (on >= onValue) {
+                ops.channels[i] = onValue;
+                on = on - onValue;
               } else if (on > 0) {
                 ops.channels[i] = on;
                 on = 0;

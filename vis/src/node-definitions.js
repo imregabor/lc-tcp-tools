@@ -32,6 +32,12 @@ export const nodeFunctions = {
         max : 0,
         min : 0,
 
+        maxDecayH : +params.maxDecayH,
+        maxDecayL : +params.maxDecayL,
+        maxFloor : +params.maxFloor,
+        onValueA : +params.onValueA,
+        onValueB : +params.onValueB,
+
         // Decay rate constants
         // lambda from https://en.wikipedia.org/wiki/Exponential_decay
         maxDecayL : Math.log(2) / params.maxDecayH,
@@ -39,6 +45,12 @@ export const nodeFunctions = {
       }
     },
     updateState : (params, state) => {
+      params.maxDecayH = +params.maxDecayH;
+      params.maxDecayL = +params.maxDecayL;
+      params.maxFloor = +params.maxFloor;
+      params.onValueA = +params.onValueA;
+      params.onValueB = +params.onValueB;
+
       state.maxDecayL = Math.log(2) / params.maxDecayH;
       state.minDecayL = Math.log(2) / params.minDecayH;
     }
@@ -262,7 +274,7 @@ export const nodeTypes = {
   },
   vu : {
     w : 120,
-    h : 130,
+    h : 160,
     title : 'VU',
     ports : {
       ein : {
@@ -307,6 +319,21 @@ export const nodeTypes = {
         initial : 0.0001,
         x : 5,
         y : 115,
+        len : 105
+      },
+      // Value for "on" channels is calculated by ax + b where x is the input value after normalization
+      onValueA : {
+        label : 'on cv "a"',
+        initial : 0.0,
+        x : 5,
+        y : 130,
+        len : 105
+      },
+      onValueB : {
+        label : 'on cv "b"',
+        initial : 1.0,
+        x : 5,
+        y : 145,
         len : 105
       }
     }

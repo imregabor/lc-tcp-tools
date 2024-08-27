@@ -37,6 +37,21 @@ Contents
 Getting started
 ---------------
 
+### Installing Cygwin
+
+Install the following packages:
+
+ - mc
+ - git
+ - curl
+ - nc
+ - python3
+ - ffmpeg
+
+### Node
+
+Download and install `node.js`
+
  - Compile `replay-demo/` (see [`replay-demo/README.md`](replay-demo/README.md>)
  - Compile `vis/` (see [`vis/README.md`](vis/README.md))
  - Launch `ws-server` see [`ws-server/README.md`](ws-server/README.md))
