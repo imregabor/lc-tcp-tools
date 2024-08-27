@@ -389,7 +389,7 @@ Output values are clipped to \`0 - 1\` interval.`,
     }
   },
   linCombine : {
-    w : 100,
+    w : 115,
     h : 130,
     title : 'Linear combine',
     ports : {
