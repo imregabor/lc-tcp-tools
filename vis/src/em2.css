@@ -143,6 +143,10 @@ rect.param-bg-rect {
   fill: rgba(255,0,0,0.2);
 }
 
+text {
+  user-select: none;
+}
+
 text.node-label {
   font-family: monospace;
   font-size: 12px;
