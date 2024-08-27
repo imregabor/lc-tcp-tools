@@ -351,8 +351,8 @@ export const nodeTypes = {
     },
     params : {
       scaleA : {
-        label: 'scale \'a\'',
-        descriptionMd: `## Output scale slope (a)
+        label: 'scale (a)',
+        descriptionMd: `## Output scale slope \`a\`
 Output values scaled with \`out = a * in + b\`.`,
         initial : 1,
         x : 5,
@@ -360,8 +360,8 @@ Output values scaled with \`out = a * in + b\`.`,
         len : 85
       },
       scaleB : {
-        label: 'scale \'b\'',
-        descriptionMd: `## Output scale offset (b)
+        label: 'scale (b)',
+        descriptionMd: `## Output scale offset \`b\`
 Output values scaled with \`out = a * in + b\`.`,
         initial : 0,
         x : 5,
