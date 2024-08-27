@@ -28,15 +28,15 @@ export const nodeFunctions = {
   },
   vu : {
     initState : params => {
+      params.maxDecayH = +params.maxDecayH;
+      params.maxDecayL = +params.maxDecayL;
+      params.maxFloor = +params.maxFloor;
+      params.onValueA = +params.onValueA;
+      params.onValueB = +params.onValueB;
+
       return {
         max : 0,
         min : 0,
-
-        maxDecayH : +params.maxDecayH,
-        maxDecayL : +params.maxDecayL,
-        maxFloor : +params.maxFloor,
-        onValueA : +params.onValueA,
-        onValueB : +params.onValueB,
 
         // Decay rate constants
         // lambda from https://en.wikipedia.org/wiki/Exponential_decay

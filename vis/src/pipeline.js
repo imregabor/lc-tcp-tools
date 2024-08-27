@@ -320,7 +320,7 @@ export function createPipeline() {
             const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
             state.lastUpdate = now; // todo - common implementation
 
-            const value = ips.value;
+            const value = +ips.value;
 
 
             const maxDecay = Math.exp( -state.maxDecayL * dt);
