@@ -307,6 +307,13 @@ export const nodeTypes = {
     params : {
       mode : {
         label: 'mode',
+        descriptionMd :
+`## Remapping style
+Use the following values:
+ - \`0\`: **Default**, pass through
+ - \`1\`: **Reverse**, first input channel is mapped to the last output
+ - \`2\`: **Center to side**, first input channel is mapped to the middle output
+`,
         initial : 0,
         x : 5,
         y : 70,

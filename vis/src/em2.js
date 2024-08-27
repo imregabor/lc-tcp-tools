@@ -488,6 +488,9 @@ export function initPage() {
       modal.appendKV('Default value:', d.def.initial);
       modal.appendKV('Current value:', d.value);
       const nvf = modal.appendNumInput('New value:', d.value);
+      if (d.def.descriptionMd) {
+        modal.appendMarkdown(d.def.descriptionMd);
+      }
 
     }
   }
