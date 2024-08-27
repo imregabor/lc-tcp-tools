@@ -26,6 +26,21 @@ export const nodeFunctions = {
       state.decayL = Math.log(2) / params.decay;
     }
   },
+  linScale : {
+    initState : params => {
+      params.scaleA = +params.scaleA;
+      params.scaleB = +params.scaleB;
+      params.clip = +params.clip;
+      return {
+
+      };
+    },
+    updateState : (params, state) => {
+      params.scaleA = +params.scaleA;
+      params.scaleB = +params.scaleB;
+      params.clip = +params.clip;
+    }
+  },
   channelRemap : {
     initState : params => {
       params.mode = +params.mode;
@@ -310,6 +325,56 @@ export const nodeTypes = {
         initial : 150,
         x : 5,
         y : 85,
+        len : 85
+      }
+    }
+  },
+  linScale : {
+    w : 100,
+    h : 130,
+    title : 'Linear scale',
+    ports : {
+      in : {
+        type : 'in',
+        label : 'In',
+        x : -20,
+        y : 40,
+        l : 50
+      },
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 120,
+        y : 40,
+        l : 50
+      }
+    },
+    params : {
+      scaleA : {
+        label: 'scale \'a\'',
+        descriptionMd: `## Output scale slope (a)
+Output values scaled with \`out = a * in + b\`.`,
+        initial : 1,
+        x : 5,
+        y : 70,
+        len : 85
+      },
+      scaleB : {
+        label: 'scale \'b\'',
+        descriptionMd: `## Output scale offset (b)
+Output values scaled with \`out = a * in + b\`.`,
+        initial : 0,
+        x : 5,
+        y : 85,
+        len : 85
+      },
+      clip : {
+        label: 'clip',
+        descriptionMd: `## Output clip to \`0 - 1\`
+Output values are clipped to \`0 - 1\` interval.`,
+        initial : 1,
+        x : 5,
+        y : 100,
         len : 85
       }
     }

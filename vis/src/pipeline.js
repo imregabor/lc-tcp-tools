@@ -298,6 +298,81 @@ export function createPipeline() {
           }
 
           break;
+        case 'linScale':
+          var ips;
+          var ops;
+          if (node.portStateIds.in) {
+            ips = portStates[node.portStateIds.in];
+            if (ips.type !== 'scalar' && ips.type !== 'spectrum' && ips.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "scalar", "spectrum" or "channels" as input, got "${ips.type}"`);
+            }
+          }
+          if (node.portStateIds.out && ips) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = ips.type;
+
+            switch (ips.type) {
+              case 'scalar':
+                if (!ops.value) {
+                  ops.value = 0;
+                  ops.channels = undefined;
+                  ops.bins = undefined;
+                  state.holdFrom = 0;
+                }
+                break;
+              case 'channels':
+                if (!ops.channels || ops.channels.length !== ips.channels.length || !state.holdFrom || state.holdFrom.length !== ips.channels.length) {
+                  ops.value = undefined;
+                  ops.channels = new Float32Array(ips.channels.length);
+                  ops.bins = undefined;
+                  state.holdFrom = new Array(ips.channels.length);
+                }
+                break;
+              case 'spectrum':
+                ops.maxf = ips.maxf;
+                if (!ops.bins || ops.bins.length !== ips.bins.length || !state.holdFrom || state.holdFrom.length !== ips.bins.length) {
+                  ops.value = undefined;
+                  ops.channels = undefined;
+                  ops.bins = new Float32Array(ips.bins.length);
+                  state.holdFrom = new Array(ips.bins.length);
+                }
+                break;
+            }
+          }
+          if (ips && ops && ips.updated) {
+            const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
+            state.lastUpdate = now; // todo - common implementation
+            switch (ips.type) {
+              case 'channels':
+              case 'spectrum':
+                const ia = ips.type === 'channels' ? ips.channels : ips.bins;
+                const oa = ips.type === 'channels' ? ops.channels : ops.bins;
+                for (var i = 0; i < oa.length; i++) {
+                  oa[i] = node.params.scaleA * ia[i] + node.params.scaleB;
+                  if (node.params.clip !== 0) {
+                    if (oa[i] < 0) {
+                      oa[i] = 0;
+                    } else if (oa[i] > 1) {
+                      oa[i] = 1;
+                    }
+                  }
+                }
+                break;
+              case 'scalar':
+                ops.value = node.params.scaleA * ips.value + node.params.scaleB;
+                if (node.params.clip !== 0) {
+                  if (ops.value < 0) {
+                    ops.value = 0;
+                  } else if (ops.value > 1) {
+                    ops.value = 1;
+                  }
+                }
+                break;
+            }
+            ops.updated = true;
+          }
+          break;
         case 'channelRemap':
           var ips;
           var ops;
