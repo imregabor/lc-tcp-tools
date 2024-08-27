@@ -313,6 +313,7 @@ Use the following values:
  - \`0\`: **Default**, pass through
  - \`1\`: **Reverse**, first input channel is mapped to the last output
  - \`2\`: **Center to side**, first input channel is mapped to the middle output
+ - \`8\`: **7x5 matrix spiral center start**, mapping 35 channels to a spiral, starting in (arpund) the center
 `,
         initial : 0,
         x : 5,
