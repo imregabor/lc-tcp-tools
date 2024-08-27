@@ -350,7 +350,6 @@ export function createPipeline() {
             } else if (onValue > 1) {
               onValue = 1;
             }
-            console.log(normalized, onValue)
 
             var on = node.params.channels * normalized * onValue;
 
