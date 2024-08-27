@@ -17,7 +17,9 @@ const chalk = require('chalk');
 // see https://www.npmjs.com/package/command-line-args
 const cliOpts = [
   { name : 'mp3srv', type : String, multiple : true, description : 'Specify mp3 servers' },
-  { name : 'help', alias : 'h', type : Boolean, description : 'Print usage help' }
+  { name : 'help', alias : 'h', type : Boolean, description : 'Print usage help' },
+  { name : 'fwdHost', type : String, defaultValue : '192.168.22.10', description : 'Host for fwdConn (hardware gateway)' },
+  { name : 'fwdPort', type : Number, defaultValue : 23, description : 'Port for fwdConn (hardware gateway)' }
 ];
 const options = commandLineArgs(cliOpts)
 
@@ -53,8 +55,8 @@ if (options.mp3srv) {
 
 const starttime = Date.now();
 const listeningPort = 12345;
-const fwdPort = 23;
-const fwdHost = '192.168.22.10';
+const fwdPort = options.fwdPort; // 23;
+const fwdHost = options.fwdHost; // '192.168.22.10';
 // const fwdHost = '192.168.10.102';
 // const fwdHost = 'localhost';
 // const host = '192.168.10.101';
