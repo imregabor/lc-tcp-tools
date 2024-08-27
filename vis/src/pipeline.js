@@ -318,24 +318,21 @@ export function createPipeline() {
                   ops.value = 0;
                   ops.channels = undefined;
                   ops.bins = undefined;
-                  state.holdFrom = 0;
                 }
                 break;
               case 'channels':
-                if (!ops.channels || ops.channels.length !== ips.channels.length || !state.holdFrom || state.holdFrom.length !== ips.channels.length) {
+                if (!ops.channels || ops.channels.length !== ips.channels.length) {
                   ops.value = undefined;
                   ops.channels = new Float32Array(ips.channels.length);
                   ops.bins = undefined;
-                  state.holdFrom = new Array(ips.channels.length);
                 }
                 break;
               case 'spectrum':
                 ops.maxf = ips.maxf;
-                if (!ops.bins || ops.bins.length !== ips.bins.length || !state.holdFrom || state.holdFrom.length !== ips.bins.length) {
+                if (!ops.bins || ops.bins.length !== ips.bins.length) {
                   ops.value = undefined;
                   ops.channels = undefined;
                   ops.bins = new Float32Array(ips.bins.length);
-                  state.holdFrom = new Array(ips.bins.length);
                 }
                 break;
             }
