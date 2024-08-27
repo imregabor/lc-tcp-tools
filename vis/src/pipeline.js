@@ -350,7 +350,9 @@ export function createPipeline() {
                          +----------+----------+----------+----------+----------+----------+----------+
                     */
                     state.map = [ 16, 17, 18, 19, 12, 11, 10, 9, 8, 15, 22, 23, 24, 25, 26, 27, 20, 13, 6, 5, 4, 3, 2, 1, 0, 7, 14, 21, 28, 29, 30, 31, 32, 33, 34 ];
-                  } // when not 35 channels fall through to default
+                    break;
+                  }
+                  // when not 35 channels fall through to default
                 case 9: // 7x5 spiral corner start
                   if (ips.channels.length === 35) {
                     /*
@@ -367,8 +369,11 @@ export function createPipeline() {
                          +----------+----------+----------+----------+----------+----------+----------+
                     */
                     state.map = [ 0, 1, 2, 3, 4, 5, 6, 13, 20, 27, 34, 33, 32, 31, 30, 29, 28, 21, 14, 7, 8, 9, 10, 11, 12, 19, 26, 25, 24, 23, 22, 15, 16, 17, 18 ];
-                  } // when not 35 channels fall through to default
+                    break;
+                  }
+                  // when not 35 channels fall through to default
                 default :
+                  state.map = [];
                   for (var i = 0; i < ips.channels.length; i++) {
                     state.map.push(i);
                   }
