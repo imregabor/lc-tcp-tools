@@ -2,6 +2,7 @@
 
 import * as d3 from 'd3';
 import './mp3-select-dialog.css'
+import * as marked from 'marked';
 
 var mp3index;
 
@@ -197,6 +198,11 @@ export function showModal(opts) {
     getDgD3 : () => { return m2; },
     appendH2 : t => {
       m2_body.append('h2').text(t);
+      return ret;
+    },
+    appendMarkdown : md => {
+      const parsed = marked.parse(md);
+      m2_body.append('div').classed('markdown-row', true).html(parsed);
       return ret;
     },
     appendP : t => {

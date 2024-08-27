@@ -105,6 +105,20 @@ body.modal-open {
   overflow-x: auto;
 }
 
+.modal-dg .markdown-row {
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.modal-dg .markdown-row code {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 2px;
+  background-color: #fafafa;
+  overflow-x: auto;
+}
+
+
 .modal-dg .src {
   margin-bottom: 10px;
 }
