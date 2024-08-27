@@ -298,6 +298,59 @@ export function createPipeline() {
           }
 
           break;
+        case 'channelRemap':
+          var ips;
+          var ops;
+          if (node.portStateIds.in) {
+            ips = portStates[node.portStateIds.in];
+            if (ips.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "channels" as input, got "${ips.type}"`);
+            }
+          }
+          if (node.portStateIds.out && ips) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = 'channels';
+
+            if (!ops.channels || ops.channels.length !== ips.channels.length || !state.map || state.map.length !== ips.channels.length) {
+              ops.value = undefined;
+              ops.channels = new Float32Array(ips.channels.length);
+              ops.bins = undefined;
+              state.map = [];
+              switch (node.params.mode) {
+                case 1: // last to first
+                  for (var i = 0; i < ips.channels.length; i++) {
+                    state.map.push(ips.channels.length - i - 1);
+                  }
+                  break;
+                case 2: // center to side
+                  const mid = Math.floor(ips.channels.length / 2);
+                  const dir1 = (ips.channels.length % 2 == 0) ? -1 : 1;
+
+                  for (var i = 0; i < ips.channels.length; i++) {
+                    const step = Math.ceil(i / 2);
+                    const dir2 = (i % 2 == 0) ? -1 : 1;
+                    const mapped = mid + dir1 * dir2 * step;
+                    state.map.push(mapped);
+                  }
+                  break;
+                default :
+                  for (var i = 0; i < ips.channels.length; i++) {
+                    state.map.push(i);
+                  }
+                  break;
+              }
+            }
+          }
+          if (ips && ops && ips.updated) {
+            state.lastUpdate = now; // todo - common implementation
+            for (var i = 0; i < ips.channels.length; i++) {
+              ops.channels[state.map[i]] = ips.channels[i];
+            }
+            ops.updated = true;
+          }
+
+          break;
         case 'vu':
           var ips;
           var ops;

@@ -26,6 +26,18 @@ export const nodeFunctions = {
       state.decayL = Math.log(2) / params.decay;
     }
   },
+  channelRemap : {
+    initState : params => {
+      params.mode = +params.mode;
+      return {
+        map : []
+      }
+    },
+    updateState : (params, state) => {
+      params.mode = +params.mode;
+      state.map = [];
+    }
+  },
   vu : {
     initState : params => {
       params.maxDecayH = +params.maxDecayH;
@@ -268,6 +280,36 @@ export const nodeTypes = {
         initial : 150,
         x : 5,
         y : 85,
+        len : 85
+      }
+    }
+  },
+  channelRemap : {
+    w : 100,
+    h : 85,
+    title : 'Channel remap',
+    ports : {
+      in : {
+        type : 'in',
+        label : 'In',
+        x : -20,
+        y : 40,
+        l : 50
+      },
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 120,
+        y : 40,
+        l : 50
+      }
+    },
+    params : {
+      mode : {
+        label: 'mode',
+        initial : 0,
+        x : 5,
+        y : 70,
         len : 85
       }
     }
