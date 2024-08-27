@@ -686,6 +686,100 @@ export function createPipeline() {
             }).then(() => {}, () => {});
           }
           break;
+        case 'fixedEffect':
+          var ops;
+          if (node.portStateIds.out) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = 'channels';
+
+            if (!ops.channels || ops.channels.length !== node.params.channels) {
+              ops.value = undefined;
+              ops.channels = new Float32Array(node.params.channels);
+              ops.bins = undefined;
+            }
+          }
+          if (ops) {
+            state.lastUpdate = now; // todo - common implementation
+            switch (node.params.mode) {
+              case 1: // antialiased symmetric chase
+              case 2: // antialiased asymmetric
+                /*
+                  0.0                                           1.0
+                   |---------------------------------------------|
+                   |     |     |     |     .....     |     |     |
+                      ^     ^     ^                     ^     ^
+                     ch0   ch1   ch2                        ch(n-1)
+                */
+                // position inside animation scaled to 0..1
+                const p = (now % (node.params.dt * 1000)) / (node.params.dt * 1000);
+                // fractional position of the point
+                const x = p * ops.channels.length;
+                for (var i = 0; i < ops.channels.length; i++) {
+                  // distance of the point
+                  var d;
+                  if (node.params.mode === 1) {
+                    // symmetric case
+                    d = Math.min(Math.abs(x - i + 0.5), Math.abs(x - i + 0.5 - ops.channels.length));
+                  } else {
+                    // asymmetric case, only left distance is
+                    var d1 = x - i + 0.5;
+                    if (d1 < 0) {
+                      d1 = 999999;
+                    }
+                    var d2 = x - i - ops.channels.length + 0.5;
+                    if (d2 < 0) {
+                      d2 = 999999;
+                    }
+                    d = Math.min(d1, d2);
+                  }
+                  var l = d > node.params.dotsize ? 0 : 1 - d / node.params.dotsize;
+                  ops.channels[i] = node.params.value1 + l * (node.params.value2 - node.params.value1) ;
+                }
+                break;
+              case 9: // DVD screensaver for 7x5 matrix / 35 ch mode
+                if (node.params.channels === 35) {
+                  if (now - state.lastStep >= node.params.dt * 1000) {
+                    state.lastStep = now;
+                    if (state.dx !== 1 && state.dx !== -1) {
+                      state.dx = 1;
+                    }
+                    if (state.dy !== 1 && state.dy !== -1) {
+                      state.dy = 1;
+                    }
+                    state.x = state.x + state.dx;
+                    if (state.dx === 1 && state.x === 5) {
+                      state.dx = -1;
+                    }
+                    if (state.dx === -1 && state.x === 0) {
+                      state.dx = 1;
+                    }
+                    state.y = state.y + state.dy;
+                    if (state.dy === 1 && state.y === 3) {
+                      state.dy = -1;
+                    }
+                    if (state.dy === -1 && state.y === 0) {
+                      state.dy = 1;
+                    }
+                    for (var i = 0; i < ops.channels.length; i++) {
+                      ops.channels[i] = node.params.value1;
+                    }
+                  }
+                  ops.channels[state.x + 0 + (state.y + 0) * 7] = node.params.value2;
+                  ops.channels[state.x + 0 + (state.y + 1) * 7] = node.params.value2;
+                  ops.channels[state.x + 1 + (state.y + 0) * 7] = node.params.value2;
+                  ops.channels[state.x + 1 + (state.y + 1) * 7] = node.params.value2;
+                  break;
+                }
+                // intentionally fall through default when not 35 ch mode
+              case 0:
+              default: // default fixed intensiy
+                for (var i = 0; i < ops.channels.length; i++) {
+                  ops.channels[i] = node.params.value1;
+                }
+            }
+            ops.updated = true;
+          }
+
       }
     });
 

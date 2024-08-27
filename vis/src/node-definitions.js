@@ -121,8 +121,38 @@ export const nodeFunctions = {
     updateState : (params, state) => {
       state.targetDelayMs = 1000 / params.targetFps;
     }
-
+  },
+  fixedEffect : {
+    initState : params => {
+      params.mode = +params.mode;
+      params.dt = +params.dt;
+      params.channels = +params.channels;
+      params.value1 = +params.value1;
+      params.value2 = +params.value2;
+      params.dotsize = +params.dotsize;
+      return {
+        x : 0,
+        y : 0,
+        dx : 0,
+        dy : 0,
+        lastStep : 0
+      };
+    },
+    updateState : (params, state) => {
+      params.mode = +params.mode;
+      params.dt = +params.dt;
+      params.channels = +params.channels;
+      params.value1 = +params.value1;
+      params.value2 = +params.value2;
+      params.dotsize = +params.dotsize;
+      state.x = 0;
+      state.y = 0;
+      state.dx = 0;
+      state.dy = 0;
+      state.lastStep = 0;
+    }
   }
+
 };
 
 export const nodeTypes = {
@@ -510,6 +540,95 @@ Use the following values:
         y : 100,
         len : 85
       }
+    }
+  },
+  fixedEffect : {
+    w : 100,
+    h : 160,
+    title : 'Fixed effect',
+    ports : {
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 120,
+        y : 40,
+        l : 50
+      }
+    },
+    params : {
+      channels : {
+        label : 'channels',
+        descriptionMd :
+`## Channel count
+
+Number of generated output channels`,
+        initial : 5,
+        x : 5,
+        y : 70,
+        len : 85
+      },
+      dt : {
+        label: 'dt (s)',
+        descriptionMd :
+`## Time step
+
+Time step for time dependent effects
+`,
+        initial : 1,
+        x : 5,
+        y : 100,
+        len : 85
+      },
+      mode : {
+        label: 'mode',
+        descriptionMd :
+`## Effect style
+
+Use the following values:
+ - \`0\`: **Default**, Uniform values, specified by \`value1\`
+ - \`1\`: **Chaser1**, antialiased symmetric chaser, extent specified by \`dotsize\`, loop time specified by \`dt\`
+ - \`2\`: **Chaser2**, antialiased asymmetric chaser, extent specified by \`dotsize\`, loop time specified by \`dt\`
+ - \`9\`: **DVD screensaver for 7x5 matrix**, delay between steps is specified by \`dt\`. Only when 35 channels is set
+`,
+        initial : 0,
+        x : 5,
+        y : 85,
+        len : 85
+      },
+      value1 : {
+        label: 'value1',
+        descriptionMd :
+`## First effect parameter
+
+Typically used as baseline intensiy`,
+        initial : 0.5,
+        x : 5,
+        y : 115,
+        len : 85
+      },
+      value2 : {
+        label: 'value2',
+        descriptionMd :
+`## Second effect parameter
+
+Typically used as highlight intensiy`,
+        initial : 1,
+        x : 5,
+        y : 130,
+        len : 85
+      },
+      dotsize : {
+        label: 'dotsize',
+        descriptionMd :
+`## Dot size
+
+Dot size of the chaser effect`,
+        initial : 3,
+        x : 5,
+        y : 145,
+        len : 85
+      }
+
     }
   }
 };
