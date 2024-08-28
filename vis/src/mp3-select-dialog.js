@@ -248,6 +248,15 @@ export function showModal(opts) {
       }
       return ret;
     },
+    appendTextAreaInput : (k, v) => {
+      const d1 = m2_body.append('div').classed('ptext-row', true);
+      d1.append('div').classed('modal-kv-k', true).text(k);
+      const i = d1.append('div').append('textArea').attr('rows', 50).text(v);
+      i.node().focus();
+      i.node().select();
+      return () => i.property('value');
+
+    },
     appendStrInput : (k, v) => {
       const d1 = m2_body.append('div').classed('modal-kv-row', true);
       d1.append('div').classed('modal-kv-k', true).text(k);

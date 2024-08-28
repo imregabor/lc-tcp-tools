@@ -118,7 +118,10 @@ body.modal-open {
   overflow-x: auto;
 }
 
-
+.modal-dg textarea {
+  width:  100%;
+  resize: vertical;
+}
 .modal-dg .src {
   margin-bottom: 10px;
 }
