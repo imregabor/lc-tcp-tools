@@ -251,7 +251,7 @@ export function initPage() {
         x : 200,
         y : 200
       },
-      pvals : {
+      params : {
         fftSize : 1024,
         targetFps : 200
       }
@@ -296,7 +296,7 @@ export function initPage() {
         x : 1000,
         y : 400
       },
-      pvals : {
+      params : {
         channels: 35
       }
     },
@@ -599,7 +599,7 @@ export function initPage() {
               domid : newId(),
               paramid : k,
               def : v,
-              value : (d.pvals && d.pvals[k]) ? d.pvals[k] : v.initial
+              value : (d.params && d.params[k]) ? d.params[k] : v.initial
             };});
         d.params = params;
         const paramsctr = sel.append('g');
