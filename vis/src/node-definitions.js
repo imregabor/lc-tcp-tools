@@ -13,17 +13,21 @@ export const nodeFunctions = {
     initState : params => {
       params.decay = +params.decay;
       params.sustain = +params.sustain;
+      params.attack = +params.attack;
       return {
 
         // Decay rate constants
         // lambda from https://en.wikipedia.org/wiki/Exponential_decay
-        decayL : Math.log(2) / params.decay
+        decayL : Math.log(2) / params.decay,
+        attackL : Math.log(2) / params.attack
       }
     },
     updateState : (params, state) => {
       params.decay = +params.decay;
       params.sustain = +params.sustain;
+      params.attack = +params.attack;
       state.decayL = Math.log(2) / params.decay;
+      state.attackL = Math.log(2) / params.attack;
     }
   },
   linScale : {
@@ -330,10 +334,19 @@ export const nodeTypes = {
         len : 85
       },
       decay : {
-        label: 'decay',
+        label: 'decay (ms)',
         initial : 150,
         x : 5,
         y : 85,
+        len : 85
+      },
+      attack : {
+        label: 'attack (ms)',
+        descriptionMd : `## Attack rate
+Time in \`ms\` to close half the distance to the input.`,
+        initial : 0,
+        x : 5,
+        y : 100,
         len : 85
       }
     }

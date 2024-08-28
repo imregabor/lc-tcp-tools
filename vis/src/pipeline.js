@@ -265,17 +265,21 @@ export function createPipeline() {
             const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
             state.lastUpdate = now; // todo - common implementation
             const decay = Math.exp( -state.decayL * dt);
+            const attack = Math.exp( -state.attackL * dt);
             switch (ips.type) {
               case 'channels':
               case 'spectrum':
                 const ia = ips.type === 'channels' ? ips.channels : ips.bins;
                 const oa = ips.type === 'channels' ? ops.channels : ops.bins;
                 for (var i = 0; i < oa.length; i++) {
+                  const larger = ia[i] > oa[i];
                   if (!node.params.sustain || (state.holdFrom[i] + node.params.sustain) <= now) {
-                    oa[i] = oa[i] * decay;
+                    if (!larger) {
+                      oa[i] = oa[i] * decay;
+                    }
                   }
-                  if (ia[i] > oa[i]) {
-                    oa[i] = ia[i];
+                  if (larger) {
+                    oa[i] = ia[i] - (ia[i] - oa[i]) * attack;
                     if (node.params.sustain) {
                       state.holdFrom[i] = now;
                     }
@@ -283,11 +287,14 @@ export function createPipeline() {
                 }
                 break;
               case 'scalar':
+                const larger = ips.value > ops.value;
                 if (!node.params.sustain || (state.holdFrom + node.params.sustain) <= now) {
-                  ops.value = ops.value * decay;
+                  if (!larger) {
+                    ops.value = ops.value * decay;
+                  }
                 }
-                if (ips.value > ops.value) {
-                  ops.value = ips.value;
+                if (larger) {
+                  ops.value = ips.value - (ips.value - ops.value) * attack;
                   if (node.params.sustain) {
                     state.holdFrom = now;
                   }
