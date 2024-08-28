@@ -226,7 +226,8 @@ export function createPipeline() {
             ips = portStates[node.portStateIds.in];
             if (ips.type !== 'scalar' && ips.type !== 'spectrum' && ips.type !== 'channels') {
               // TODO: better error handling; in graph init time
-              throw new Error(`Expected "scalar", "spectrum" or "channels" as input, got "${ips.type}"`);
+              console.log(`MH: Expected "scalar", "spectrum" or "channels" as input, got "${ips.type}"`);
+              break;
             }
           }
           if (node.portStateIds.out && ips) {
@@ -264,14 +265,17 @@ export function createPipeline() {
           if (ips && ops && ips.updated) {
             const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
             state.lastUpdate = now; // todo - common implementation
-            const decay = Math.exp( -state.decayL * dt);
-            const attack = Math.exp( -state.attackL * dt);
+            const decay = node.params.decay ? Math.exp( -state.decayL * dt) : 0.0;
+            const attack = node.params.attack ? Math.exp( -state.attackL * dt) : 0.0;
             switch (ips.type) {
               case 'channels':
               case 'spectrum':
                 const ia = ips.type === 'channels' ? ips.channels : ips.bins;
                 const oa = ips.type === 'channels' ? ops.channels : ops.bins;
                 for (var i = 0; i < oa.length; i++) {
+                  if (!Number.isFinite(oa[i])) {
+                    oa[i] = ia[i];
+                  }
                   const larger = ia[i] > oa[i];
                   if (!node.params.sustain || (state.holdFrom[i] + node.params.sustain) <= now) {
                     if (!larger) {
@@ -287,6 +291,10 @@ export function createPipeline() {
                 }
                 break;
               case 'scalar':
+                if (!Number.isFinite(ops.value)) {
+                  ops.value = ips.value;
+                }
+
                 const larger = ips.value > ops.value;
                 if (!node.params.sustain || (state.holdFrom + node.params.sustain) <= now) {
                   if (!larger) {
@@ -819,14 +827,16 @@ export function createPipeline() {
             ipsLb24 = portStates[node.portStateIds.lb24];
             if (ipsLb24.type !== 'channels') {
               // TODO: better error handling; in graph init time
-              throw new Error(`Expected "channels" as input, got ${ipsLb24.type}`);
+              console.log(`LR: Expected "channels" as input of bar24, got ${ipsLb24.type}`);
+              break;
             }
           }
           if (node.portStateIds.lm35) {
             ipsLm35 = portStates[node.portStateIds.lm35];
             if (ipsLm35.type !== 'channels') {
               // TODO: better error handling; in graph init time
-              throw new Error(`Expected "channels" as input, got ${ipsLm35.type}`);
+              console.log(`LR: Expected "channels" as input of matrix 7x5, got ${ipsLm35.type}`);
+              break;
             }
           }
 
