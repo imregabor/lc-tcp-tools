@@ -26,6 +26,12 @@ div.player-overlay {
   /* background-color: green; */
 }
 
+div.pagebuttons-overlay {
+  position:  absolute;
+  left: 80px;
+  top: 10px;
+}
+
 .pb-player {
   display: inline-block;
   min-width: 500px;

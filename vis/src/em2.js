@@ -13,6 +13,8 @@ import * as pl from './pipeline.js';
 import * as ed from './ed.js';
 import * as panes from './panes.js';
 import * as vispane from './vispane.js';
+import * as apiClient from './api-client.js';
+import qrOverlay from './qr-overlay.js';
 
 
 
@@ -83,6 +85,28 @@ export function initPage() {
   const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
 
   const playerOverlayDiv = svgdiv.append('div').classed('player-overlay', true);
+
+  const pageButtonsOverlayDiv = svgdiv.append('div').classed('pagebuttons-overlay playback-extra-controls', true);
+  pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-home', true)
+    .attr('title', 'Go to landing page')
+    .on('click', () => window.location.href = '/vis/#catalog');
+
+  pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-solid fa-paper-plane', true)
+    .attr('title', 'Send to mobile')
+    .on('click', () => {
+      apiClient.getServerUrls().then(urls => {
+        console.log('Show QR overlay for urls:', urls);
+        const overlay = qrOverlay()
+          .header('Server listening interfaces')
+          .footer('Click/tap or ESC/SPACE/ENTER to close');
+        for (const url of urls) {
+          overlay.add(url.url, url.name, url.url);
+        }
+      });
+    });
+
 
   // const playback = pb.addPlaybackControls(playerOverlayDiv);
   const playback = pb.addSimplePlayback(
