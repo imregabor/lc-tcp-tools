@@ -28,17 +28,19 @@ export function initPage() {
     parametersChanged : ed.ed()
   };
 
-  function exportGraph(includeLayout) {
+  function exportGraph(includeIds, includeLayout) {
     var ni = 0;
     return {
       nodes : nodes.map(n => {
         n.tmp_index = ni++;
         const gn = {
           type : n.type,
-          label: n.label,
-          id : n.render.id,
-          index : n.tmp_index
+          label: n.label
+          // index : n.tmp_index
         };
+        if (includeIds) {
+          gn.id = n.render.id;
+        }
         if (n.params) {
           gn.params = {};
           n.params.forEach(p => gn.params[p.paramid] = p.value);
@@ -55,18 +57,20 @@ export function initPage() {
         const ge = {
           n1index : e.n1.tmp_index,
           n2index : e.n2.tmp_index,
-          n1id : e.n1.render.id,
-          n2id : e.n2.render.id,
           p1 : e.p1,
           p2 : e.p2
         };
+        if (includeIds) {
+          ge.n1id = e.n1.render.id;
+          ge.n2id = e.n2.render.id;
+        }
         return ge;
       })
     };
   }
 
   function fireTopologyChanged() {
-    const graph = exportGraph(false);
+    const graph = exportGraph(true, false);
     console.log('Topology changed. UI nodes:', nodes, 'UI edges:', edges, 'Exported graph:', graph);
     events.topologyChanged(graph);
   }
@@ -106,7 +110,7 @@ export function initPage() {
     .classed('fa fa-fw fa-file-code', true)
     .attr('title', 'Export pipeline')
     .on('click', () => {
-      const graph = exportGraph(true);
+      const graph = exportGraph(false, true);
       const graphJson = JSON.stringify(graph, null, 2);
       const modal = mp3SelectDialog.showModal({ title : 'Exported graph'});
       modal.appendCode(graphJson);
