@@ -16,6 +16,7 @@ import * as vispane from './vispane.js';
 import * as apiClient from './api-client.js';
 import qrOverlay from './qr-overlay.js';
 import * as mp3SelectDialog from './mp3-select-dialog.js';
+import * as pipelinePresets from './pipeline-presets.js';
 
 
 
@@ -292,140 +293,8 @@ export function initPage() {
   var editingNodeParams = false;
 
 
-  var nodes = [
-    {
-      type : 'aa', // [0] audio analyzer
-      label : 'Analyzer',
-      layout : {
-        x : 200,
-        y : 200
-      },
-      params : {
-        fftSize : 1024,
-        targetFps : 200
-      }
-    },
-    {
-      type : 'aa', // [1]
-      label : 'Analyzer 2',
-      size: 256,
-      layout : {
-        x : 200,
-        y : 400
-      }
-    },
-    {
-      type : 'dbm2linm', // [2]
-      label : 'Spectrum to lin',
-      layout : {
-        x : 400,
-        y : 400
-      }
-    },
-    {
-      type : 'aw', // [3]
-      label : 'A-weights',
-      layout : {
-        x : 600,
-        y : 400
-      }
-    },
-    {
-      type : 'fde', // [4]
-      label : 'FD energy',
-      layout : {
-        x : 800,
-        y : 400
-      }
-    },
-    {
-      type : 'vu', // [5]
-      label : 'VU',
-      layout : {
-        x : 1000,
-        y : 400
-      },
-      params : {
-        channels: 35
-      }
-    },
-    {
-      type : 'tde', // [6] time domain energy
-      label : 'TD energy',
-      layout : {
-        x : 400,
-        y : 200
-      },
-    },
-    {
-      type : 'vu', // [7]
-      label : 'VU 2',
-      layout : {
-        x : 600,
-        y : 200
-      }
-    },
-    {
-      type : 'lr', // [8]
-      label : 'Legacy router',
-      layout : {
-        x : 1200,
-        y : 200
-      }
-    },
-  ];
-
-  var edges = [
-    {
-      n1: nodes[0],
-      p1: 'tdo',
-      n2: nodes[6],
-      p2: 'tdi'
-    },
-    {
-      n1: nodes[0],
-      p1: 'spo',
-      n2: nodes[2],
-      p2: 'spi'
-    },
-    {
-      n1: nodes[2],
-      p1: 'spo',
-      n2: nodes[3],
-      p2: 'spi'
-    },
-    {
-      n1: nodes[3],
-      p1: 'spo',
-      n2: nodes[4],
-      p2: 'fdi'
-    },
-    {
-      n1: nodes[4],
-      p1: 'eo',
-      n2: nodes[5],
-      p2: 'ein'
-    },
-    {
-      n1: nodes[5],
-      p1: 'out',
-      n2: nodes[8],
-      p2: 'lm35'
-    },
-    {
-      n1: nodes[6],
-      p1: 'eo',
-      n2: nodes[7],
-      p2: 'ein'
-    },
-    {
-      n1: nodes[7],
-      p1: 'out',
-      n2: nodes[8],
-      p2: 'lb24'
-    }
-
-  ];
+  var nodes;
+  var edges;
 
   const hoverPreviewG = maing.append('g').classed('hover-preview', true);
   var edgelayerg = maing.append('g');
@@ -685,7 +554,6 @@ export function initPage() {
       }
     }); nodes = null;
   }
-  renderNodes();
 
   var edgePaths;
   function renderEdges() {
@@ -706,10 +574,21 @@ export function initPage() {
 
     routeEdges();
   }
-  renderEdges();
 
-
-  fireTopologyChanged();
+  function importGraph(g) {
+    console.log('Import graph to UI ===================')
+    console.log('Graph:'. g)
+    nodes = g.nodes;
+    edges = g.edges;
+    edges.forEach(e => {
+      e.n1 = nodes[e.n1index];
+      e.n2 = nodes[e.n2index];
+    });
+    renderNodes();
+    renderEdges();
+    fireTopologyChanged();
+  }
+  importGraph(pipelinePresets.simpleVu);
 
   function routeEdges() {
     edgePaths.each(function (d) {
