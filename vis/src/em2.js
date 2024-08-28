@@ -15,6 +15,7 @@ import * as panes from './panes.js';
 import * as vispane from './vispane.js';
 import * as apiClient from './api-client.js';
 import qrOverlay from './qr-overlay.js';
+import * as mp3SelectDialog from './mp3-select-dialog.js';
 
 
 
@@ -27,10 +28,9 @@ export function initPage() {
     parametersChanged : ed.ed()
   };
 
-
-  function fireTopologyChanged() {
+  function exportGraph() {
     var ni = 0;
-    const graph = {
+    return {
       nodes : nodes.map(n => {
         n.tmp_index = ni++;
         const gn = {
@@ -57,6 +57,10 @@ export function initPage() {
         return ge;
       })
     };
+  }
+
+  function fireTopologyChanged() {
+    const graph = exportGraph();
     console.log('Topology changed. UI nodes:', nodes, 'UI edges:', edges, 'Exported graph:', graph);
     events.topologyChanged(graph);
   }
@@ -91,6 +95,17 @@ export function initPage() {
     .classed('fa fa-fw fa-home', true)
     .attr('title', 'Go to landing page')
     .on('click', () => window.location.href = '/vis/#catalog');
+
+  pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-file-code', true)
+    .attr('title', 'Export pipeline')
+    .on('click', () => {
+      const graph = exportGraph();
+      const graphJson = JSON.stringify(graph, null, 2);
+      const modal = mp3SelectDialog.showModal({ title : 'Exported graph'});
+      modal.appendCode(graphJson);
+    });
+
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-solid fa-paper-plane', true)
