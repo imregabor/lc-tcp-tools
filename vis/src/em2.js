@@ -113,8 +113,22 @@ export function initPage() {
     .on('click', () => {
       const graph = exportGraph(false, true);
       const graphJson = JSON.stringify(graph, null, 2);
-      const modal = mp3SelectDialog.showModal({ title : 'Exported graph'});
-      modal.appendCode(graphJson);
+      const modal = mp3SelectDialog.showModal({
+        title : 'Exported graph',
+        resolve : d => {
+          if (d.action === 'import') {
+            const json = tai();
+            importGraph(JSON.parse(json));
+          }
+        }
+      });
+      modal.appendResolvingList([{
+        action : 'import',
+        t1 : 'Import graph',
+        t2 : 'Drop existing graph and import edited'
+      }], i => i.t1, i => i.t2);
+      const tai = modal.appendTextAreaInput('JSON:', graphJson);
+
     });
 
 
