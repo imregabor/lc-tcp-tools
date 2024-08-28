@@ -35,7 +35,7 @@ export function initPage() {
         n.tmp_index = ni++;
         const gn = {
           type : n.type,
-          label: n.layout.label,
+          label: n.label,
           id : n.render.id,
           index : n.tmp_index
         };
@@ -291,8 +291,8 @@ export function initPage() {
   var nodes = [
     {
       type : 'aa', // [0] audio analyzer
+      label : 'Analyzer',
       layout : {
-        label : 'Analyzer',
         x : 200,
         y : 200
       },
@@ -303,41 +303,41 @@ export function initPage() {
     },
     {
       type : 'aa', // [1]
+      label : 'Analyzer 2',
       size: 256,
       layout : {
-        label : 'Analyzer 2',
         x : 200,
         y : 400
       }
     },
     {
       type : 'dbm2linm', // [2]
+      label : 'Spectrum to lin',
       layout : {
-        label : 'Spectrum to lin',
         x : 400,
         y : 400
       }
     },
     {
       type : 'aw', // [3]
+      label : 'A-weights',
       layout : {
-        label : 'A-weights',
         x : 600,
         y : 400
       }
     },
     {
       type : 'fde', // [4]
+      label : 'FD energy',
       layout : {
-        label : 'FD energy',
         x : 800,
         y : 400
       }
     },
     {
       type : 'vu', // [5]
+      label : 'VU',
       layout : {
-        label : 'VU',
         x : 1000,
         y : 400
       },
@@ -347,24 +347,24 @@ export function initPage() {
     },
     {
       type : 'tde', // [6] time domain energy
+      label : 'TD energy',
       layout : {
-        label : 'TD energy',
         x : 400,
         y : 200
       },
     },
     {
       type : 'vu', // [7]
+      label : 'VU 2',
       layout : {
-        label : 'VU 2',
         x : 600,
         y : 200
       }
     },
     {
       type : 'lr', // [8]
+      label : 'Legacy router',
       layout : {
-        label : 'Legacy router',
         x : 1200,
         y : 200
       }
@@ -499,20 +499,20 @@ export function initPage() {
         },
         resolve : v => {
           console.log('Resolved; update title', v);
-          d.layout.label = v;
+          d.label = v;
           updateNodeTitles();
         },
         ok : () => nvf()
       });
-      modal.appendKV('Current value:', d.layout.label);
-      const nvf = modal.appendStrInput('New value:', d.layout.label);
+      modal.appendKV('Current value:', d.label);
+      const nvf = modal.appendStrInput('New value:', d.label);
     } else if (d.paramid) {
       const parentD3 = d3.select(this.parentNode);
       const pd = parentD3.datum();
       console.log('Param', d, pd);
 
       const modal = dg.showModal({
-        title: `Change parameter "${d.def.label}" of "${pd.layout.label}"`,
+        title: `Change parameter "${d.def.label}" of "${pd.label}"`,
         reject : () => {
           console.log('Rejected');
         },
@@ -541,7 +541,7 @@ export function initPage() {
   }
 
   function updateNodeTitles() {
-    nodelayerg.selectAll('g.titleg text').text(d => d.layout.label);
+    nodelayerg.selectAll('g.titleg text').text(d => d.label);
   }
 
   function updateNodeParamValues() {
@@ -594,7 +594,7 @@ export function initPage() {
         .attr('text-anchor', 'middle')
         .attr('x', d => nodeTypes[d.type].w / 2)
         .attr('y', 14)
-        .text(d => d.layout.label);
+        .text(d => d.label);
 
     if (registerDrag) {
       titleg.on('click', nodeParamClicked);
@@ -762,8 +762,8 @@ export function initPage() {
     const nodeDef = nodeTypes[selectedAddNodeType];
     const newNode = {
       type : selectedAddNodeType,
+      label : hoverPreviewG.datum(),
       layout : {
-        label : hoverPreviewG.datum(),
         x : coords[0] - nodeDef.w / 2,
         y : coords[1] - nodeDef.h / 2
       }
@@ -793,7 +793,7 @@ export function initPage() {
 
     console.log(nodes);
     nodes.forEach(n => {
-      const nlabel = n.layout.label;
+      const nlabel = n.label;
       if (n.type !== selectedAddNodeType) {
         return;
       }
@@ -810,8 +810,8 @@ export function initPage() {
     hoverPreviewG.selectAll('*').remove();
     const newNode = {
       type : selectedAddNodeType,
+      label : newNodeLabel,
       layout : {
-        label : newNodeLabel,
         x : - nodeDef.w / 2,
         y : - nodeDef.h / 2
       }
