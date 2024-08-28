@@ -18,7 +18,19 @@ import qrOverlay from './qr-overlay.js';
 import * as mp3SelectDialog from './mp3-select-dialog.js';
 import * as pipelinePresets from './pipeline-presets.js';
 
+// see https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
 
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
 
 export function initPage() {
   const events = {
@@ -131,6 +143,15 @@ export function initPage() {
 
     });
 
+  pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-download', true)
+    .attr('title', 'Download graph as JSON')
+    .on('click', () => {
+      const graph = exportGraph(false, true);
+      const graphJson = JSON.stringify(graph, null, 2);
+      download('graph.json', graphJson);
+    });
+
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-solid fa-paper-plane', true)
@@ -146,6 +167,8 @@ export function initPage() {
         }
       });
     });
+
+
 
 
   // const playback = pb.addPlaybackControls(playerOverlayDiv);
@@ -590,8 +613,10 @@ export function initPage() {
   }
 
   function importGraph(g) {
+    // avoid polluting incomming argument
+    g = JSON.parse(JSON.stringify(g));
     console.log('Import graph to UI ===================')
-    console.log('Graph:'. g)
+    console.log('Graph:', g)
     nodes = g.nodes;
     edges = g.edges;
     edges.forEach(e => {
