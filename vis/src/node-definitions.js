@@ -529,14 +529,14 @@ Use the following values:
       // Value for "on" channels is calculated by ax + b where x is the input value after normalization
       onValueA : {
         label : 'on cv "a"',
-        initial : 0.0,
+        initial : 0.5,
         x : 5,
         y : 130,
         len : 105
       },
       onValueB : {
         label : 'on cv "b"',
-        initial : 1.0,
+        initial : 0.5,
         x : 5,
         y : 145,
         len : 105
@@ -580,7 +580,7 @@ Use the following values:
       },
       hf : {
         label: 'High freq',
-        initial : 3500,
+        initial : 1500,
         x : 5,
         y : 100,
         len : 125
@@ -659,7 +659,7 @@ Use the following values:
     params : {
       targetFps : {
         label: 'targetFps',
-        initial : 30,
+        initial : 45,
         x : 5,
         y : 100,
         len : 85

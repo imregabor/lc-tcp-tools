@@ -59,8 +59,8 @@ export const simpleVu =
           "maxDecayH": 5000,
           "minDecayH": 5000,
           "maxFloor": 0.0001,
-          "onValueA": 0,
-          "onValueB": 1
+          "onValueA": 0.5,
+          "onValueB": 0.5
         },
         "layout": {
           "x": 1000,
@@ -83,8 +83,8 @@ export const simpleVu =
           "maxDecayH": 5000,
           "minDecayH": 5000,
           "maxFloor": 0.0001,
-          "onValueA": 0,
-          "onValueB": 1
+          "onValueA": 0.5,
+          "onValueB": 0.5
         },
         "layout": {
           "x": 600,
@@ -95,7 +95,7 @@ export const simpleVu =
         "type": "lr",
         "label": "Legacy router",
         "params": {
-          "targetFps": 30
+          "targetFps": 45
         },
         "layout": {
           "x": 1200,
