@@ -203,7 +203,7 @@ export const vuAndSpect = {
       "label": "Max hold 3",
       "params": {
         "sustain": "25",
-        "decay": "0",
+        "decay": "50",
         "attack": 0
       },
       "layout": {
@@ -253,6 +253,17 @@ export const vuAndSpect = {
       "layout": {
         "x": 1476.5225830078125,
         "y": 614.2960205078125
+      }
+    },
+    {
+      "type": "channelRemap",
+      "label": "Channel remap 2",
+      "params": {
+        "mode": "2"
+      },
+      "layout": {
+        "x": 826,
+        "y": 193.5
       }
     }
   ],
@@ -354,7 +365,7 @@ export const vuAndSpect = {
       "p2": "in0"
     },
     {
-      "n1index": 7,
+      "n1index": 21,
       "n2index": 15,
       "p1": "out",
       "p2": "in1"
@@ -386,6 +397,12 @@ export const vuAndSpect = {
     {
       "n1index": 19,
       "n2index": 20,
+      "p1": "out",
+      "p2": "in"
+    },
+    {
+      "n1index": 7,
+      "n2index": 21,
       "p1": "out",
       "p2": "in"
     }
