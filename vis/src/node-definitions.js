@@ -641,16 +641,16 @@ Use the following values:
     h : 130,
     title : 'Legacy router',
     ports : {
-      lm35 : {
+      lb24 : {
         type : 'in',
-        label : 'Matrix 35',
+        label : 'Bar 24',
         x : -20,
         y : 40,
         l : 70
       },
-      lb24 : {
+      lm35 : {
         type : 'in',
-        label : 'Bar 24',
+        label : 'Matrix 35',
         x : -20,
         y : 70,
         l : 70
