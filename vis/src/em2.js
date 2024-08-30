@@ -627,7 +627,7 @@ export function initPage() {
     renderEdges();
     fireTopologyChanged();
   }
-  importGraph(pipelinePresets.simpleVu);
+  importGraph(pipelinePresets.vuAndSpect);
 
   function routeEdges() {
     edgePaths.each(function (d) {
