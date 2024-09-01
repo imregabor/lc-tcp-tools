@@ -126,8 +126,8 @@ export const vuAndSpect = {
       "type": "linScale",
       "label": "Linear scale",
       "params": {
-        "scaleA": "2000",
-        "scaleB": 0,
+        "scaleA": 1e-5,
+        "scaleB": -1e-5,
         "clip": 1
       },
       "layout": {
@@ -153,11 +153,11 @@ export const vuAndSpect = {
       "label": "Fixed effect",
       "params": {
         "channels": "24",
-        "dt": 1,
+        "dt": 5,
         "mode": "1",
-        "value1": "0.4",
-        "value2": "0.6",
-        "dotsize": "5"
+        "value1": 0.4,
+        "value2": 0.6,
+        "dotsize": 5
       },
       "layout": {
         "x": 772.9371337890625,
