@@ -352,7 +352,7 @@ Time in \`ms\` to close half the distance to the input.`,
     }
   },
   linScale : {
-    w : 100,
+    w : 130,
     h : 130,
     title : 'Linear scale',
     ports : {
@@ -366,7 +366,7 @@ Time in \`ms\` to close half the distance to the input.`,
       out : {
         type : 'out',
         label : 'Out',
-        x : 120,
+        x : 150,
         y : 40,
         l : 50
       }
@@ -379,7 +379,7 @@ Output values scaled with \`out = a * in + b\`.`,
         initial : 1,
         x : 5,
         y : 70,
-        len : 85
+        len : 120
       },
       scaleB : {
         label: 'scale (b)',
@@ -388,7 +388,7 @@ Output values scaled with \`out = a * in + b\`.`,
         initial : 0,
         x : 5,
         y : 85,
-        len : 85
+        len : 120
       },
       clip : {
         label: 'clip',
@@ -397,7 +397,7 @@ Output values are clipped to \`0 - 1\` interval.`,
         initial : 1,
         x : 5,
         y : 100,
-        len : 85
+        len : 120
       }
     }
   },
@@ -667,14 +667,14 @@ Use the following values:
     }
   },
   fixedEffect : {
-    w : 100,
+    w : 130,
     h : 160,
     title : 'Fixed effect',
     ports : {
       out : {
         type : 'out',
         label : 'Out',
-        x : 120,
+        x : 150,
         y : 40,
         l : 50
       }
@@ -689,7 +689,7 @@ Number of generated output channels`,
         initial : 5,
         x : 5,
         y : 70,
-        len : 85
+        len : 120
       },
       dt : {
         label: 'dt (s)',
@@ -701,7 +701,7 @@ Time step for time dependent effects
         initial : 1,
         x : 5,
         y : 100,
-        len : 85
+        len : 120
       },
       mode : {
         label: 'mode',
@@ -717,7 +717,7 @@ Use the following values:
         initial : 0,
         x : 5,
         y : 85,
-        len : 85
+        len : 120
       },
       value1 : {
         label: 'value1',
@@ -728,7 +728,7 @@ Typically used as baseline intensiy`,
         initial : 0.5,
         x : 5,
         y : 115,
-        len : 85
+        len : 120
       },
       value2 : {
         label: 'value2',
@@ -739,7 +739,7 @@ Typically used as highlight intensiy`,
         initial : 1,
         x : 5,
         y : 130,
-        len : 85
+        len : 120
       },
       dotsize : {
         label: 'dotsize',
@@ -750,9 +750,8 @@ Dot size of the chaser effect`,
         initial : 3,
         x : 5,
         y : 145,
-        len : 85
+        len : 120
       }
-
     }
   }
 };
