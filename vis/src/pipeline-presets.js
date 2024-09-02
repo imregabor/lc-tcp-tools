@@ -126,7 +126,7 @@ export const vuAndSpect = {
       "type": "linScale",
       "label": "Linear scale",
       "params": {
-        "scaleA": 1e-5,
+        "scaleA": 1e5,
         "scaleB": -1e-5,
         "clip": 1
       },
