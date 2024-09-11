@@ -6,11 +6,15 @@ import * as catalog from './catalog.js';
 import * as rc from './rc.js';
 import * as panes from './panes.js';
 import * as colorscales from './color-scales.js';
+import * as playerDemo from './player-demo.js';
 
 function loaded() {
-  if (location.hash && location.hash === '#p') {
+  if (location.hash && location.hash === '#panelayout') {
     document.title = 'Dynamic pane layout demo';
     panes.initPage();
+  } else if (location.hash && location.hash === '#playerdemo') {
+    document.title = 'Player demo';
+    playerDemo.initPage();
   } else if (location.hash && location.hash === '#rc') {
     document.title = 'Remote controller';
     rc.initPage();

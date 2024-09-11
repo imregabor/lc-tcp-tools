@@ -88,15 +88,21 @@ export function initPage() {
       onClick : () => window.location.href = '/vis/#vis'
     })
     .addSubBox(h => h
+      .setTargetAr(4)
       .addButton({
         faclass : 'fa-tint',
         text : 'Color scale stuff',
         onClick : () => window.location.href = '/vis/#colorscale'
       })
       .addButton({
-        faclass : 'fa-tint',
-        text : 'Color scale stuff',
-        onClick : () => window.location.href = '/vis/#colorscale'
+        faclass : 'fa-cogs',
+        text : 'Dynamic pane layout',
+        onClick : () => window.location.href = '/vis/#panelayout'
+      })
+      .addButton({
+        faclass : 'fa-cogs',
+        text : 'Player demo',
+        onClick : () => window.location.href = '/vis/#playerdemo'
       })
     )
     .layout();
