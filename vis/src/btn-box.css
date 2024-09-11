@@ -10,6 +10,10 @@
   position: relative;
 }
 
+.btn-box-sub-container {
+  position: absolute;
+}
+
 .btn-box-button {
   cursor: pointer;
   position: absolute;

@@ -87,11 +87,18 @@ export function initPage() {
       text : 'OLD Effects + player',
       onClick : () => window.location.href = '/vis/#vis'
     })
-    .addButton({
-      faclass : 'fa-tint',
-      text : 'Color scale stuff',
-      onClick : () => window.location.href = '/vis/#colorscale'
-    })
+    .addSubBox(h => h
+      .addButton({
+        faclass : 'fa-tint',
+        text : 'Color scale stuff',
+        onClick : () => window.location.href = '/vis/#colorscale'
+      })
+      .addButton({
+        faclass : 'fa-tint',
+        text : 'Color scale stuff',
+        onClick : () => window.location.href = '/vis/#colorscale'
+      })
+    )
     .layout();
 
   var statusDetailsD3s = undefined;

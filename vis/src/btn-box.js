@@ -8,14 +8,29 @@ export function addTo(parentD3) {
 
   var buttonCount = 0;
   const buttonDivs = [];
+  const subBoxes = [];
 
   var cols = 0;
   var rows = 0;
   const sep = 15;
-
+  var brdr = sep;
+  var targetAr = 1.5;
+  var shouldPoll = true;
   var polling = false;
 
   const ret = {
+    setTargetAr : ar => {
+      targetAr = ar;
+      return ret;
+    },
+    setBorder : b => {
+      brdr = b;
+      return ret;
+    },
+    dontPoll : () => {
+      shouldPoll = false;
+      return ret;
+    },
     setButtonCount : n => {
       if (buttonDivs.length) {
         throw new Error('Button count already set');
@@ -23,6 +38,15 @@ export function addTo(parentD3) {
       for (var i = 0; i < n; i++) {
         ret.addButton({});
       }
+      return ret;
+    },
+    addSubBox : handler => {
+      const subContainerDiv = div.append('div').classed('btn-box-sub-container', true);
+      const f = addTo(subContainerDiv).dontPoll().setBorder(0);
+      subBoxes.push(f);
+      buttonDivs.push(subContainerDiv);
+      buttonCount++;
+      handler(f);
       return ret;
     },
     addButton : opts => {
@@ -40,20 +64,19 @@ export function addTo(parentD3) {
       buttonDivs.push(btnDiv);
       return ret;
     },
-    layout : doTransition => {
+    layout : (doTransition, dims) => {
       if (!buttonDivs.length) {
         throw new Error('Button count is not already');
       }
       console.log('layout, buttonCount:', buttonCount);
-      const bcr = div.node().getBoundingClientRect();
+      const bcr = dims ? dims : div.node().getBoundingClientRect();
       console.log('Bounding client rect', bcr);
 
       // aim for button aspect ratio closest to target
       var bestDiff = 999999;
-      const targetAr = 1.5;
       for (var cc = 1; cc <= buttonCount; cc++) {
         const rr = Math.ceil(buttonCount / cc);
-        const ar = ((bcr.width - (cc + 1) * sep) * rr) / (cc * (bcr.height - (rr + 1) * sep));
+        const ar = ((bcr.width - (cc - 1) * sep - 2 * brdr) * rr) / (cc * (bcr.height - (rr -1) * sep- 2 * brdr));
         const diff = Math.max(ar/targetAr, targetAr/ar);
         if (diff < bestDiff) {
           bestDiff = diff;
@@ -64,9 +87,12 @@ export function addTo(parentD3) {
       }
       console.log(`Best: ${cols} x ${rows}`);
 
-      const w = Math.round((bcr.width - (cols + 1) * sep) / cols);
-      const h = Math.round((bcr.height - (rows + 1) * sep) / rows);
+      const w = Math.round((bcr.width - (cols - 1) * sep - 2 * brdr) / cols);
+      const h = Math.round((bcr.height - (rows - 1) * sep - 2 * brdr) / rows);
       const fs = Math.min(Math.round(bcr.height / (2 * rows)), Math.round(bcr.width / (15 * cols)));
+
+      console.log(`w: ${w}, h: ${h}, brdr: ${brdr}, sep: ${sep}, fs: ${fs}`)
+
       for (var i = 0; i < buttonCount; i++) {
         const x = i % cols;
         const y = Math.floor(i / cols);
@@ -74,11 +100,14 @@ export function addTo(parentD3) {
             .style('font-size', `${fs}px`)
             .style('width', `${w}px`)
             .style('height', `${h}px`)
-            .style('left', `${Math.round(sep + (bcr.width  - sep) * x / cols)}px`)
-            .style('top',  `${Math.round(sep + (bcr.height - sep) * y / rows)}px`);
+            .style('left', `${Math.round(brdr + (w + sep) * x)}px`)
+            .style('top',  `${Math.round(brdr + (h + sep) * y)}px`);
       }
 
-      if (!polling) {
+      const subBoxDims = { width: w, height: h};
+      subBoxes.forEach(b => b.layout(doTransition, subBoxDims));
+
+      if (!polling && shouldPoll) {
         polling = true;
         scw.watchForSizeChange(div, () => ret.layout(true));
       }
