@@ -1,0 +1,15 @@
+.player-demo-titled-container {
+  display: inline-block;
+  background-color: #eee;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+.playback-parent-div {
+  display: inline-block;
+  border:  1px solid black;
+}
+
+.playback-parent-div-label {
+  padding: 5px;
+  background-color: #ccc;
+}

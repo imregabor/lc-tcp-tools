@@ -149,6 +149,10 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
     stop : () => stop()
   });
 
+  if (msgD3) {
+    msgD3 = msgD3.append('span');
+  }
+
   /*
   const div = parentD3.append('div').classed('playback-controls', true);
   const msgDiv = div.append('div').classed('message', true)
@@ -554,11 +558,11 @@ export function addSimplePlayback(parentD3, playerParentD3, msgD3) {
     seekRelative : d => {
       // console.log('Seek to ' + t);
       if (!d || !playing || !useAudio) {
-        return;
+        return ret;
       }
       const t = a.node().currentTime;
       if (!t) {
-        return;
+        return ret;
       }
       const nt = t + d;
       a.node().currentTime = nt;
