@@ -13,6 +13,7 @@ const effects = require('./effects.js');
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 const chalk = require('chalk');
+const wsStrip = require('./ws-strip.js');
 
 // see https://www.npmjs.com/package/command-line-args
 const cliOpts = [
@@ -20,7 +21,8 @@ const cliOpts = [
   { name : 'help', alias : 'h', type : Boolean, description : 'Print usage help' },
   { name : 'fwdHost', type : String, defaultValue : '192.168.22.10', description : 'Host for fwdConn (hardware gateway)' },
   { name : 'fwdPort', type : Number, defaultValue : 23, description : 'Port for fwdConn (hardware gateway)' },
-  { name : 'fwdRetryTimeout', type : Number, defaultValue : 1, description : 'Connect retry timeout for fowdConn (hardware gateway) in seconds'}
+  { name : 'fwdRetryTimeout', type : Number, defaultValue : 1, description : 'Connect retry timeout for fowdConn (hardware gateway) in seconds'},
+  { name : 'wsStripPort', type : String, description : 'Serial port name to use with WS2812/CH340 LED strip gateway'}
 ];
 const options = commandLineArgs(cliOpts)
 
@@ -65,6 +67,8 @@ const expressPort = 3000
 
 
 const app = express();
+
+const wsStripConnection = wsStrip.connect(options.wsStripPort);
 
 
 const fwdConn = openFwdConn({
@@ -137,6 +141,15 @@ app.get('/api/currentState', (req, res) => {
   res.set('Content-Type', 'text/plain').send(ret);
 });
 
+app.get('/api/listSerialPorts', (req, res) => {
+  wsStrip
+    .listSerialPorts()
+    .then(
+      ports => res.json(ports),
+      err => res.status(500).send(err)
+    );
+});
+
 app.post('/api/setSingleCoord', (req, res) => {
   const m = req.query.m;
   const x = +req.query.x;
@@ -207,6 +220,54 @@ app.post('/api/effect', (req, res) => {
 
 });
 
+app.post('/api/setWsStrip10', (req, res) => {
+  const d = req.query.d;
+  if (!d) {
+    res.status(400).send('No data specified');
+    return;
+  }
+  try {
+    const values = lowLevel.parseBulk10(d);
+    wsStripConnection.sendValues(values);
+    res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+});
+
+app.post('/api/setWsStrip100', (req, res) => {
+  const d = req.query.d;
+  if (!d) {
+    res.status(400).send('No data specified');
+    return;
+  }
+  try {
+    const values = lowLevel.parseBulk100(d);
+    wsStripConnection.sendValues(values);
+    res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+});
+
+app.post('/api/setWsStripFF', (req, res) => {
+  const d = req.query.d;
+  if (!d) {
+    res.status(400).send('No data specified');
+    return;
+  }
+  try {
+    const values = lowLevel.parseBulkFF(d);
+    wsStripConnection.sendValues(values);
+    res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+});
+
 
 app.post('/api/setBulk10', (req, res) => {
   const m1 = req.query.m1;
@@ -269,7 +330,8 @@ app.get('/api/status', (req, res) => {
     fwdConnStatus : fwdConn.getStatus(),
     listeningSrvStatus : listeningSrv.getStatus(),
     wsSrvStatus : wsSrv.getStatus(),
-    ccSrvStatus : ccSrv.getStatus()
+    ccSrvStatus : ccSrv.getStatus(),
+    wsStripStatus : wsStripConnection.getStatus()
   };
   if (options.mp3srv) {
     ret.mp3srv = options.mp3srv;

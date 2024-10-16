@@ -5,6 +5,17 @@
  */
 
 
+function vToHex2(v) {
+  if (v < 0) {
+    v = 0;
+  }
+  if (v > 1) {
+    v = 1;
+  }
+  const s = Math.round(v * 255).toString(16);
+  return s.length == 1 ? '0' + s : s;
+}
+
 function parse(value) {
   if (value.startsWith('0x')) {
     return parseInt(value.substring(2), 16);
@@ -138,3 +149,4 @@ module.exports.parseBulk100 = parseBulk100;
 module.exports.parseBulkFF = parseBulkFF;
 module.exports.singlePacketToMessage = singlePacketToMessage;
 module.exports.singleDataToAllBusesAndAddresses = singleDataToAllBusesAndAddresses;
+module.exports.vToHex2 = vToHex2;
