@@ -347,7 +347,7 @@ export const nodeTypes = {
     }
   },
   mh : {
-    w : 100,
+    w : 130,
     h : 130,
     title : 'Max hold',
     ports : {
@@ -361,34 +361,38 @@ export const nodeTypes = {
       out : {
         type : 'out',
         label : 'Out',
-        x : 120,
+        x : 150,
         y : 40,
         l : 50
       }
     },
     params : {
       sustain : {
-        label: 'sustain',
+        label: 'sustain (ms)',
+        descriptionMd : `## Sustain time
+Time in \`ms\` to sustain the last max value before decaying.`,
         initial : 0,
         x : 5,
         y : 70,
-        len : 85
+        len : 120
       },
       decay : {
         label: 'decay (ms)',
+        descriptionMd : `## Decay half time
+Time in \`ms\` to decay to the half value after sustaining.`,
         initial : 150,
         x : 5,
         y : 85,
-        len : 85
+        len : 120
       },
       attack : {
         label: 'attack (ms)',
-        descriptionMd : `## Attack rate
+        descriptionMd : `## Attack half time
 Time in \`ms\` to close half the distance to the input.`,
         initial : 0,
         x : 5,
         y : 100,
-        len : 85
+        len : 120
       }
     }
   },
@@ -480,7 +484,7 @@ Output values are clipped to \`0 - 1\` interval.`,
     }
   },
   channelRemap : {
-    w : 100,
+    w : 130,
     h : 85,
     title : 'Channel remap',
     ports : {
@@ -494,7 +498,7 @@ Output values are clipped to \`0 - 1\` interval.`,
       out : {
         type : 'out',
         label : 'Out',
-        x : 120,
+        x : 150,
         y : 40,
         l : 50
       }
@@ -514,7 +518,7 @@ Use the following values:
         initial : 0,
         x : 5,
         y : 70,
-        len : 85
+        len : 120
       }
     }
   },
@@ -610,70 +614,70 @@ Use the following values:
         initial : 8,
         x : 5,
         y : 70,
-        len : 125
+        len : 130
       },
       lf : {
         label: 'Low freq',
         initial : 100,
         x : 5,
         y : 85,
-        len : 125
+        len : 130
       },
       hf : {
         label: 'High freq',
         initial : 1500,
         x : 5,
         y : 100,
-        len : 125
+        len : 130
       },
       maxDecayH : {
         label: 'Max decay',
         initial : 5000,
         x : 5,
         y : 115,
-        len : 125
+        len : 130
       },
       maxFloor : {
         label: 'Max floor',
         initial: 0,
         x : 5,
         y : 130,
-        len : 125
+        len : 130
       },
       maxSpillHbc : {
         label: 'Max spill b to 1/2',
         initial : 0,
         x : 5,
         y : 145,
-        len : 125
+        len : 130
       },
       spillXpf : {
         label: 'Spill from xPF',
         initial : 0,
         x : 5,
         y : 160,
-        len : 125
+        len : 130
       },
       doAvg : {
         label: 'Do AVG',
         initial : 0,
         x : 5,
         y : 175,
-        len : 125
+        len : 130
       },
       doLpf : {
         label: 'Do LPF band',
         initial : 0,
         x : 5,
         y : 190,
-        len : 125
+        len : 130
       },
       doHpf : {
         label: 'Do HPF band',
         initial : 0,
         x : 5,
         y : 205,
-        len : 125
+        len : 130
       }
     }
   },
