@@ -931,6 +931,28 @@ export function createPipeline() {
             }).then(() => {}, () => {});
           }
           break;
+        case 'lfo':
+          var ops;
+          if (node.portStateIds.out) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = 'scalar';
+          }
+          if (ops) {
+            const pos = ((now + state.shift) % state.period) / state.period;
+            switch (node.params.waveform) {
+              case 1:
+                // sine
+                ops.value = 0.5 + 0.5 * Math.sin(pos * 6.28318);
+                break;
+              case 0:
+              default:
+                // sawtooth
+                ops.value = pos;
+            }
+            ops.updated = true;
+          }
+
+          break;
         case 'fixedEffect':
           var ops;
           if (node.portStateIds.out) {

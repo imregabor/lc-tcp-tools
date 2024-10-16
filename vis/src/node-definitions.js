@@ -169,6 +169,28 @@ export const nodeFunctions = {
       state.targetDelayMs = 1000 / params.targetFps;
     }
   },
+  lfo : {
+    initState : params => {
+      params.waveform = +params.waveform;
+      params.frequency = +params.frequency;
+      params.phase = +params.phase;
+
+      const period = Math.round(60000 / params.frequency);
+      return {
+        period : period,
+        shift : Math.round(period * params.phase)
+      };
+    },
+    updateState : (params, state) => {
+      params.waveform = +params.waveform;
+      params.frequency = +params.frequency;
+      params.phase = +params.phase;
+
+      state.period = Math.round(60000 / params.frequency),
+      state.shift = Math.round(state.period * params.phase)
+    }
+
+  },
   fixedEffect : {
     initState : params => {
       params.mode = +params.mode;
@@ -712,6 +734,59 @@ Use the following values:
         x : 5,
         y : 85,
         len : 85
+      }
+    }
+  },
+  lfo : {
+    w : 130,
+    h : 160,
+    title : 'LFO',
+    ports : {
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 150,
+        y : 40,
+        l : 50
+      }
+    },
+    params : {
+      waveform : {
+        label: 'waveform',
+        descriptionMd :
+`## Waveform
+
+Use the following values:
+ - \`0\`: **Sawtooth**, Sawtooth - linear ramp from \`0.0\` to \`1.0\` then fall back to \`0.0\`
+ - \`1\`: **Sin**, Sinus
+`,
+        initial : 0,
+        x : 5,
+        y : 70,
+        len : 120
+      },
+      frequency : {
+        label : 'frequency, 1/min',
+        descriptionMd :
+`## frequency
+
+Frequency; 1/min`,
+        initial : 30,
+        x : 5,
+        y : 85,
+        len : 120
+      },
+      phase : {
+        label: 'Relative phase',
+        descriptionMd :
+`## Relative phase shift
+
+Relative phase shift, \`0.0\` - \`1.0\`
+`,
+        initial : 0,
+        x : 5,
+        y : 100,
+        len : 120
       }
     }
   },
