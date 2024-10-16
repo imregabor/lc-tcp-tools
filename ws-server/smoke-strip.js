@@ -5,6 +5,7 @@
  */
 
 const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline');
 
 SerialPort.list().then( l => {
   console.log('--------------------------------');
@@ -21,13 +22,26 @@ const port = new SerialPort({
   baudRate: 115200,
   hupcl : false
 }, f => {
-  console.log('called', f);
+  if (f) {
+    console.log(`[OPEN ERROR] ${f.message}`);
+  }
   if (f === null) {
     console.log('Start animation');
     frame();
   }
 });
 console.log('Port constructed');
+
+const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+port.on('error', d => {
+  console.log(`[PORT ERROR] ${d ? d.message : d}`);
+});
+parser.on('data', d => {
+  console.log(`[DATA]: "${d}"`);
+});
+
+port.write('?;');
+
 
 const n = 8;
 
@@ -56,7 +70,11 @@ function frame() {
     s = s + vToHex2(r) + vToHex2(g) + vToHex2(b)
   }
   s = s + ';';
-  port.write(s);
+  port.write(s, e => {
+    if (e) {
+      console.log(`[WRITE ERROR] "${e.message}"`);
+    }
+  });
   setTimeout(frame, 10);
 }
 
