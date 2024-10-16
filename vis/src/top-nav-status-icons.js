@@ -113,5 +113,12 @@ export const statusIconStyles = {
     err : '',
     warn : '',
     unknown : ''
+  },
+  microchip : {
+    common : 'fa-microchip',
+    ok : '',
+    err : '',
+    warn : '',
+    unknown : ''
   }
 };

@@ -43,6 +43,15 @@ export function initPage() {
       ok : 'Server forwarding connection is connected',
     }
   }).unknown();
+  const wsStripConnIcon = topNav.addStatusIcon({
+    styles: topNav.statusIconStyles.microchip,
+    titles : {
+      unknown : 'WS2812/CH340 connection is in unknown state',
+      warn : 'WS2812/CH340 connection is in unknown state',
+      err : 'WS2812/CH340 connection is not connected',
+      ok : 'WS2812/CH340 connection is connected',
+    }
+  }).unknown();
   topNav
     .sep()
     .addButtonIcon({
@@ -147,6 +156,13 @@ export function initPage() {
     } else {
       srvFwdConnIcon.err();
     }
+    if (statusInfo.wsStripStatus.up) {
+      wsStripConnIcon.ok();
+    } else if (statusInfo.wsStripStatus.waiting) {
+      wsStripConnIcon.warn();
+    } else {
+      wsStripConnIcon.err();
+    }
   }
   function updateStatusIconsErr(statusInfo) {
     uptimeDiv.text('----');
@@ -159,6 +175,7 @@ export function initPage() {
         .err()
         .badgeOff(500, 200);
     srvFwdConnIcon.unknown();
+    wsStripConnIcon.unknown();
   }
   function pingStatusInfo() {
     updateStatusIconsSent();
