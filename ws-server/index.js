@@ -19,7 +19,8 @@ const cliOpts = [
   { name : 'mp3srv', type : String, multiple : true, description : 'Specify mp3 servers' },
   { name : 'help', alias : 'h', type : Boolean, description : 'Print usage help' },
   { name : 'fwdHost', type : String, defaultValue : '192.168.22.10', description : 'Host for fwdConn (hardware gateway)' },
-  { name : 'fwdPort', type : Number, defaultValue : 23, description : 'Port for fwdConn (hardware gateway)' }
+  { name : 'fwdPort', type : Number, defaultValue : 23, description : 'Port for fwdConn (hardware gateway)' },
+  { name : 'fwdRetryTimeout', type : Number, defaultValue : 1, description : 'Connect retry timeout for fowdConn (hardware gateway) in seconds'}
 ];
 const options = commandLineArgs(cliOpts)
 
@@ -69,6 +70,7 @@ const app = express();
 const fwdConn = openFwdConn({
   host : fwdHost,
   port : fwdPort,
+  retryTimeout : options.fwdRetryTimeout,
   log : m => console.log('[FWD conn]', m)
 });
 

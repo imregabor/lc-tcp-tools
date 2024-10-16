@@ -7,11 +7,12 @@ function open(opts) {
   const log = opts.log ? opts.log : console.log;
   const host = opts.host;
   const port = opts.port;
+  const retryTimeout = opts.retryTimeout ? opts.retryTimeout : 1;
   var onStatusChange = opts.onStatusChange;
   const conns = host + ':' + port;
   var connectionAttempts = 0;
 
-  log('FWD connecting to ' + conns);
+  log(`FWD connecting to ${conns} with retyTimeout of ${retryTimeout} s`);
   var connected = false;
   var connectedTime;;
   var fwdClient;
@@ -41,8 +42,8 @@ function open(opts) {
       connected = false;
       if (!retrying) {
         retrying = true;
-        log('  Retry FWD conenction in 1s');
-        setTimeout(tryConnect, 1000);
+        log(`  Retry FWD conenction in ${retryTimeout} s`);
+        setTimeout(tryConnect, 1000 * retryTimeout);
         notifyStatusChange();
       }
     });
@@ -51,8 +52,8 @@ function open(opts) {
       connected = false;
       if (!retrying) {
         retrying = true;
-        log('  Retry FWD conenction in 1s');
-        setTimeout(tryConnect, 1000);
+        log(`  Retry FWD conenction in ${retryTimeout} s`);
+        setTimeout(tryConnect, 1000 * retryTimeout);
         notifyStatusChange();
       }
     });
