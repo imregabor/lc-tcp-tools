@@ -163,9 +163,12 @@ export function avgSqr1(input) {
 }
 
 
-export function channelsToBulk100(values) {
+export function channelsToBulk100(values, length) {
   var ret = '';
-  for (var i = 0; i < values.length; i++) {
+  if (!length) {
+    length = values.length;
+  }
+  for (var i = 0; i < length; i++) {
     var vi = values[i];
     if (! (vi >= 0)) {
       vi = 0;

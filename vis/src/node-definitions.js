@@ -150,6 +150,25 @@ export const nodeFunctions = {
       state.targetDelayMs = 1000 / params.targetFps;
     }
   },
+  wss : {
+    initState : params => {
+      params.targetFps = +params.targetFps;
+      params.gamma = +params.gamma;
+      return {
+
+        targetDelayMs : 1000 / params.targetFps, // todo - use this pattern for analyzers
+        chs : new Float32Array(3),
+        channelCount : 3,
+        maybeSend : false
+      };
+    },
+    updateState : (params, state) => {
+      params.targetFps = +params.targetFps;
+      params.gamma = +params.gamma;
+
+      state.targetDelayMs = 1000 / params.targetFps;
+    }
+  },
   fixedEffect : {
     initState : params => {
       params.mode = +params.mode;
@@ -662,6 +681,36 @@ Use the following values:
         initial : 45,
         x : 5,
         y : 100,
+        len : 85
+      }
+    }
+  },
+  wss : {
+    w : 100,
+    h : 130,
+    title : 'WS2812 strip',
+    ports : {
+      channels : {
+        type : 'in',
+        label : 'Channels',
+        x : -20,
+        y : 40,
+        l : 70
+      }
+    },
+    params : {
+      targetFps : {
+        label: 'targetFps',
+        initial : 45,
+        x : 5,
+        y : 70,
+        len : 85
+      },
+      gamma : {
+        label: 'gamma',
+        initial : 5,
+        x : 5,
+        y : 85,
         len : 85
       }
     }

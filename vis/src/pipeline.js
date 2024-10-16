@@ -882,6 +882,55 @@ export function createPipeline() {
             }).then(() => {}, () => {});
           }
           break;
+        case 'wss':
+          var ipsChannels;
+          if (node.portStateIds.channels) {
+            ipsChannels = portStates[node.portStateIds.channels];
+            if (ipsChannels.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              console.log(`WSS: Expected "channels" as input of channels, got ${ipsChannels.type}`);
+              break;
+            }
+          }
+
+          if (ipsChannels && ipsChannels.updated) {
+            state.channelCount = Math.max(ipsChannels.channels.length, state.channelCount);
+
+            if (state.channelCount !== state.chs.length) {
+              const oldChs = state.chs;
+              state.chs = new Float32Array(state.channelCount);
+              for (var i = 0; i < Math.min(state.channelCount, oldChs.length); i++) {
+                state.chs[i] = oldChs[i];
+              }
+            }
+
+            for (var i = 0; i < ipsChannels.channels.length; i++) {
+              state.chs[i] = Math.max(state.chs[i], ipsChannels.channels[i]);
+            }
+            state.maybeSend = true;
+          }
+
+          const sendw = state.maybeSend && (!state.lastSend || ((now - state.lastSend) >= state.targetDelayMs));
+          if (sendw) {
+            state.maybeSend = false;
+            state.lastSend = now;
+            var url = '/api/setWsStrip100';
+            var sepChar = '?';
+            if (node.params.gamma !== 1) {
+              for (var i = 0; i < state.channelCount; i++) {
+                state.chs[i] = Math.pow(state.chs[i], node.params.gamma);
+              }
+            }
+
+            url = url + sepChar + 'd=' + u.channelsToBulk100(state.chs, state.channelCount);
+            state.chs.fill(0);
+            state.channelCount = 3;
+
+            d3.text(url, {
+              method : 'POST',
+            }).then(() => {}, () => {});
+          }
+          break;
         case 'fixedEffect':
           var ops;
           if (node.portStateIds.out) {
