@@ -944,6 +944,22 @@ export function createPipeline() {
                 // sine
                 ops.value = 0.5 + 0.5 * Math.sin(pos * 6.28318);
                 break;
+              case 2:
+                // square
+                ops.value = pos < node.params.dc ? 1.0 : 0.0;
+                break;
+              case 3:
+                // sawtooth
+                ops.value = pos < node.params.dc
+                  ? pos / node.params.dc
+                  : (1 - pos) / (1 - node.params.dc);
+                  break;
+              case 4:
+                // 1-cos pulse
+                ops.value = pos < node.params.dc
+                  ? 0.5 - 0.5 * Math.cos(pos * 6.28318 / node.params.dc)
+                  : 0;
+                break;
               case 0:
               default:
                 // sawtooth

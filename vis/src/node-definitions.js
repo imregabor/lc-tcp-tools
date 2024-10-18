@@ -174,20 +174,22 @@ export const nodeFunctions = {
       params.waveform = +params.waveform;
       params.frequency = +params.frequency;
       params.phase = +params.phase;
+      params.dc = +params.dc;
 
       const period = Math.round(60000 / params.frequency);
       return {
         period : period,
-        shift : Math.round(period * params.phase)
+        shift : period * params.phase
       };
     },
     updateState : (params, state) => {
       params.waveform = +params.waveform;
       params.frequency = +params.frequency;
       params.phase = +params.phase;
+      params.dc = +params.dc;
 
-      state.period = Math.round(60000 / params.frequency),
-      state.shift = Math.round(state.period * params.phase)
+      state.period = Math.round(60000 / params.frequency);
+      state.shift = state.period * params.phase;
     }
 
   },
@@ -763,6 +765,9 @@ Use the following values:
 Use the following values:
  - \`0\`: **Sawtooth**, Sawtooth - linear ramp from \`0.0\` to \`1.0\` then fall back to \`0.0\`
  - \`1\`: **Sin**, Sinus
+ - \'2\': **Square**, Square wave with adjustable duty cycle
+ - \'3\': **Triangle**, Triangle wave with adjustable duty cycle (assymetric on/off ramps)'
+ - \`4\`: **1-cos pulse**, \`1 - cos\` pulse
 `,
         initial : 0,
         x : 5,
@@ -790,6 +795,18 @@ Relative phase shift, \`0.0\` - \`1.0\`
         initial : 0,
         x : 5,
         y : 100,
+        len : 120
+      },
+      dc: {
+        label: 'Duty cycle',
+        descriptionMd :
+`## Duty cycle
+
+Duty cycle for square and triangle waveforms, \`0.0\` - \`1.0\`
+`,
+        initial : 0.5,
+        x : 5,
+        y : 115,
         len : 120
       }
     }
