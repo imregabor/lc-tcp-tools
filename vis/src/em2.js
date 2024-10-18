@@ -120,6 +120,11 @@ export function initPage() {
     .on('click', () => window.location.href = '/vis/#catalog');
 
   pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-file', true)
+    .attr('title', 'Clear graph')
+    .on('click', () => clearGraph());
+
+  pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-file-code', true)
     .attr('title', 'Export pipeline')
     .on('click', () => {
@@ -610,6 +615,14 @@ export function initPage() {
     edgePaths = edgelayerg.selectAll('g.edgeg path');
 
     routeEdges();
+  }
+
+  function clearGraph() {
+    nodes = [];
+    edges = [];
+    renderNodes();
+    renderEdges();
+    fireTopologyChanged();
   }
 
   function importGraph(g) {
