@@ -496,11 +496,19 @@ export function initPage() {
         .attr('rx', 5);
 
     var titleg = nodesg.append('g').classed('paramg titleg', true);
-    titleg.append('rect')
+    titleg.append('rect') // mask bottom corners with no radius
         .classed('param-bg-rect', true)
-        .attr('x', 5)
-        .attr('y', 3)
-        .attr('width', d => nodeTypes[d.type].w - 10)
+        .attr('x', 0.5)
+        .attr('y', 7.5)
+        .attr('width', d => nodeTypes[d.type].w - 1)
+        .attr('height', 8);
+    titleg.append('rect') // all corners have radius to fit in outer box nicely on the top
+        .classed('param-bg-rect', true)
+        .attr('x', 0.5)
+        .attr('y', 0.5)
+        .attr('rx', 4.5)
+        .attr('ry', 4.5)
+        .attr('width', d => nodeTypes[d.type].w - 1)
         .attr('height', 15);
 
 
@@ -508,7 +516,7 @@ export function initPage() {
         .classed('node-label', true)
         .attr('text-anchor', 'middle')
         .attr('x', d => nodeTypes[d.type].w / 2)
-        .attr('y', 14)
+        .attr('y', 11.5)
         .text(d => d.label);
 
     if (registerDrag) {
@@ -574,7 +582,7 @@ export function initPage() {
 
         paramgs.append('rect')
             .classed('param-bg-rect', true)
-            .attr('x', -3)
+            .attr('x', -3.5)
             .attr('y', -8)
             .attr('width', d => d.def.len + 7)
             .attr('height', 14);
