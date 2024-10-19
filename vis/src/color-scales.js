@@ -5,17 +5,15 @@ import * as d3 from 'd3';
 
 const cache = {};
 
-export function initPage() {
-  const body = d3.select('body');
-  body.append('div').text('yellowish:');
+function appendScaleTo(parentD3, scale) {
+  parentD3.append('div').text(`${scale.title}:`);
   const cw = 500;
   const ch = 60;
-  const canvas = body.append('canvas')
+  const canvas = parentD3.append('canvas')
       .attr('width', cw).attr('height', ch);
   const canvas2d = canvas.node().getContext('2d');
-  const scale = yellowish();
 
-  body.append('div').append('pre').text(scale.steps.join(' '));
+  parentD3.append('div').append('pre').text(scale.steps.join(' '));
 
   for (var i = 0; i < cw; i++) {
     canvas2d.fillStyle = scale(i / (cw - 1));
@@ -28,6 +26,39 @@ export function initPage() {
     const x1 = Math.floor(cw * (i + 1) / scale.steps.length);
     canvas2d.fillRect(x0, ch / 2, x1 - x0, ch / 2);
   }
+}
+
+export function initPage() {
+  const body = d3.select('body');
+
+  appendScaleTo(body, white());
+  appendScaleTo(body, yellowish());
+  appendScaleTo(body, yellowishr());
+}
+
+export function white() {
+  if (!cache.white) {
+    const steps = ['#000000', '#ffffff'];
+    const vToColor = chroma
+        .scale(steps);
+    const colors = [];
+    const count = 500;
+    for (var i = 0; i < count; i++) {
+      colors.push(vToColor(i / (count - 1)));
+    }
+
+    cache.white = a => {
+      if (a < 0) {
+        a = 0;
+      } else if (a > 1) {
+        a = 1;
+      }
+      return colors[Math.round(a * (count - 1))];
+    };
+    cache.white.steps = steps;
+    cache.white.title = 'white';
+  }
+  return cache.white;
 
 }
 
@@ -55,9 +86,35 @@ export function yellowish() {
       return colors[Math.round(a * (count - 1))];
     };
     cache.yellowish.steps = steps;
+    cache.yellowish.title = 'yellowish';
   }
   return cache.yellowish;
 }
 
+export function yellowishr() {
+  if (!cache.yellowishr) {
+    const steps = ['#301103', '#662506', '#993404', '#cc4c02', '#ec7014', '#fe9929', '#fec44f', '#fee391', '#fff7bc'];
+    const vToColor = chroma
+        .scale(steps)
+        .correctLightness();
+    const colors = [];
+    const count = 500;
+    for (var i = 0; i < count; i++) {
+      colors.push(vToColor(i / (count - 1)));
+    }
+
+    cache.yellowishr = a => {
+      if (a < 0) {
+        a = 0;
+      } else if (a > 1) {
+        a = 1;
+      }
+      return colors[Math.round(a * (count - 1))];
+    };
+    cache.yellowishr.steps = steps;
+    cache.yellowishr.title = 'yellowishr';
+  }
+  return cache.yellowishr;
+}
 
 
