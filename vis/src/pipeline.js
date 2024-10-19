@@ -5,6 +5,7 @@ import * as ed from './ed.js';
 import * as u from './util.js';
 import * as nodeDefs from './node-definitions.js';
 import * as d3 from 'd3';
+import * as colorScales from './color-scales.js';
 
 export function a() {
   return 4;
@@ -978,6 +979,16 @@ export function createPipeline() {
           }
 
           if (ops && ((ips1 && ips1.updated) || (ips2 && ips2.updated))) {
+            var scale;
+            switch (node.params.mode) {
+              case 1:
+                scale = colorScales.yellowishr();
+                break;
+              case 0:
+              default:
+                scale = colorScales.white();
+            }
+
             for (var i = 0; i < inputChannels; i++) {
               var i1 = 0;
               if (ips1 && ips1.type === 'scalar' && i === 0) {
@@ -991,19 +1002,7 @@ export function createPipeline() {
               } else if (ips2 && ips2.type === 'channels' && ips2.channels.length > i) {
                 i2 = ips2.channels[i];
               }
-              var r = 0;
-              var g = 0;
-              var b = 0;
-              switch (node.params.mode) {
-                case 0:
-                default:
-                  r = i1;
-                  g = i1;
-                  b = i1;
-              }
-              ops.channels[3 * i] = r;
-              ops.channels[3 * i + 1] = g;
-              ops.channels[3 * i + 2] = b;
+              scale.writeRgb(i1, ops.channels, 3 * i);
             }
             ops.updated = true;
           }

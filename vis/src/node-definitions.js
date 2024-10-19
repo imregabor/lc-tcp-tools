@@ -176,7 +176,7 @@ export const nodeFunctions = {
       };
     },
     updateState : (params, state) => {
-      params.mdoe = +params.mode;
+      params.mode = +params.mode;
     }
   },
   lfo : {
@@ -780,13 +780,14 @@ Use the following values:
       }
     },
     params : {
-      waveform : {
+      mode : {
         label: 'mode',
         descriptionMd :
 `## Mode
 
 Use the following values:
  - \`0\`: **White**, Map input 1 to the same R, G and B channels; input 2 is ignored
+ - \`1\`: **Yellowish**, Map input 1 according to the "yellowish" color scale; input 2 is ignored
 `,
         initial : 0,
         x : 5,
