@@ -1041,28 +1041,28 @@ export function createPipeline() {
             switch (node.params.waveform) {
               case 1:
                 // sine
-                ops.value = 0.5 + 0.5 * Math.sin(pos * 6.28318);
+                ops.value = node.params.a * (0.5 + 0.5 * Math.sin(pos * 6.28318));
                 break;
               case 2:
                 // square
-                ops.value = pos < node.params.dc ? 1.0 : 0.0;
+                ops.value = pos < node.params.dc ? node.params.a : 0.0;
                 break;
               case 3:
                 // sawtooth
                 ops.value = pos < node.params.dc
-                  ? pos / node.params.dc
-                  : (1 - pos) / (1 - node.params.dc);
+                  ? node.params.a * pos / node.params.dc
+                  : node.params.a * (1 - pos) / (1 - node.params.dc);
                   break;
               case 4:
                 // 1-cos pulse
                 ops.value = pos < node.params.dc
-                  ? 0.5 - 0.5 * Math.cos(pos * 6.28318 / node.params.dc)
+                  ? (0.5 - 0.5 * Math.cos(pos * 6.28318 / node.params.dc)) * node.params.a
                   : 0;
                 break;
               case 0:
               default:
                 // sawtooth
-                ops.value = pos;
+                ops.value = pos * node.params.a;
             }
             ops.updated = true;
           }

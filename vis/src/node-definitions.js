@@ -199,7 +199,13 @@ export const nodeFunctions = {
       params.frequency = +params.frequency;
       params.phase = +params.phase;
       params.dc = +params.dc;
-
+      params.a = +params.a;
+      if (params.a < 0) {
+        params.a = 0;
+      }
+      if (params.a > 1) {
+        params.a = 1;
+      }
       const period = Math.round(60000 / params.frequency);
       return {
         period : period,
@@ -211,6 +217,13 @@ export const nodeFunctions = {
       params.frequency = +params.frequency;
       params.phase = +params.phase;
       params.dc = +params.dc;
+      params.a = +params.a;
+      if (params.a < 0) {
+        params.a = 0;
+      }
+      if (params.a > 1) {
+        params.a = 1;
+      }
 
       state.period = Math.round(60000 / params.frequency);
       state.shift = state.period * params.phase;
@@ -845,7 +858,7 @@ Use the following values:
     },
     params : {
       waveform : {
-        label: 'waveform',
+        label: 'Waveform',
         descriptionMd :
 `## Waveform
 
@@ -862,7 +875,7 @@ Use the following values:
         len : 120
       },
       frequency : {
-        label : 'frequency, 1/min',
+        label : 'Frequency, 1/min',
         descriptionMd :
 `## frequency
 
@@ -894,6 +907,18 @@ Duty cycle for square and triangle waveforms, \`0.0\` - \`1.0\`
         initial : 0.5,
         x : 5,
         y : 115,
+        len : 120
+      },
+      a: {
+        label: 'Amplitude',
+        descriptionMd :
+`## Amplitude
+
+Amplitude of output, \`0.0\` - \`1.0\`
+`,
+        initial : 1.0,
+        x : 5,
+        y : 130,
         len : 120
       }
     }
