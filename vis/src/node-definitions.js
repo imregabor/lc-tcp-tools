@@ -154,6 +154,13 @@ export const nodeFunctions = {
     initState : params => {
       params.targetFps = +params.targetFps;
       params.gamma = +params.gamma;
+      params.scale = +params.scale;
+      if (params.scale < 0) {
+        params.scale = 0;
+      }
+      if (params.scale > 1) {
+        params.scale = 1;
+      }
       return {
 
         targetDelayMs : 1000 / params.targetFps, // todo - use this pattern for analyzers
@@ -165,6 +172,13 @@ export const nodeFunctions = {
     updateState : (params, state) => {
       params.targetFps = +params.targetFps;
       params.gamma = +params.gamma;
+      params.scale = +params.scale;
+      if (params.scale < 0) {
+        params.scale = 0;
+      }
+      if (params.scale > 1) {
+        params.scale = 1;
+      }
 
       state.targetDelayMs = 1000 / params.targetFps;
     }
@@ -745,9 +759,26 @@ Use the following values:
       },
       gamma : {
         label: 'gamma',
+        descriptionMd :
+`## Gamma
+
+Gamma correction (\`v' = pow(v, gamma)\`) applied to the input values (which are between \`0\` and \`1\`) before scaling and sending to the hardware.
+`,
         initial : 5,
         x : 5,
         y : 85,
+        len : 85
+      },
+      scale : {
+        label: 'scale',
+        descriptionMd :
+`## Scale
+
+Scale factor (between \`0\` and \`1\`; \`v' = v * scale\`) applied to the values after gamma correctiont before scaling and sending to the hardware.
+`,
+        initial : 1,
+        x : 5,
+        y : 100,
         len : 85
       }
     }

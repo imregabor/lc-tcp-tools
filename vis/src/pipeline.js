@@ -918,7 +918,21 @@ export function createPipeline() {
             var sepChar = '?';
             if (node.params.gamma !== 1) {
               for (var i = 0; i < state.channelCount; i++) {
-                state.chs[i] = Math.pow(state.chs[i], node.params.gamma);
+                if (state.chs[i] < 0) {
+                  state.chs[i] = 0;
+                } else if (state.chs[i] > 1) {
+                  state.chs[i] = 1;
+                }
+                state.chs[i] = Math.pow(state.chs[i], node.params.gamma) * node.params.scale;
+              }
+            } else {
+              for (var i = 0; i < state.channelCount; i++) {
+                if (state.chs[i] < 0) {
+                  state.chs[i] = 0;
+                } else if (state.chs[i] > 1) {
+                  state.chs[i] = 1;
+                }
+                state.chs[i] = state.chs[i] * node.params.scale;
               }
             }
 
