@@ -169,6 +169,16 @@ export const nodeFunctions = {
       state.targetDelayMs = 1000 / params.targetFps;
     }
   },
+  rgbmap : {
+    initState : params => {
+      params.mode = +params.mode;
+      return {
+      };
+    },
+    updateState : (params, state) => {
+      params.mdoe = +params.mode;
+    }
+  },
   lfo : {
     initState : params => {
       params.waveform = +params.waveform;
@@ -191,7 +201,6 @@ export const nodeFunctions = {
       state.period = Math.round(60000 / params.frequency);
       state.shift = state.period * params.phase;
     }
-
   },
   fixedEffect : {
     initState : params => {
@@ -740,6 +749,49 @@ Use the following values:
         x : 5,
         y : 85,
         len : 85
+      }
+    }
+  },
+  rgbmap : {
+    w : 130,
+    h : 160,
+    title : 'RGB map',
+    ports : {
+      in1 : {
+        type : 'in',
+        label : 'IN 1',
+        x : -20,
+        y : 40,
+        l : 70
+      },
+      in2 : {
+        type : 'in',
+        label : 'IN 2',
+        x : -20,
+        y : 70,
+        l : 70
+      },
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 150,
+        y : 40,
+        l : 50
+      }
+    },
+    params : {
+      waveform : {
+        label: 'mode',
+        descriptionMd :
+`## Mode
+
+Use the following values:
+ - \`0\`: **White**, Map input 1 to the same R, G and B channels; input 2 is ignored
+`,
+        initial : 0,
+        x : 5,
+        y : 100,
+        len : 120
       }
     }
   },

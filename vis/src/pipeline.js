@@ -89,7 +89,6 @@ export function createPipeline() {
         ps.updated = true;
         if (!ps.samples || ps.samples.length !== a.analyzerNode.fftSize) {
           ps.samples = new Float32Array(a.analyzerNode.fftSize);
-          console.log('!!!!')
         }
         a.analyzerNode.getFloatTimeDomainData(ps.samples);
       }
@@ -929,6 +928,84 @@ export function createPipeline() {
             d3.text(url, {
               method : 'POST',
             }).then(() => {}, () => {});
+          }
+          break;
+        case 'rgbmap':
+          var ips1;
+          var ips2;
+          var ops;
+
+          if (node.portStateIds.in1) {
+            ips1 = portStates[node.portStateIds.in1];
+            if (ips1.type !== 'channels' && ips1.type !== 'scalar') {
+              // TODO: better error handling; in graph init time
+              console.log(`RGBmap: Expected "channels" or "scalar" as input 1, got ${ips1.type}`);
+              break;
+            }
+          }
+          if (node.portStateIds.in2) {
+            ips2 = portStates[node.portStateIds.in2];
+            if (ips2.type !== 'channels' && ips2.type !== 'scalar') {
+              // TODO: better error handling; in graph init time
+              console.log(`RGBmap: Expected "channels" or "scalar" as input 2, got ${ips2.type}`);
+              break;
+            }
+          }
+
+          var inputChannels = 0;
+          if (ips1) {
+            if (ips1.type === 'scalar') {
+              inputChannels = 1;
+            } else {
+              inputChannels = ips1.channels.length;
+            }
+          }
+          if (ips2) {
+            if (ips2.type === 'scalar') {
+              inputChannels = Math.max(inputChannels, 1);
+            } else {
+              inputChannels = Math.max(inputChannels, ips2.channels.length);
+            }
+          }
+
+          if (node.portStateIds.out) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = 'channels';
+
+            if (!ops.channels || ops.channels.length !== inputChannels * 3) {
+              ops.channels = new Float32Array(inputChannels * 3);
+            }
+          }
+
+          if (ops && ((ips1 && ips1.updated) || (ips2 && ips2.updated))) {
+            for (var i = 0; i < inputChannels; i++) {
+              var i1 = 0;
+              if (ips1 && ips1.type === 'scalar' && i === 0) {
+                i1 = ips1.value;
+              } else if (ips1 && ips1.type === 'channels' && ips1.channels.length > i) {
+                i1 = ips1.channels[i];
+              }
+              var i2 = 0;
+              if (ips2 && ips2.type === 'scalar' && i === 0) {
+                i2 = ips2.value;
+              } else if (ips2 && ips2.type === 'channels' && ips2.channels.length > i) {
+                i2 = ips2.channels[i];
+              }
+              var r = 0;
+              var g = 0;
+              var b = 0;
+              switch (node.params.mode) {
+                case 0:
+                default:
+                  r = i1;
+                  g = i1;
+                  b = i1;
+              }
+              ops.channels[3 * i] = r;
+              ops.channels[3 * i + 1] = g;
+              ops.channels[3 * i + 2] = b;
+            }
+            ops.updated = true;
           }
           break;
         case 'lfo':
