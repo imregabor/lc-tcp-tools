@@ -998,6 +998,15 @@ export function createPipeline() {
               case 1:
                 scale = colorScales.yellowishr();
                 break;
+              case 2:
+                scale = colorScales.incandescent();
+                break;
+              case 3:
+                scale = colorScales.incandescent2();
+                break;
+              case 4:
+                scale = colorScales.incandescent3();
+                break;
               case 0:
               default:
                 scale = colorScales.white();

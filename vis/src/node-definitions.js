@@ -819,6 +819,9 @@ Scale factor (between \`0\` and \`1\`; \`v' = v * scale\`) applied to the values
 Use the following values:
  - \`0\`: **White**, Map input 1 to the same R, G and B channels; input 2 is ignored
  - \`1\`: **Yellowish**, Map input 1 according to the "yellowish" color scale; input 2 is ignored
+ - \`2\`: **Incandescent**, Map input 1 according to the "incandescent" color scale; input 2 is ignored
+ - \`3\`: **Incandescent2**, Map input 1 according to the "incandescent2" color scale; input 2 is ignored
+ - \`4\`: **Incandescent3**, Map input 1 according to the "incandescent3" color scale; input 2 is ignored
 `,
         initial : 0,
         x : 5,

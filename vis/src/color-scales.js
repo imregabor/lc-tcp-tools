@@ -34,6 +34,9 @@ export function initPage() {
   appendScaleTo(body, white());
   appendScaleTo(body, yellowish());
   appendScaleTo(body, yellowishr());
+  appendScaleTo(body, incandescent());
+  appendScaleTo(body, incandescent2());
+  appendScaleTo(body, incandescent3());
 }
 
 function chromaToRet(vToColor, steps, title) {
@@ -71,7 +74,7 @@ function chromaToRet(vToColor, steps, title) {
     out[start + 2] = b[i];
   }
   ret.steps = steps;
-  ret.title = 'yellowish';
+  ret.title = title;
 
   return ret;
 }
@@ -112,4 +115,44 @@ export function yellowishr() {
   return cache.yellowishr;
 }
 
+export function incandescent() {
+  if (!cache.incandescent) {
+    const steps = ['#ff0505', '#ff4f14', '#fba51e', '#ffff89', '#ffffff', '#e6f3ff', '#afd6fd'];
+    const vToColor = chroma
+        .scale(steps);
+    cache.incandescent = chromaToRet(vToColor, steps, 'incandescent');
+  }
+  return cache.incandescent;
+}
+
+export function incandescent2() {
+  if (!cache.incandescent2) {
+    const steps = [];
+
+    for( var t = 500; t <= 8000; t += 500) {
+      steps.push(chroma.temperature(t));
+    }
+    const vToColor = chroma
+        .scale(steps)
+        // .correctLightness();
+    cache.incandescent2 = chromaToRet(vToColor, steps, 'incandescent2');
+  }
+  return cache.incandescent2;
+}
+
+export function incandescent3() {
+  if (!cache.incandescent3) {
+    const steps = [];
+
+    for( var t = 1000; t <= 8000; t += 500) {
+      var c = chroma.temperature(t).darken(3 * (8000 - t) / 7000);
+      steps.push(c);
+    }
+
+    const vToColor = chroma
+        .scale(steps);
+    cache.incandescent3 = chromaToRet(vToColor, steps, 'incandescent3');
+  }
+  return cache.incandescent3;
+}
 
