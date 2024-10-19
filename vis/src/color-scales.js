@@ -36,30 +36,54 @@ export function initPage() {
   appendScaleTo(body, yellowishr());
 }
 
+function chromaToRet(vToColor, steps, title) {
+  const colors = [];
+  const r = [];
+  const g = [];
+  const b = [];
+  const count = 500;
+  for (var i = 0; i < count; i++) {
+    const h = vToColor(i / (count - 1));
+    colors.push(h);
+    const rgb = h.rgb(false);
+    r.push(rgb[0] / 255);
+    g.push(rgb[1] / 255);
+    b.push(rgb[2] / 255);
+  }
+
+  const ret = a => {
+    if (a < 0) {
+      a = 0;
+    } else if (a > 1) {
+      a = 1;
+    }
+    return colors[Math.round(a * (count - 1))];
+  };
+  ret.writeRgb = (a, out, start) => {
+    if (a < 0) {
+      a = 0;
+    } else if (a > 1) {
+      a = 1;
+    }
+    const i = Math.round(a * (count - 1));
+    out[start] = r[i];
+    out[start + 1] = g[i];
+    out[start + 2] = b[i];
+  }
+  ret.steps = steps;
+  ret.title = 'yellowish';
+
+  return ret;
+}
+
 export function white() {
   if (!cache.white) {
     const steps = ['#000000', '#ffffff'];
     const vToColor = chroma
         .scale(steps);
-    const colors = [];
-    const count = 500;
-    for (var i = 0; i < count; i++) {
-      colors.push(vToColor(i / (count - 1)));
-    }
-
-    cache.white = a => {
-      if (a < 0) {
-        a = 0;
-      } else if (a > 1) {
-        a = 1;
-      }
-      return colors[Math.round(a * (count - 1))];
-    };
-    cache.white.steps = steps;
-    cache.white.title = 'white';
+    cache.white = chromaToRet(vToColor, steps, 'white');
   }
   return cache.white;
-
 }
 
 export function yellowish() {
@@ -71,22 +95,7 @@ export function yellowish() {
         // .scale(['#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506'])
         .scale(steps)
         .correctLightness();
-    const colors = [];
-    const count = 500;
-    for (var i = 0; i < count; i++) {
-      colors.push(vToColor(i / (count - 1)));
-    }
-
-    cache.yellowish = a => {
-      if (a < 0) {
-        a = 0;
-      } else if (a > 1) {
-        a = 1;
-      }
-      return colors[Math.round(a * (count - 1))];
-    };
-    cache.yellowish.steps = steps;
-    cache.yellowish.title = 'yellowish';
+    cache.yellowish = chromaToRet(vToColor, steps, 'yellowish');
   }
   return cache.yellowish;
 }
@@ -97,22 +106,8 @@ export function yellowishr() {
     const vToColor = chroma
         .scale(steps)
         .correctLightness();
-    const colors = [];
-    const count = 500;
-    for (var i = 0; i < count; i++) {
-      colors.push(vToColor(i / (count - 1)));
-    }
+    cache.yellowishr = chromaToRet(vToColor, steps, 'yellowishr');
 
-    cache.yellowishr = a => {
-      if (a < 0) {
-        a = 0;
-      } else if (a > 1) {
-        a = 1;
-      }
-      return colors[Math.round(a * (count - 1))];
-    };
-    cache.yellowishr.steps = steps;
-    cache.yellowishr.title = 'yellowishr';
   }
   return cache.yellowishr;
 }
