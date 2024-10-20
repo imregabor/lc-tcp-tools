@@ -378,13 +378,21 @@ export function initPage() {
   var eoverlayerg = maing.append('g').classed('eoverlayerg', true);
   var nodelayerg = maing.append('g');
 
+  var nodeDragTmpX0;
+  var nodeDragTmpY0;
+  var nodeDragTmpDx;
+  var nodeDragTmpDy;
   const nodeDrag = d3.drag()
       .clickDistance(5)
-      .on('start', function(e) {
+      .on('start', function(e, nd) {
         updateSvgSize();
         removeAreaG.classed('hidden', false);
         removeAreaG.style('display', undefined);
         hNodeDragging.enter();
+        nodeDragTmpX0 = nd.layout.x;
+        nodeDragTmpY0 = nd.layout.y;
+        nodeDragTmpDx = 0;
+        nodeDragTmpDy = 0;
       })
       .on('end', function(e, d) {
         removeAreaG.style('display', 'none');
@@ -407,8 +415,11 @@ export function initPage() {
         hNodeDragging.exit();
       })
       .on('drag', function(e, nd) {
-        nd.layout.x += e.dx;
-        nd.layout.y += e.dy;
+        nodeDragTmpDx += e.dx;
+        nodeDragTmpDy += e.dy;
+        const gridSize = 15;
+        nd.layout.x = nodeDragTmpX0 + Math.round(nodeDragTmpDx / gridSize) * gridSize;
+        nd.layout.y = nodeDragTmpY0 + Math.round(nodeDragTmpDy / gridSize) * gridSize;
 
         const c = d3.pointers(e, removeAreaG.node())[0];
         // not exact
@@ -674,6 +685,15 @@ export function initPage() {
     console.log('Import graph to UI ===================')
     console.log('Graph:', g)
     nodes = g.nodes;
+    const gridSize = 15;
+    nodes.forEach(n => {
+      const nodeDef = nodeTypes[selectedAddNodeType];
+      const halfWidth = nodeDef.w / 2;
+      // need to snap since node heights vary
+      const halfHeight = Math.round(nodeDef.h / (2 * gridSize)) * gridSize;
+      n.layout.x = Math.round((n.layout.x - halfWidth)/ gridSize) * gridSize + halfWidth;
+      n.layout.y = Math.round((n.layout.y - halfHeight)/ gridSize) * gridSize + halfHeight;
+    });
     edges = g.edges;
     edges.forEach(e => {
       e.n1 = nodes[e.n1index];
@@ -738,12 +758,13 @@ export function initPage() {
     }
     const coords = d3.pointers(e, maing.node())[0];
     const nodeDef = nodeTypes[selectedAddNodeType];
+    const gridSize = 15;
     const newNode = {
       type : selectedAddNodeType,
       label : hoverPreviewG.datum(),
       layout : {
-        x : coords[0] - nodeDef.w / 2,
-        y : coords[1] - nodeDef.h / 2
+        x : Math.round(coords[0] / gridSize) * gridSize - nodeDef.w / 2,
+        y : Math.round(coords[1] / gridSize) * gridSize - Math.round(nodeDef.h / (2 * gridSize)) * gridSize
       }
     };
     nodes.push(newNode);
@@ -786,12 +807,13 @@ export function initPage() {
     console.log(newNodeLabel)
 
     hoverPreviewG.selectAll('*').remove();
+    const gridSize = 15;
     const newNode = {
       type : selectedAddNodeType,
       label : newNodeLabel,
       layout : {
         x : - nodeDef.w / 2,
-        y : - nodeDef.h / 2
+        y : - Math.round(nodeDef.h / (2 * gridSize)) * gridSize
       }
     };
     hoverPreviewG.datum(newNodeLabel);
@@ -817,7 +839,8 @@ export function initPage() {
     }
 
     const coords = d3.pointers(e, maing.node())[0];
-    hoverPreviewG.attr('transform', `translate(${coords[0]}, ${coords[1]})`);
+    const gridSize = 15;
+    hoverPreviewG.attr('transform', `translate(${Math.round(coords[0] / gridSize) * gridSize}, ${Math.round(coords[1] / gridSize) * gridSize})`);
   });
   svg.on('pointerenter', e => {
     hOutsideSvg.exit();

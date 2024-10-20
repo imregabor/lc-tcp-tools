@@ -264,21 +264,21 @@ export const nodeFunctions = {
 
 export const nodeTypes = {
   aa : {
-    w : 100,
+    w : 135,
     h : 130,
     title : 'Analyzer',
     ports : {
       tdo : {
         type : 'out',
         label : 'TD [lin mag]',
-        x : 120,
+        x : 150,
         y : 40,
         l : 100
       },
       spo : { // spectrum magnitude dB
         type : 'out',
         label : 'Spectrum [dB mag]',
-        x : 120,
+        x : 150,
         y : 70,
         l : 100
       }
@@ -289,19 +289,19 @@ export const nodeTypes = {
         initial : 1024,
         x : 5,
         y : 100,
-        len : 85
+        len : 125
       },
       targetFps : {
         label: 'targetFps',
         initial : 50,
         x : 5,
         y : 115,
-        len : 85
+        len : 125
       }
     }
   },
   dbm2linm : {
-    w : 130,
+    w : 135,
     h : 130,
     title : 'Spectrum to lin',
     ports : {
@@ -315,14 +315,14 @@ export const nodeTypes = {
       spi : {
         type : 'in',
         label : 'FD [dB mag]',
-        x : -20,
+        x : -15,
         y : 40,
         l : 70
       }
     }
   },
   aw : {
-    w : 130,
+    w : 135,
     h : 130,
     title : 'A-weights',
     ports : {
@@ -336,63 +336,63 @@ export const nodeTypes = {
       spi : {
         type : 'in',
         label : 'FD [lin mag]',
-        x : -20,
+        x : -15,
         y : 40,
         l : 70
       }
     }
   },
   fde : {
-    w : 90,
+    w : 135,
     h : 60,
     title : 'FD energy',
     ports : {
       fdi : {
         type : 'in',
         label : 'FD [mag]',
-        x : -20,
+        x : -15,
         y : 40,
         l : 50
       },
       eo : {
         type : 'out',
         label : 'Energy',
-        x : 110,
+        x : 150,
         y : 40,
         l : 50
       }
     }
   },
   tde : {
-    w : 90,
+    w : 135,
     h : 60,
     title : 'TD energy',
     ports : {
       tdi : {
         type : 'in',
         label : 'TD [mag]',
-        x : -20,
+        x : -15,
         y : 40,
         l : 50
       },
       eo : {
         type : 'out',
         label : 'Energy',
-        x : 110,
+        x : 150,
         y : 40,
         l : 50
       }
     }
   },
   mh : {
-    w : 130,
+    w : 135,
     h : 130,
     title : 'Max hold',
     ports : {
       in : {
         type : 'in',
         label : 'In',
-        x : -20,
+        x : -15,
         y : 40,
         l : 50
       },
@@ -412,7 +412,7 @@ Time in \`ms\` to sustain the last max value before decaying.`,
         initial : 0,
         x : 5,
         y : 70,
-        len : 120
+        len : 125
       },
       decay : {
         label: 'decay (ms)',
@@ -421,7 +421,7 @@ Time in \`ms\` to decay to the half value after sustaining.`,
         initial : 150,
         x : 5,
         y : 85,
-        len : 120
+        len : 125
       },
       attack : {
         label: 'attack (ms)',
@@ -430,19 +430,19 @@ Time in \`ms\` to close half the distance to the input.`,
         initial : 0,
         x : 5,
         y : 100,
-        len : 120
+        len : 125
       }
     }
   },
   linScale : {
-    w : 130,
+    w : 135,
     h : 130,
     title : 'Linear scale',
     ports : {
       in : {
         type : 'in',
         label : 'In',
-        x : -20,
+        x : -15,
         y : 40,
         l : 50
       },
@@ -462,7 +462,7 @@ Output values scaled with \`out = a * in + b\`.`,
         initial : 1,
         x : 5,
         y : 70,
-        len : 120
+        len : 125
       },
       scaleB : {
         label: 'scale (b)',
@@ -471,7 +471,7 @@ Output values scaled with \`out = a * in + b\`.`,
         initial : 0,
         x : 5,
         y : 85,
-        len : 120
+        len : 125
       },
       clip : {
         label: 'clip',
@@ -480,40 +480,40 @@ Output values are clipped to \`0 - 1\` interval.`,
         initial : 1,
         x : 5,
         y : 100,
-        len : 120
+        len : 125
       }
     }
   },
   linCombine : {
-    w : 115,
+    w : 135,
     h : 130,
     title : 'Linear combine',
     ports : {
       a : {
         type : 'in',
         label : 'a',
-        x : -20,
+        x : -15,
         y : 40,
         l : 50
       },
       in0 : {
         type : 'in',
         label : 'In0',
-        x : -20,
+        x : -15,
         y : 80,
         l : 50
       },
       in1 : {
         type : 'in',
         label : 'In1',
-        x : -20,
+        x : -15,
         y : 110,
         l : 50
       },
       out : {
         type : 'out',
         label : 'Out',
-        x : 120,
+        x : 150,
         y : 40,
         l : 50
       }
@@ -522,14 +522,14 @@ Output values are clipped to \`0 - 1\` interval.`,
     }
   },
   channelRemap : {
-    w : 130,
+    w : 135,
     h : 85,
     title : 'Channel remap',
     ports : {
       in : {
         type : 'in',
         label : 'In',
-        x : -20,
+        x : -15,
         y : 40,
         l : 50
       },
@@ -556,26 +556,26 @@ Use the following values:
         initial : 0,
         x : 5,
         y : 70,
-        len : 120
+        len : 125
       }
     }
   },
   vu : {
-    w : 120,
+    w : 135,
     h : 160,
     title : 'VU',
     ports : {
       ein : {
         type : 'in',
         label : 'Energy',
-        x : -20,
+        x : -15,
         y : 40,
         l : 50
       },
       out : {
         type : 'out',
         label : 'Channels',
-        x : 140,
+        x : 150,
         y : 40,
         l : 50
       }
@@ -586,28 +586,28 @@ Use the following values:
         initial : 24,
         x : 5,
         y : 70,
-        len : 105
+        len : 125
       },
       maxDecayH : {
         label: 'max decay',
         initial : 5000,
         x : 5,
         y : 85,
-        len : 105
+        len : 125
       },
       minDecayH : {
         label: 'min decay',
         initial : 5000,
         x : 5,
         y : 100,
-        len : 105
+        len : 125
       },
       maxFloor : {
         label: 'max floor',
         initial : 0.0001,
         x : 5,
         y : 115,
-        len : 105
+        len : 125
       },
       // Value for "on" channels is calculated by ax + b where x is the input value after normalization
       onValueA : {
@@ -615,26 +615,26 @@ Use the following values:
         initial : 0.5,
         x : 5,
         y : 130,
-        len : 105
+        len : 125
       },
       onValueB : {
         label : 'on cv "b"',
         initial : 0.5,
         x : 5,
         y : 145,
-        len : 105
+        len : 125
       }
     }
   },
   sb : {
-    w : 140,
+    w : 135,
     h : 220,
     title : 'Subbands',
     ports : {
       in : {
         type : 'in',
         label : 'FD [lin mag]',
-        x : -20,
+        x : -15,
         y : 40,
         l : 70
       },
@@ -652,89 +652,89 @@ Use the following values:
         initial : 8,
         x : 5,
         y : 70,
-        len : 130
+        len : 125
       },
       lf : {
         label: 'Low freq',
         initial : 100,
         x : 5,
         y : 85,
-        len : 130
+        len : 125
       },
       hf : {
         label: 'High freq',
         initial : 1500,
         x : 5,
         y : 100,
-        len : 130
+        len : 125
       },
       maxDecayH : {
         label: 'Max decay',
         initial : 5000,
         x : 5,
         y : 115,
-        len : 130
+        len : 125
       },
       maxFloor : {
         label: 'Max floor',
         initial: 0,
         x : 5,
         y : 130,
-        len : 130
+        len : 125
       },
       maxSpillHbc : {
         label: 'Max spill b to 1/2',
         initial : 0,
         x : 5,
         y : 145,
-        len : 130
+        len : 125
       },
       spillXpf : {
         label: 'Spill from xPF',
         initial : 0,
         x : 5,
         y : 160,
-        len : 130
+        len : 125
       },
       doAvg : {
         label: 'Do AVG',
         initial : 0,
         x : 5,
         y : 175,
-        len : 130
+        len : 125
       },
       doLpf : {
         label: 'Do LPF band',
         initial : 0,
         x : 5,
         y : 190,
-        len : 130
+        len : 125
       },
       doHpf : {
         label: 'Do HPF band',
         initial : 0,
         x : 5,
         y : 205,
-        len : 130
+        len : 125
       }
     }
   },
   lr : {
-    w : 100,
+    w : 135,
     h : 130,
     title : 'Legacy router',
     ports : {
       lb24 : {
         type : 'in',
         label : 'Bar 24',
-        x : -20,
+        x : -15,
         y : 40,
         l : 70
       },
       lm35 : {
         type : 'in',
         label : 'Matrix 35',
-        x : -20,
+        x : -15,
         y : 70,
         l : 70
       }
@@ -745,19 +745,19 @@ Use the following values:
         initial : 45,
         x : 5,
         y : 100,
-        len : 85
+        len : 125
       }
     }
   },
   wss : {
-    w : 100,
+    w : 135,
     h : 130,
     title : 'WS2812 strip',
     ports : {
       channels : {
         type : 'in',
         label : 'Channels',
-        x : -20,
+        x : -15,
         y : 40,
         l : 70
       }
@@ -768,7 +768,7 @@ Use the following values:
         initial : 45,
         x : 5,
         y : 70,
-        len : 85
+        len : 125
       },
       gamma : {
         label: 'gamma',
@@ -780,7 +780,7 @@ Gamma correction (\`v' = pow(v, gamma)\`) applied to the input values (which are
         initial : 5,
         x : 5,
         y : 85,
-        len : 85
+        len : 125
       },
       scale : {
         label: 'scale',
@@ -792,26 +792,26 @@ Scale factor (between \`0\` and \`1\`; \`v' = v * scale\`) applied to the values
         initial : 1,
         x : 5,
         y : 100,
-        len : 85
+        len : 125
       }
     }
   },
   rgbmap : {
-    w : 130,
+    w : 135,
     h : 160,
     title : 'RGB map',
     ports : {
       in1 : {
         type : 'in',
         label : 'IN 1',
-        x : -20,
+        x : -15,
         y : 40,
         l : 70
       },
       in2 : {
         type : 'in',
         label : 'IN 2',
-        x : -20,
+        x : -15,
         y : 70,
         l : 70
       },
@@ -839,12 +839,12 @@ Use the following values:
         initial : 0,
         x : 5,
         y : 100,
-        len : 120
+        len : 125
       }
     }
   },
   lfo : {
-    w : 130,
+    w : 135,
     h : 160,
     title : 'LFO',
     ports : {
@@ -872,7 +872,7 @@ Use the following values:
         initial : 0,
         x : 5,
         y : 70,
-        len : 120
+        len : 125
       },
       frequency : {
         label : 'Frequency, 1/min',
@@ -883,7 +883,7 @@ Frequency; 1/min`,
         initial : 30,
         x : 5,
         y : 85,
-        len : 120
+        len : 125
       },
       phase : {
         label: 'Relative phase',
@@ -895,7 +895,7 @@ Relative phase shift, \`0.0\` - \`1.0\`
         initial : 0,
         x : 5,
         y : 100,
-        len : 120
+        len : 125
       },
       dc: {
         label: 'Duty cycle',
@@ -907,7 +907,7 @@ Duty cycle for square and triangle waveforms, \`0.0\` - \`1.0\`
         initial : 0.5,
         x : 5,
         y : 115,
-        len : 120
+        len : 125
       },
       a: {
         label: 'Amplitude',
@@ -919,12 +919,12 @@ Amplitude of output, \`0.0\` - \`1.0\`
         initial : 1.0,
         x : 5,
         y : 130,
-        len : 120
+        len : 125
       }
     }
   },
   fixedEffect : {
-    w : 130,
+    w : 135,
     h : 160,
     title : 'Fixed effect',
     ports : {
@@ -946,7 +946,7 @@ Number of generated output channels`,
         initial : 5,
         x : 5,
         y : 70,
-        len : 120
+        len : 125
       },
       dt : {
         label: 'dt (s)',
@@ -958,7 +958,7 @@ Time step for time dependent effects
         initial : 1,
         x : 5,
         y : 100,
-        len : 120
+        len : 125
       },
       mode : {
         label: 'mode',
@@ -974,7 +974,7 @@ Use the following values:
         initial : 0,
         x : 5,
         y : 85,
-        len : 120
+        len : 125
       },
       value1 : {
         label: 'value1',
@@ -985,7 +985,7 @@ Typically used as baseline intensiy`,
         initial : 0.5,
         x : 5,
         y : 115,
-        len : 120
+        len : 125
       },
       value2 : {
         label: 'value2',
@@ -996,7 +996,7 @@ Typically used as highlight intensiy`,
         initial : 1,
         x : 5,
         y : 130,
-        len : 120
+        len : 125
       },
       dotsize : {
         label: 'dotsize',
@@ -1007,7 +1007,7 @@ Dot size of the chaser effect`,
         initial : 3,
         x : 5,
         y : 145,
-        len : 120
+        len : 125
       }
     }
   }
