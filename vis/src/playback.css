@@ -116,8 +116,8 @@ audio {
 
 .playback-extra-controls i.highlighted {
   color: #00cc00;
-  background-color: #e6ffe6;
-  border-color: #e6ffe6;
+  background-color: #abedab;
+  border-color: #abedab;
 }
 
 .playback-extra-controls.playback-extra-controls-smaller i {
@@ -160,7 +160,7 @@ audio {
 .playback-extra-controls i.highlighted:active {
   color:  #108910;
   background-color: #18cd18;
-  border-color: #cb181d;
+  border-color: #18cd18;
 }
 
 
