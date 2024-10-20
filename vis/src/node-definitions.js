@@ -255,7 +255,7 @@ export const nodeFunctions = {
 export const nodeTypes = {
   aa : {
     w : 135,
-    h : 130,
+    h : 135,
     title : 'Analyzer',
     ports : {
       tdo : {
@@ -292,7 +292,7 @@ export const nodeTypes = {
   },
   dbm2linm : {
     w : 135,
-    h : 130,
+    h : 60,
     title : 'Spectrum to lin',
     ports : {
       spo : {
@@ -313,7 +313,7 @@ export const nodeTypes = {
   },
   aw : {
     w : 135,
-    h : 130,
+    h : 60,
     title : 'A-weights',
     ports : {
       spo : {
@@ -376,7 +376,7 @@ export const nodeTypes = {
   },
   mh : {
     w : 135,
-    h : 130,
+    h : 120,
     title : 'Max hold',
     ports : {
       in : {
@@ -426,7 +426,7 @@ Time in \`ms\` to close half the distance to the input.`,
   },
   linScale : {
     w : 135,
-    h : 130,
+    h : 120,
     title : 'Linear scale',
     ports : {
       in : {
@@ -513,7 +513,7 @@ Output values are clipped to \`0 - 1\` interval.`,
   },
   channelRemap : {
     w : 135,
-    h : 85,
+    h : 90,
     title : 'Channel remap',
     ports : {
       in : {
@@ -552,7 +552,7 @@ Use the following values:
   },
   vu : {
     w : 135,
-    h : 160,
+    h : 165,
     title : 'VU',
     ports : {
       ein : {
@@ -618,7 +618,7 @@ Use the following values:
   },
   sb : {
     w : 135,
-    h : 220,
+    h : 225,
     title : 'Subbands',
     ports : {
       in : {
@@ -711,7 +711,7 @@ Use the following values:
   },
   lr : {
     w : 135,
-    h : 130,
+    h : 120,
     title : 'Legacy router',
     ports : {
       lb24 : {
@@ -741,7 +741,7 @@ Use the following values:
   },
   wss : {
     w : 135,
-    h : 130,
+    h : 120,
     title : 'WS2812 strip',
     ports : {
       channels : {
@@ -788,7 +788,7 @@ Scale factor (between \`0\` and \`1\`; \`v' = v * scale\`) applied to the values
   },
   rgbmap : {
     w : 135,
-    h : 160,
+    h : 120,
     title : 'RGB map',
     ports : {
       in1 : {
@@ -835,7 +835,7 @@ Use the following values:
   },
   lfo : {
     w : 135,
-    h : 160,
+    h : 150,
     title : 'LFO',
     ports : {
       out : {
@@ -915,7 +915,7 @@ Amplitude of output, \`0.0\` - \`1.0\`
   },
   fixedEffect : {
     w : 135,
-    h : 160,
+    h : 165,
     title : 'Fixed effect',
     ports : {
       out : {
