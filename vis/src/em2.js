@@ -106,6 +106,8 @@ export function initPage() {
   const p = panes.init().bottomPaneName('visualizations');
 
   const vp = vispane.init(p.bottomD3());
+  const pipeline = pl.createPipeline();
+
 
 
   const svgdiv = p.topD3().append('div').classed('svg-ctr', true);
@@ -157,6 +159,38 @@ export function initPage() {
       download('graph.json', graphJson);
     });
 
+  const tickLoopIcon = pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-clock', true)
+    .on('click', () => {
+      if (isPipelineRunning()) {
+        pipeline.stop();
+        vp.stop();
+      } else {
+        pipeline.run();
+        if (p.isOpen()) {
+          vp.start();
+        }
+      }
+      updateTickLoopIcon();
+    });
+  function isPipelineRunning() {
+    return pipeline && pipeline.isRunning();
+  }
+  function updateTickLoopIcon() {
+    const isRunning = isPipelineRunning();
+    tickLoopIcon
+      .attr(
+        'title',
+        isRunning ? 'Stop effect pipeline' : 'Start effect pipeline'
+      )
+      .classed(
+        'highlighted',
+        isRunning
+      );
+  }
+  updateTickLoopIcon();
+
+
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-solid fa-paper-plane', true)
@@ -182,7 +216,6 @@ export function initPage() {
     playerOverlayDiv.append('div').classed('pb-player', true),
     svgdiv.append('div').classed('pb-message', true));
 
-  const pipeline = pl.createPipeline();
   events.topologyChanged.add(pipeline.setGraph);
   events.parametersChanged.add(pipeline.updateParameter);
   pipeline.onError(e => {
@@ -227,16 +260,18 @@ export function initPage() {
       vp.start();
     }
     pipeline.run();
+    updateTickLoopIcon();
   });
   playback.onPlaybackStopped(() => {
     vp.stop();
     pipeline.stop();
     pipeline.reset();
+    updateTickLoopIcon();
   });
 
   vp.setDataSource(pipeline);
   p.onOpened(() => {
-    if (playback.isPlaying()) {
+    if (isPipelineRunning()) {
       vp.start();
     }
     pipeline.resumeVisData();

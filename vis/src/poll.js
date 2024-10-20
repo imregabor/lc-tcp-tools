@@ -84,8 +84,7 @@ export function newPoll(delay, callback) {
       });
     },
     start : () => {
-      if (lastTimeout) {
-        // already started
+      if (ret.isRunning()) {
         return;
       }
       count = 0;
@@ -94,13 +93,15 @@ export function newPoll(delay, callback) {
       return ret;
     },
     stop : () => {
-      if (!lastTimeout) {
-        // not started
+      if (!ret.isRunning()) {
         return;
       }
       clearTimeout(lastTimeout);
       lastTimeout = 0;
       return ret;
+    },
+    isRunning : () => {
+      return !!lastTimeout;
     },
     lastDt : () => lastDt,
     setDelay : d => {

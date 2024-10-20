@@ -15,7 +15,18 @@ export function createPipeline() {
   // AudioContext frontend; currently playback instance is passed
   //  - can create analyzerNode
   //  - can tell sample rate
-  var ctxFrontend;
+  // Dumb frontend to allow run without real playback
+  var ctxFrontend = {
+    sampleRate : () => 48000,
+    newAnalyserNode : () => {
+      return {
+        frequencyBinCount : 1024,
+        fftSize : 2048,
+        getFloatFrequencyData : b => b.fill(-1e9),
+        getFloatTimeDomainData : b => b.fill(0)
+      };
+    }
+  };
 
   // Processing graph
   var graph;
@@ -30,7 +41,7 @@ export function createPipeline() {
   //  - updated: when new value is present in a tick
   var portStates;
 
-  var apoll;
+  const apoll = poll.newPoll(20, tick);
   var lastTick;
 
 
@@ -1225,7 +1236,7 @@ export function createPipeline() {
       return;
     }
     analyzers = analyzers || {};
-    var maxFps = 0;
+    var maxFps = 25;
 
     for (var id in analyzers) {
       if (!analyzers.hasOwnProperty(id)) {
@@ -1295,12 +1306,7 @@ export function createPipeline() {
     }
 
     const pollDelay = Math.round(1000 / maxFps);
-    if (apoll) {
-      apoll.setDelay(pollDelay);
-    } else {
-      apoll = poll.newPoll(pollDelay, tick);
-    }
-
+    apoll.setDelay(pollDelay);
   }
 
 
@@ -1400,6 +1406,7 @@ export function createPipeline() {
       apoll.stop();
       return ret;
     },
+    isRunning : () => apoll.isRunning(),
     reset : () => {
       console.log('[pipeline] Reset');
       graph && graph.nodes.forEach(n => {
