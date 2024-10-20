@@ -116,6 +116,34 @@ const ccSrv = openWsSrv({
   path : '/ws-api/control'
 });
 
+const cc2Srv = openWsSrv({
+  noLogMessages : true,
+  log : m => {
+    console.log(`[CC2 srv] ${m}`);
+  },
+  onMessage : m => {
+    const parts = m.split(' ');
+    if (parts[0] === 'LRb100') {
+      const m1 = parts[1] && parts[1] !== '-' ? parts[1] : undefined;
+      const m2 = parts[2] && parts[2] !== '-' ? parts[2] : undefined;
+
+      if (m1) {
+        currentSetup.modules.m1.setBulk(lowLevel.parseBulk100(m1));
+      }
+      if (m2) {
+        currentSetup.modules.m2.setBulk(lowLevel.parseBulk100(m2));
+      }
+
+      const message = currentSetup.toMessage();
+      dispatchMessage(message);
+    } else if (parts[0] === 'WSSb100') {
+      const values = lowLevel.parseBulk100(parts[1]);
+      wsStripConnection.sendValues(values);
+    }
+
+  },
+  path : '/ws-api/control2'
+});
 
 function dispatchMessage(message) {
   fwdConn.write(message);
@@ -331,6 +359,7 @@ app.get('/api/status', (req, res) => {
     listeningSrvStatus : listeningSrv.getStatus(),
     wsSrvStatus : wsSrv.getStatus(),
     ccSrvStatus : ccSrv.getStatus(),
+    cc2SrvStatus : cc2Srv.getStatus(),
     wsStripStatus : wsStripConnection.getStatus()
   };
   if (options.mp3srv) {
@@ -441,6 +470,7 @@ const expressServer = app.listen(expressPort, () => {
 
 wsSrv.addToExpressServer(expressServer);
 ccSrv.addToExpressServer(expressServer);
+cc2Srv.addToExpressServer(expressServer);
 
 listeningSrv.onData(d => {
   // console.log(d.toString());

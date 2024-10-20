@@ -36,7 +36,9 @@ function open(opts) {
     };
 
     ws.on('message', data => {
-      log('[' + connectionId + '] received: ' + data.toString());
+      if (!opts.noLogMessages) {
+        log('[' + connectionId + '] received: ' + data.toString());
+      }
       activeConnections[connectionId].rcvCount++;
       if (opts.onMessage) {
         opts.onMessage(data.toString());

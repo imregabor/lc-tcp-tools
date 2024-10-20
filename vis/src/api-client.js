@@ -140,11 +140,24 @@ export function openWsLink(opts) {
     ws.send(message);
   }
 
+  function send(message) {
+    if (!ws) {
+      console.log(`No WS, cannot send ${message}`);
+      return;
+    }
+    if (ws.readyState !== 1) {
+      console.log(`WS not OPEN, readyState = ${ws.readyState} cannot send ${message}`);
+      return;
+    }
+    ws.send(message);
+  }
+
   var ws;
   function open() {
     if (opts.onConnecting) {
       opts.onConnecting();
     }
+    console.log(`Opening WS link to ${wsUri}`);
     ws = new WebSocket(wsUri);
 
     if (opts.onUp) {
@@ -159,6 +172,7 @@ export function openWsLink(opts) {
   open();
 
   return {
-    sendJson : o => sendJson(o)
+    sendJson : o => sendJson(o),
+    send : m => send(m)
   };
 }

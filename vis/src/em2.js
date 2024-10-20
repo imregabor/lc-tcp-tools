@@ -17,6 +17,7 @@ import * as apiClient from './api-client.js';
 import qrOverlay from './qr-overlay.js';
 import * as mp3SelectDialog from './mp3-select-dialog.js';
 import * as pipelinePresets from './pipeline-presets.js';
+import * as u from './util.js';
 
 // see https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
 function download(filename, text) {
@@ -103,10 +104,32 @@ export function initPage() {
     return `id-${idct}`;
   }
 
+
+  const wsLink = apiClient.openWsLink({
+    endpoint : '/ws-api/control2',
+    onJson: o => {
+      console.log('Control2 link message received', o);
+    },
+    onUp : () => {
+      console.log('Control2 link is up');
+    }
+  });
+  var remoteCalls = {
+    sendToLr : (lb24, lm35) => {
+      wsLink.send(`LRb100 ${lb24 ? u.channelsToBulk100(lb24) : '-'} ${lm35 ? u.channelsToBulk100(lm35) : '-'}`);
+    },
+    sendToWss : (rgb) => {
+      wsLink.send(`WSSb100 ${u.channelsToBulk100(rgb)}`);
+    },
+    getWssSize : () => 8
+  };
+
+
+
   const p = panes.init().bottomPaneName('visualizations');
 
   const vp = vispane.init(p.bottomD3());
-  const pipeline = pl.createPipeline();
+  const pipeline = pl.createPipeline().setRemoteCalls(remoteCalls);
 
 
 

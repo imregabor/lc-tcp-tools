@@ -33,6 +33,34 @@ export function createPipeline() {
 
   var visDataEnabled = false;
 
+  // default: use REST API endpoints
+  var remoteCalls = {
+    sendToLr : (lb24, lm35) => {
+      var url = '/api/setBulk100';
+      var sepChar = '?';
+      if (lb24) {
+        url = url + sepChar + 'm1=' + u.channelsToBulk100(lb24);
+        sepChar = '&';
+      }
+      if (lm35) {
+        url = url + sepChar + 'm2=' + u.channelsToBulk100(lm35);
+        sepChar = '&';
+      }
+
+      d3.text(url, {
+        method : 'POST',
+      }).then(() => {}, () => {});
+    },
+    sendToWss : (rgb) => {
+      url = url + sepChar + 'd=' + u.channelsToBulk100(rgb);
+
+      d3.text(url, {
+        method : 'POST',
+      }).then(() => {}, () => {});
+    },
+    getWssSize : () => 8
+  };
+
   // map of analyzer ID to node defined in createAnalyzers()
   var analyzers;
 
@@ -873,24 +901,27 @@ export function createPipeline() {
           const send = maybeSend && (!state.lastSend || ((now - state.lastSend) >= state.targetDelayMs));
           if (send) {
             state.lastSend = now;
-            var url = '/api/setBulk100';
-            var sepChar = '?';
+
+            var lb24 = undefined;
+            var lm35 = undefined;
+
             if (ipsLb24 && state.lb24valid) {
-              url = url + sepChar + 'm1=' + u.channelsToBulk100(state.lb24);
-              state.lb24.fill(0);
-              state.lb24valid = false;
-              sepChar = '&';
+              lb24 = state.lb24;
             }
             if (ipsLm35 && state.lm35valid) {
-              url = url + sepChar + 'm2=' + u.channelsToBulk100(state.lm35);
-              state.lm35.fill(0);
-              state.lm35valid = false;
-              sepChar = '&';
+              lm35 = state.lm35;
             }
 
-            d3.text(url, {
-              method : 'POST',
-            }).then(() => {}, () => {});
+            remoteCalls.sendToLr(lb24, lm35);
+
+            if (lb24) {
+              state.lb24.fill(0);
+              state.lb24valid = false;
+            }
+            if (lm35) {
+              state.lm35.fill(0);
+              state.lm35valid = false;
+            }
           }
           break;
         case 'wss':
@@ -905,7 +936,7 @@ export function createPipeline() {
           }
 
           if (ipsChannels && ipsChannels.updated) {
-            state.channelCount = Math.max(ipsChannels.channels.length, state.channelCount);
+            state.channelCount = Math.min(remoteCalls.getWssSize() * 3, Math.max(ipsChannels.channels.length, state.channelCount));
 
             if (state.channelCount !== state.chs.length) {
               const oldChs = state.chs;
@@ -925,6 +956,7 @@ export function createPipeline() {
           if (sendw) {
             state.maybeSend = false;
             state.lastSend = now;
+
             var url = '/api/setWsStrip100';
             var sepChar = '?';
             if (node.params.gamma !== 1) {
@@ -947,13 +979,10 @@ export function createPipeline() {
               }
             }
 
-            url = url + sepChar + 'd=' + u.channelsToBulk100(state.chs, state.channelCount);
+            remoteCalls.sendToWss(state.chs);
+
             state.chs.fill(0);
             state.channelCount = 3;
-
-            d3.text(url, {
-              method : 'POST',
-            }).then(() => {}, () => {});
           }
           break;
         case 'rgbmap':
@@ -1321,6 +1350,10 @@ export function createPipeline() {
       ctxFrontend = ctxFe;
       analyzers = undefined;
       updateAnalyzers();
+      return ret;
+    },
+    setRemoteCalls : rc => {
+      remoteCalls = rc;
       return ret;
     },
     setGraph : g => {
