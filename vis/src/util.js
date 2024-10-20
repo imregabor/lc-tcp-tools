@@ -1,5 +1,18 @@
 'use strict';
 
+/**
+ * Coerce to number and ensure its in a specified interval.
+ */
+export function clip(value, min, max) {
+  value = +value;
+  if (!(value >= min)) {
+    value = min;
+  } else if (value > max) {
+    value = max;
+  }
+  return value;
+}
+
 export function pad00(n) {
   const s = "00" + n;
   return s.substr(s.length - 2);

@@ -1236,7 +1236,7 @@ export function createPipeline() {
       return;
     }
     analyzers = analyzers || {};
-    var maxFps = 25;
+    var maxFps = 5;
 
     for (var id in analyzers) {
       if (!analyzers.hasOwnProperty(id)) {
@@ -1247,6 +1247,10 @@ export function createPipeline() {
     }
 
     graph.nodes.forEach(n => {
+      if (n.params && n.params.targetFps) {
+        // consider targetFps from all nodes
+        maxFps = Math.max(maxFps, n.params.targetFps);
+      }
       if (n.type !== 'aa') {
         return;
       }
@@ -1282,7 +1286,6 @@ export function createPipeline() {
         console.log('Error:', e);
         errEvent(na.err);
       }
-      maxFps = Math.max(maxFps, na.targetFps);
     });
 
     for (var id in analyzers) {
@@ -1294,7 +1297,6 @@ export function createPipeline() {
         delete analyzers[id];
       };
     }
-
 
     console.log('Analyzers:', analyzers, 'maxFps:', maxFps);
 
@@ -1308,7 +1310,6 @@ export function createPipeline() {
     const pollDelay = Math.round(1000 / maxFps);
     apoll.setDelay(pollDelay);
   }
-
 
   const ret = {
     onError : h => {

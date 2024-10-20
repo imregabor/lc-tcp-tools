@@ -1,7 +1,18 @@
 'use strict';
 
+import * as u from './util.js';
+
 
 export const nodeFunctions = {
+  aa : {
+    initState : params => {
+      params.targetFps = u.clip(params.targetFps, 5, 1000);
+      return {};
+    },
+    updateState : (params, state) => {
+      params.targetFps = u.clip(params.targetFps, 5, 1000);
+    }
+  },
   aw : {
     initState : params => {
       // ensure that node have a state
@@ -140,6 +151,8 @@ export const nodeFunctions = {
   },
   lr : {
     initState : params => {
+      params.targetFps = u.clip(params.targetFps, 5, 1000);
+
       return {
         targetDelayMs : 1000 / params.targetFps, // todo - use this pattern for analyzers
         lb24 : new Float32Array(24),
@@ -147,22 +160,17 @@ export const nodeFunctions = {
       };
     },
     updateState : (params, state) => {
+      params.targetFps = u.clip(params.targetFps, 5, 1000);
+
       state.targetDelayMs = 1000 / params.targetFps;
     }
   },
   wss : {
     initState : params => {
-      params.targetFps = +params.targetFps;
+      params.targetFps = u.clip(params.targetFps, 5, 1000);
       params.gamma = +params.gamma;
-      params.scale = +params.scale;
-      if (params.scale < 0) {
-        params.scale = 0;
-      }
-      if (params.scale > 1) {
-        params.scale = 1;
-      }
+      params.scale = u.clip(params.scale, 0, 1);
       return {
-
         targetDelayMs : 1000 / params.targetFps, // todo - use this pattern for analyzers
         chs : new Float32Array(3),
         channelCount : 3,
@@ -170,15 +178,9 @@ export const nodeFunctions = {
       };
     },
     updateState : (params, state) => {
-      params.targetFps = +params.targetFps;
+      params.targetFps = u.clip(params.targetFps, 5, 1000);
       params.gamma = +params.gamma;
-      params.scale = +params.scale;
-      if (params.scale < 0) {
-        params.scale = 0;
-      }
-      if (params.scale > 1) {
-        params.scale = 1;
-      }
+      params.scale = u.clip(params.scale, 0, 1);
 
       state.targetDelayMs = 1000 / params.targetFps;
     }
@@ -197,15 +199,9 @@ export const nodeFunctions = {
     initState : params => {
       params.waveform = +params.waveform;
       params.frequency = +params.frequency;
-      params.phase = +params.phase;
-      params.dc = +params.dc;
-      params.a = +params.a;
-      if (params.a < 0) {
-        params.a = 0;
-      }
-      if (params.a > 1) {
-        params.a = 1;
-      }
+      params.phase = u.clip(params.phase, 0, 1);
+      params.dc = u.clip(params.dc, 0, 1);
+      params.a = u.clip(params.a, 0, 1);
       const period = Math.round(60000 / params.frequency);
       return {
         period : period,
@@ -215,15 +211,9 @@ export const nodeFunctions = {
     updateState : (params, state) => {
       params.waveform = +params.waveform;
       params.frequency = +params.frequency;
-      params.phase = +params.phase;
-      params.dc = +params.dc;
-      params.a = +params.a;
-      if (params.a < 0) {
-        params.a = 0;
-      }
-      if (params.a > 1) {
-        params.a = 1;
-      }
+      params.phase = u.clip(params.phase, 0, 1);
+      params.dc = u.clip(params.dc, 0, 1);
+      params.a = u.clip(params.a, 0, 1);
 
       state.period = Math.round(60000 / params.frequency);
       state.shift = state.period * params.phase;
