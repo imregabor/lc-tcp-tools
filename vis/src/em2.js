@@ -282,7 +282,7 @@ export function initPage() {
   });
 
 
-  p.open();
+  p.open(0.25);
 
   const maing = svg.append('g');
 

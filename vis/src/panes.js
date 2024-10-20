@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import './panes.css';
 import * as pb from './playback.js';
 import * as ed from './ed.js';
+import * as u from './util.js';
 
 
 export function init() {
@@ -116,8 +117,9 @@ export function init() {
     },
     topD3 : () => topc,
     bottomD3 : () => btmc,
-    open : () => {
-      ph = getPageHeight() / 2;
+    open : (fraction) => {
+      fraction = u.clip(fraction, 0, 1);
+      ph = (fraction ? fraction : 0.5) * getPageHeight();
       adjust();
       return ret;
     },
