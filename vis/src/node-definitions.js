@@ -486,7 +486,7 @@ Output values are clipped to \`0 - 1\` interval.`,
   },
   linCombine : {
     w : 135,
-    h : 130,
+    h : 135,
     title : 'Linear combine',
     ports : {
       a : {
@@ -500,14 +500,14 @@ Output values are clipped to \`0 - 1\` interval.`,
         type : 'in',
         label : 'In0',
         x : -15,
-        y : 80,
+        y : 85,
         l : 50
       },
       in1 : {
         type : 'in',
         label : 'In1',
         x : -15,
-        y : 110,
+        y : 115,
         l : 50
       },
       out : {
