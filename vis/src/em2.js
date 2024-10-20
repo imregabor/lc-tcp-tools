@@ -150,6 +150,12 @@ export function initPage() {
     .on('click', () => clearGraph());
 
   pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-expand', true)
+    .attr('title', 'Fit graph into viewport')
+    .on('click', () => fitGraph(true));
+
+
+  pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-file-code', true)
     .attr('title', 'Export pipeline')
     .on('click', () => {
@@ -183,7 +189,7 @@ export function initPage() {
     });
 
   const tickLoopIcon = pageButtonsOverlayDiv.append('i')
-    .classed('fa fa-fw fa-clock', true)
+    .classed('fa fa-fw fa-person-running', true)
     .on('click', () => {
       if (isPipelineRunning()) {
         pipeline.stop();
@@ -306,6 +312,7 @@ export function initPage() {
 
 
   p.open(0.25);
+  setTimeout(() => fitGraph(true), 800);
 
   const maing = svg.append('g');
 
@@ -694,6 +701,35 @@ export function initPage() {
     routeEdges();
   }
 
+  function fitGraph(doTransition) {
+    if (nodes.length === 0) {
+      return;
+    }
+    var first = true;
+    var x0, y0, x1, y1;
+    nodes.forEach(n => {
+      const nodeDef = nodeTypes[selectedAddNodeType];
+
+      if (first || n.layout.x < x0) { x0 = n.layout.x; }
+      if (first || n.layout.x + nodeDef.w > x1) { x1 = n.layout.x + nodeDef.w; }
+      if (first || n.layout.y < y0) { y0 = n.layout.y; }
+      if (first || n.layout.y + nodeDef.h > y1) { y1 = n.layout.y + nodeDef.h; }
+      first = false;
+    });
+    const svgBb = svg.node().getBoundingClientRect();
+    console.log(`SVG size: ${svgBb.width} x ${svgBb.height}`);
+    console.log(`Graph bounding box: (${x0}, ${y0}) - (${x1}, ${y1})`);
+
+    // maing.transition().duration(500).call()
+    // see https://observablehq.com/@d3/programmatic-zoom
+
+    //var t = d3.zoomIdentity.translate(svgBb.width / 2 - (x1 - x0) / 2, svgBb.height / 2 - (y1 - y0) / 2).scale(0.1);
+    const scale = Math.min(svgBb.width / (x1 - x0), svgBb.height / (y1 - y0)) * 0.9;
+    var t = d3.zoomIdentity.translate(svgBb.width / 2 - scale * (x1 + x0) / 2, svgBb.height / 2 - scale * (y1 + y0) / 2).scale(scale);
+
+    (doTransition ? svg.transition().duration(600) : svg).call(svgZoom.transform, t);
+  }
+
   function clearGraph() {
     nodes = [];
     edges = [];
@@ -725,6 +761,7 @@ export function initPage() {
     renderNodes();
     renderEdges();
     fireTopologyChanged();
+    setTimeout(() => fitGraph(false), 0);
   }
   importGraph(pipelinePresets.vuAndSpect);
 
@@ -770,10 +807,10 @@ export function initPage() {
 
   // see https://www.d3indepth.com/zoom-and-pan/
   // see https://d3js.org/d3-zoom#zoom_transform
-  svg.call(d3.zoom()
-      .clickDistance(5)
-      .on('zoom', e => maing.attr('transform', e.transform))
-  );
+  const svgZoom = d3.zoom()
+    .clickDistance(5)
+    .on('zoom', e => maing.attr('transform', e.transform));
+  svg.call(svgZoom);
 
   svg.on('click', e => {
     if (!addingNodeOnClick) {
