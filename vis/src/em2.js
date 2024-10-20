@@ -547,7 +547,7 @@ export function initPage() {
         .attr('x', 0.5)
         .attr('y', 7.5)
         .attr('width', d => nodeTypes[d.type].w - 1)
-        .attr('height', 8);
+        .attr('height', 16);
     titleg.append('rect') // all corners have radius to fit in outer box nicely on the top
         .classed('param-bg-rect', true)
         .attr('x', 0.5)
@@ -562,7 +562,7 @@ export function initPage() {
         .classed('node-label', true)
         .attr('text-anchor', 'middle')
         .attr('x', d => nodeTypes[d.type].w / 2)
-        .attr('y', 11.5)
+        .attr('y', 15.5)
         .text(d => d.label);
 
     if (registerDrag) {
