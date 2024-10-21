@@ -403,10 +403,112 @@ export function initPage() {
   var nodes;
   var edges;
 
+  var alignmentHintLayerG = maing.append('g').classed('alignment-hint-layer', true);
   const hoverPreviewG = maing.append('g').classed('hover-preview', true);
   var edgelayerg = maing.append('g');
   var eoverlayerg = maing.append('g').classed('eoverlayerg', true);
+  var alignmentHintLayerG = maing.append('g').classed('alignment-hint-layer', true);
   var nodelayerg = maing.append('g');
+
+  function updateAlignmentHintLayer(nd, translateX, translateY) {
+    translateX = !!translateX ? translateX : 0;
+    translateY = !!translateY ? translateY : 0;
+    alignmentHintLayerG.selectAll('*').remove();
+    const ndDef = nodeTypes[nd.type];
+    var lfound = false;
+    var lx = nd.layout.x + translateX;
+    var ly1 = nd.layout.y + translateY;
+    var ly2 = nd.layout.y + ndDef.h + translateY;
+    var rfound = false;
+    var rx = nd.layout.x + ndDef.w + translateX;
+    var ry1 = nd.layout.y + translateY;
+    var ry2 = nd.layout.y + ndDef.h + translateY;
+    var tfound = false;
+    var ty = nd.layout.y + translateY;
+    var tx1 = nd.layout.x + translateX;
+    var tx2 = nd.layout.x + ndDef.w + translateX;
+    var bfound = false;
+    var by = nd.layout.y + ndDef.h + translateY;
+    var bx1 = nd.layout.x + translateX;
+    var bx2 = nd.layout.x + ndDef.w + translateX;
+    nodes.forEach(n => {
+      if (n.render.id === nd.render.id) {
+        return
+      }
+
+      const nDef = nodeTypes[n.type];
+      if (Math.abs(n.layout.x - lx) < 1) {
+        lfound = true;
+        ly1 = Math.min(ly1, n.layout.y);
+        ly2 = Math.max(ly2, n.layout.y + nDef.h);
+      }
+      if (Math.abs(n.layout.x + nDef.w - lx) < 1) {
+        lfound = true;
+        ly1 = Math.min(ly1, n.layout.y);
+        ly2 = Math.max(ly2, n.layout.y + nDef.h);
+      }
+      if (Math.abs(n.layout.x - rx) < 1) {
+        rfound = true;
+        ry1 = Math.min(ly1, n.layout.y);
+        ry2 = Math.max(ly2, n.layout.y + nDef.h);
+      }
+      if (Math.abs(n.layout.x + nDef.w - rx) < 1) {
+        rfound = true;
+        ry1 = Math.min(ly1, n.layout.y);
+        ry2 = Math.max(ly2, n.layout.y + nDef.h);
+      }
+      if (Math.abs(n.layout.y - ty) < 1) {
+        tfound = true;
+        tx1 = Math.min(tx1, n.layout.x);
+        tx2 = Math.max(tx2, n.layout.x + nDef.w);
+      }
+      if (Math.abs(n.layout.y + nDef.h - ty) < 1) {
+        tfound = true;
+        tx1 = Math.min(tx1, n.layout.x);
+        tx2 = Math.max(tx2, n.layout.x + nDef.w);
+      }
+      if (Math.abs(n.layout.y - by) < 1) {
+        bfound = true;
+        bx1 = Math.min(bx1, n.layout.x);
+        bx2 = Math.max(bx2, n.layout.x + nDef.w);
+      }
+      if (Math.abs(n.layout.y + nDef.h - by) < 1) {
+        bfound = true;
+        bx1 = Math.min(bx1, n.layout.x);
+        bx2 = Math.max(bx2, n.layout.x + nDef.w);
+      }
+    });
+    if (lfound) {
+      alignmentHintLayerG.append('line')
+        .attr('x1', lx)
+        .attr('y1', ly1)
+        .attr('x2', lx)
+        .attr('y2', ly2);
+      }
+    if (rfound) {
+      alignmentHintLayerG.append('line')
+        .attr('x1', rx)
+        .attr('y1', ry1)
+        .attr('x2', rx)
+        .attr('y2', ry2);
+      }
+    if (tfound) {
+      alignmentHintLayerG.append('line')
+        .attr('x1', tx1)
+        .attr('y1', ty)
+        .attr('x2', tx2)
+        .attr('y2', ty);
+      }
+    if (bfound) {
+      alignmentHintLayerG.append('line')
+        .attr('x1', bx1)
+        .attr('y1', by)
+        .attr('x2', bx2)
+        .attr('y2', by);
+      }
+  }
+
+
 
   var nodeDragTmpX0;
   var nodeDragTmpY0;
@@ -442,6 +544,7 @@ export function initPage() {
           renderEdges();
           fireTopologyChanged();
         }
+        alignmentHintLayerG.selectAll('*').remove();
         hNodeDragging.exit();
       })
       .on('drag', function(e, nd) {
@@ -462,7 +565,11 @@ export function initPage() {
 
         if (inRemoveArea !== wasInRemoveArea) {
           edgelayerg.selectAll('path').filter(d => d.n1 == nd || d.n2 == nd).classed('will-delete', inRemoveArea);
+          alignmentHintLayerG.selectAll('*').remove();
+        } else {
+          updateAlignmentHintLayer(nd);
         }
+
 
         // see https://stackoverflow.com/questions/14167863/how-can-i-bring-a-circle-to-the-front-with-d3
         thisD3
@@ -833,6 +940,7 @@ export function initPage() {
     notes.top(`New ${nodeDef.title} node added`);
     updateAddingNodeOnClick();
     fireTopologyChanged();
+    alignmentHintLayerG.selectAll('*').remove();
   });
 
 
@@ -842,6 +950,7 @@ export function initPage() {
     .attr('cy', 0)
     .attr('r', 10);
 
+  var newNodeHoverPreview;
   function updateAddingNodeOnClick() {
     const nodeDef = nodeTypes[selectedAddNodeType];
 
@@ -878,6 +987,7 @@ export function initPage() {
     };
     hoverPreviewG.datum(newNodeLabel);
     renderNodesInto([newNode], hoverPreviewG, false);
+    newNodeHoverPreview = newNode;
   }
 
   function startAddingNodeOnClick() {
@@ -900,7 +1010,11 @@ export function initPage() {
 
     const coords = d3.pointers(e, maing.node())[0];
     const gridSize = 15;
-    hoverPreviewG.attr('transform', `translate(${Math.round(coords[0] / gridSize) * gridSize}, ${Math.round(coords[1] / gridSize) * gridSize})`);
+    const x = Math.round(coords[0] / gridSize) * gridSize;
+    const y = Math.round(coords[1] / gridSize) * gridSize;
+    hoverPreviewG.attr('transform', `translate(${x}, ${y})`);
+
+    updateAlignmentHintLayer(newNodeHoverPreview, x, y);
   });
   svg.on('pointerenter', e => {
     hOutsideSvg.exit();

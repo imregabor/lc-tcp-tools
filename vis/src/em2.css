@@ -112,6 +112,10 @@ g.node-err-mark path {
   fill: #fee9e7;
 }
 
+g.alignment-hint-layer line {
+  stroke: steelblue;
+  stroke-width: 1px;
+}
 
 rect.param-bg-rect {
   stroke: none;
