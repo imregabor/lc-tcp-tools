@@ -198,7 +198,7 @@ export function initPage() {
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-file-code', true)
-    .attr('title', 'Export pipeline')
+    .attr('title', 'Export/edit/import pipeline graph')
     .on('click', () => {
       const graph = exportGraph(false, true);
       const graphJson = JSON.stringify(graph, null, 2);
@@ -222,7 +222,7 @@ export function initPage() {
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-download', true)
-    .attr('title', 'Download graph as JSON')
+    .attr('title', 'Download pipeline graph as JSON')
     .on('click', () => {
       const graph = exportGraph(false, true);
       const graphJson = JSON.stringify(graph, null, 2);
