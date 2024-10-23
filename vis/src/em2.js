@@ -154,6 +154,47 @@ export function initPage() {
     .attr('title', 'Fit graph into viewport')
     .on('click', () => fitGraph(true));
 
+  const showGridIcon = pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-table-cells', true)
+    .attr('title', 'Show grid')
+    .on('click', () => {
+      const toShowGrid = !showGridIcon.classed('highlighted');
+      showGridIcon.classed('highlighted', toShowGrid);
+      if (toShowGrid) {
+        var b = getGraphBounds();
+        if (!b) {
+          // TODO: consider zoom also; show grid when no graph is present
+          showGridIcon.classed('highlighted', false);
+          return;
+        }
+        const w = b[1][0] - b[0][0];
+        const h = b[1][1] - b[0][1];
+
+        const gridSize = 15;
+        const x0 = Math.round((b[0][0] - 2 * w) / gridSize) * gridSize;
+        const x1 = Math.round((b[1][0] + 2 * w) / gridSize) * gridSize;
+        const y0 = Math.round((b[0][1] - 2 * h) / gridSize) * gridSize;
+        const y1 = Math.round((b[1][1] + 2 * h) / gridSize) * gridSize;
+
+        for(var x = x0; x <= x1; x+=gridSize) {
+          gridLayerG.append('line')
+            .attr('x1', x)
+            .attr('y1', y0)
+            .attr('x2', x)
+            .attr('y2', y1);
+        }
+        for(var y = y0; y <= y1; y+=gridSize) {
+          gridLayerG.append('line')
+            .attr('x1', x0)
+            .attr('y1', y)
+            .attr('x2', x1)
+            .attr('y2', y);
+        }
+      } else {
+        gridLayerG.selectAll('*').remove();
+      }
+    });
+
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-file-code', true)
@@ -403,6 +444,7 @@ export function initPage() {
   var nodes;
   var edges;
 
+  var gridLayerG = maing.append('g').classed('grid-layer', true);
   var alignmentHintLayerG = maing.append('g').classed('alignment-hint-layer', true);
   const hoverPreviewG = maing.append('g').classed('hover-preview', true);
   var edgelayerg = maing.append('g');
@@ -808,12 +850,13 @@ export function initPage() {
     routeEdges();
   }
 
-  function fitGraph(doTransition) {
+  function getGraphBounds() {
     if (nodes.length === 0) {
       return;
     }
     var first = true;
     var x0, y0, x1, y1;
+
     nodes.forEach(n => {
       const nodeDef = nodeTypes[selectedAddNodeType];
 
@@ -823,6 +866,21 @@ export function initPage() {
       if (first || n.layout.y + nodeDef.h > y1) { y1 = n.layout.y + nodeDef.h; }
       first = false;
     });
+
+    return [[x0, y0], [x1, y1]];
+  }
+
+  function fitGraph(doTransition) {
+    const graphBounds = getGraphBounds();
+    if (!graphBounds) {
+      return;
+    }
+
+    var x0 = graphBounds[0][0];
+    var y0 = graphBounds[0][1];
+    var x1 = graphBounds[1][0];
+    var y1 = graphBounds[1][1];
+
     const svgBb = svg.node().getBoundingClientRect();
     console.log(`SVG size: ${svgBb.width} x ${svgBb.height}`);
     console.log(`Graph bounding box: (${x0}, ${y0}) - (${x1}, ${y1})`);

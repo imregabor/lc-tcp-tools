@@ -117,6 +117,12 @@ g.alignment-hint-layer line {
   stroke-width: 1px;
 }
 
+g.grid-layer line {
+  stroke: #edf3f8;
+  stroke-width: 1px;
+}
+
+
 rect.param-bg-rect {
   stroke: none;
   fill: rgba(0, 0, 0, 0);
