@@ -107,7 +107,9 @@ audio {
   cursor: pointer;
   color: #888;
   border-radius: 8px;
-  border: 4px solid transparent;
+  border: 1px solid transparent;
+  padding: 3px;
+  transition: border-radius 0.3s;
 }
 
 .playback-extra-controls i.red {
@@ -117,7 +119,8 @@ audio {
 .playback-extra-controls i.highlighted {
   color: #00cc00;
   background-color: #abedab;
-  border-color: #abedab;
+  border-color: #00cc00;
+  border-radius: 0;
 }
 
 .playback-extra-controls.playback-extra-controls-smaller i {
@@ -141,7 +144,7 @@ audio {
 .playback-extra-controls i.highlighted:hover {
   color: #18cd18;
   background-color: #a2d2a2;
-  border-color: #a2d2a2;
+  border-color: #18cd18;
 }
 
 
@@ -160,7 +163,7 @@ audio {
 .playback-extra-controls i.highlighted:active {
   color:  #108910;
   background-color: #18cd18;
-  border-color: #18cd18;
+  border-color: #108910;
 }
 
 
