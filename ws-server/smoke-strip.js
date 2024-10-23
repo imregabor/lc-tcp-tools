@@ -18,7 +18,7 @@ SerialPort.list().then( l => {
 
 
 const port = new SerialPort({
-  path: 'com6',
+  path: 'COM7',
   baudRate: 115200,
   hupcl : false
 }, f => {
