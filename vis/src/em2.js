@@ -452,11 +452,242 @@ export function initPage() {
   var alignmentHintLayerG = maing.append('g').classed('alignment-hint-layer', true);
   var nodelayerg = maing.append('g');
 
+  function annotateEdgeV(ed) {
+    if (ed.annotatedV) {
+      console.log('Edge is already annotated V', ed);
+      return;
+    }
+    ed.annotatedV = true;
+
+
+    // vertical line is at edge endpoint 1
+    const at1 = ed.y1 < ed.y2;
+
+    // vertical line is at edge endpoint 2
+    const at2 = !at1;
+
+    const p1LeftToP2 = ed.x1 <= ed.x2;
+    // 5px x step from endpoint 1 to 2
+    const dx1to2 = p1LeftToP2 ? 5 : -5;
+
+
+    const x = at1 ? ed.x1 + 2 * dx1to2 : ed.x2 - 2 * dx1to2;
+    const y1 = Math.min(ed.y1, ed.y2);
+    const y2 = Math.max(ed.y1, ed.y2);
+
+    alignmentHintLayerG.append('text')
+      .classed('vertical-alignment-arrow-label', true)
+      .classed('on-right', at1 !== p1LeftToP2)
+      .attr('x', at1 ? x + dx1to2 : x - dx1to2)
+      .attr('y', (y1 + y2) / 2)
+      .text(ed.dy);
+
+
+    alignmentHintLayerG.append('line')
+      .attr('x1', ed.x1)
+      .attr('y1', ed.y1)
+      .attr('x2', x + dx1to2)
+      .attr('y2', ed.y1);
+    alignmentHintLayerG.append('line')
+      .attr('x1', ed.x2)
+      .attr('y1', ed.y2)
+      .attr('x2', x - dx1to2)
+      .attr('y2', ed.y2);
+
+
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x)
+      .attr('y1', y1)
+      .attr('x2', x)
+      .attr('y2', y2);
+
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x)
+      .attr('y1', y1)
+      .attr('x2', x - 5)
+      .attr('y2', y1 + 5);
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x)
+      .attr('y1', y1)
+      .attr('x2', x + 5)
+      .attr('y2', y1 + 5);
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x)
+      .attr('y1', y2)
+      .attr('x2', x - 5)
+      .attr('y2', y2 - 5);
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x)
+      .attr('y1', y2)
+      .attr('x2', x + 5)
+      .attr('y2', y2 - 5);
+
+
+  }
+
+  function annotateEdgeH(ed) {
+    if (ed.annotatedH) {
+      console.log('Edge is already annotated H', ed);
+      return;
+    }
+    ed.annotatedH = true;
+
+    const y = Math.min(ed.y1, ed.y2) - 10;
+    const x1 = Math.min(ed.x1, ed.x2);
+    const x2 = Math.max(ed.x1, ed.x2);
+    const y1 = ed.x1 === x1 ? ed.y1 : ed.y2;
+    const y2 = ed.x2 === x2 ? ed.y2 : ed.y1;
+
+    alignmentHintLayerG.append('text')
+      .classed('horizontal-alignment-arrow-label', true)
+      .attr('x', (x1 + x2) / 2)
+      .attr('y', y - 5)
+      .text(ed.dx);
+
+
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x1)
+      .attr('y1', y)
+      .attr('x2', x2)
+      .attr('y2', y);
+
+    alignmentHintLayerG.append('line')
+      .attr('x1', x1)
+      .attr('y1', y - 5)
+      .attr('x2', x1)
+      .attr('y2', y1);
+    alignmentHintLayerG.append('line')
+      .attr('x1', x2)
+      .attr('y1', y - 5)
+      .attr('x2', x2)
+      .attr('y2', y2);
+
+
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x1)
+      .attr('y1', y)
+      .attr('x2', x1 + 5)
+      .attr('y2', y - 5);
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x1)
+      .attr('y1', y)
+      .attr('x2', x1 + 5)
+      .attr('y2', y + 5);
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x2)
+      .attr('y1', y)
+      .attr('x2', x2 - 5)
+      .attr('y2', y - 5);
+    alignmentHintLayerG.append('line')
+      .classed('edge-alignment-arrow', true)
+      .attr('x1', x2)
+      .attr('y1', y)
+      .attr('x2', x2 - 5)
+      .attr('y2', y + 5);
+  }
   function updateAlignmentHintLayer(nd, translateX, translateY) {
+    console.log('edges', edges)
     translateX = !!translateX ? translateX : 0;
     translateY = !!translateY ? translateY : 0;
     alignmentHintLayerG.selectAll('*').remove();
+
+
     const ndDef = nodeTypes[nd.type];
+    const ownEdges = [];
+    const otherEdgesByDx = {};
+    const otherEdgesByDy = {};
+    const ownEdgesByDx = {};
+    const ownEdgesByDy = {};
+    edges.forEach(e => {
+      const n1def = nodeTypes[e.n1.type];
+      const n2def = nodeTypes[e.n2.type];
+
+      const ex1 = e.n1.layout.x + n1def.ports[e.p1].x + translateX;
+      const ey1 = e.n1.layout.y + n1def.ports[e.p1].y + translateY;
+      const ex2 = e.n2.layout.x + n2def.ports[e.p2].x + translateX;
+      const ey2 = e.n2.layout.y + n2def.ports[e.p2].y + translateY;
+
+      const edx = Math.round(Math.abs(ex2 - ex1));
+      const edy = Math.round(Math.abs(ey2 - ey1));
+
+      const edgeOfInterest = nd.render.id === e.n1.render.id || nd.render.id === e.n2.render.id;
+      const edesc = {
+        x1 : ex1,
+        y1 : ey1,
+        x2 : ex2,
+        y2 : ey2,
+        dx : edx,
+        dy : edy,
+        annotatedH : false,
+        annotatedV : false
+      };
+      if (edgeOfInterest) {
+        if (edx > 0 || edy > 0) {
+          ownEdges.push(edesc);
+        }
+        if (edx > 0) {
+          if (ownEdgesByDx[edx] === undefined) {
+            ownEdgesByDx[edx] = [];
+          }
+          ownEdgesByDx[edx].push(edesc)
+        }
+        if (edy > 0) {
+          if (ownEdgesByDy[edy] === undefined) {
+            ownEdgesByDy[edy] = [];
+          }
+          ownEdgesByDy[edy].push(edesc)
+        }
+      } else {
+        if (edx > 0) {
+          if (otherEdgesByDx[edx] === undefined) {
+            otherEdgesByDx[edx] = [];
+          }
+          otherEdgesByDx[edx].push(edesc);
+        }
+        if (edy > 0) {
+          if (otherEdgesByDy[edy] === undefined) {
+            otherEdgesByDy[edy] = [];
+          }
+          otherEdgesByDy[edy].push(edesc);
+        }
+      }
+    });
+
+    for (var ownE of ownEdges) {
+      if (ownEdgesByDx[ownE.dx] && ownEdgesByDx[ownE.dx].length > 1) {
+        annotateEdgeH(ownE);
+      }
+      if (ownEdgesByDy[ownE.dy] && ownEdgesByDy[ownE.dy].length > 1) {
+        annotateEdgeV(ownE);
+      }
+      if (otherEdgesByDx[ownE.dx]) {
+        annotateEdgeH(ownE);
+        for (var otherE of otherEdgesByDx[ownE.dx]) {
+          annotateEdgeH(otherE);
+        }
+      }
+      if (otherEdgesByDy[ownE.dy]) {
+        annotateEdgeV(ownE);
+        for (var otherE of otherEdgesByDy[ownE.dy]) {
+          annotateEdgeV(otherE);
+        }
+      }
+    }
+
+
+
+
+
+
     var lfound = false;
     var lx = nd.layout.x + translateX;
     var ly1 = nd.layout.y + translateY;
@@ -491,13 +722,13 @@ export function initPage() {
       }
       if (Math.abs(n.layout.x - rx) < 1) {
         rfound = true;
-        ry1 = Math.min(ly1, n.layout.y);
-        ry2 = Math.max(ly2, n.layout.y + nDef.h);
+        ry1 = Math.min(ry1, n.layout.y);
+        ry2 = Math.max(ry2, n.layout.y + nDef.h);
       }
       if (Math.abs(n.layout.x + nDef.w - rx) < 1) {
         rfound = true;
-        ry1 = Math.min(ly1, n.layout.y);
-        ry2 = Math.max(ly2, n.layout.y + nDef.h);
+        ry1 = Math.min(ry1, n.layout.y);
+        ry2 = Math.max(ry2, n.layout.y + nDef.h);
       }
       if (Math.abs(n.layout.y - ty) < 1) {
         tfound = true;
@@ -1072,7 +1303,11 @@ export function initPage() {
     const y = Math.round(coords[1] / gridSize) * gridSize;
     hoverPreviewG.attr('transform', `translate(${x}, ${y})`);
 
-    updateAlignmentHintLayer(newNodeHoverPreview, x, y);
+    if (hoverPreviewIsOnSvg) {
+      updateAlignmentHintLayer(newNodeHoverPreview, x, y);
+    } else {
+      alignmentHintLayerG.selectAll('*').remove();
+    }
   });
   svg.on('pointerenter', e => {
     hOutsideSvg.exit();
@@ -1098,10 +1333,12 @@ export function initPage() {
   const hNodeDragging = occh.newChild();
   const hNodePointerOver = occh.newChild();
   const hToolbarPointerOver = occh.newChild();
+  var hoverPreviewIsOnSvg;
   occh.onChange(onSvg => {
     if (!addingNodeOnClick) {
       return;
     }
+    hoverPreviewIsOnSvg = onSvg;
     hoverPreviewG.classed('shown', onSvg);
   });
 

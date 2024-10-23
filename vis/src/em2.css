@@ -113,8 +113,27 @@ g.node-err-mark path {
 }
 
 g.alignment-hint-layer line {
-  stroke: steelblue;
+  stroke: #91b6d4;
   stroke-width: 1px;
+}
+
+g.alignment-hint-layer line.edge-alignment-arrow {
+  stroke: steelblue;
+}
+
+
+g.alignment-hint-layer text.horizontal-alignment-arrow-label {
+  fill: steelblue;
+  text-anchor: middle;
+}
+
+g.alignment-hint-layer text.vertical-alignment-arrow-label {
+  fill: steelblue;
+  alignment-baseline: central;
+}
+
+g.alignment-hint-layer text.vertical-alignment-arrow-label.on-right {
+  text-anchor: end;
 }
 
 g.grid-layer line {
