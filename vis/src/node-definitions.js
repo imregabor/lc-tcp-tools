@@ -1349,9 +1349,15 @@ Time step for time dependent effects
 `## Effect style
 
 Use the following values:
- - \`0\`: **Default**, Uniform values, specified by \`value1\`
- - \`1\`: **Chaser1**, antialiased symmetric chaser, extent specified by \`dotsize\`, loop time specified by \`dt\`
- - \`2\`: **Chaser2**, antialiased asymmetric chaser, extent specified by \`dotsize\`, loop time specified by \`dt\`
+ - \`0\`: **Static**, Uniform, static values on all channels, specified by \`value1\. Secondary value \`value2\` is ignored.
+ - \`1\`: **Symmetric chaser (AA)**, antialiased symmetric (long tail and head) linear chaser, tail/head size specified by \`dotsize\`, loop time specified by \`dt\`
+ - \`2\`: **Asymmetric chaser (AA)**, antialiased asymmetric (long tail/short head) linear chaser, tail size specified by \`dotsize\`, loop time specified by \`dt\`
+ - \`3\`: **Dot chaser (AA)**, antialiased single dot linear chaser, \`dotsize\` is ignored, loop time specified by \`dt\`. Feel free to combine with downstream max hold.
+ - \`4\`: **Dot chaser (non-AA)**, non-antialiased single dot linear chaser, \`dotsize\` is ignored, loop time specified by \`dt\`.
+ - \`5\`: **Dot chaser - ping pong (AA)**, antialiased two way single dot chaser, \`dotsize\` is ignored, loop time specified by \`dt\`.
+ - \`6\`: **Dot chaser - ping pong (eased, AA)**, antialiased two way single dot chaser with sine wave easing, \`dotsize\` is ignored, loop time specified by \`dt\`.
+ - \`7\`: **Dot chaser - ping pong (non-aa)**, not-antialiased two way single dot chaser, \`dotsize\` is ignored, loop time specified by \`dt\`.
+ - \`8\`: **Dot chaser - ping pong (eased, non-AA)**, not-antialiased two way single dot chaser with sine wave easing, \`dotsize\` is ignored, loop time specified by \`dt\`.
  - \`9\`: **DVD screensaver for 7x5 matrix**, delay between steps is specified by \`dt\`. Only when 35 channels is set
 `,
         initial : 0,

@@ -1526,7 +1526,7 @@ export function createPipeline() {
             state.lastUpdate = now; // todo - common implementation
             switch (node.params.mode) {
               case 1: // antialiased symmetric chase
-              case 2: // antialiased asymmetric
+              case 2: { // antialiased asymmetric
                 /*
                   0.0                                           1.0
                    |---------------------------------------------|
@@ -1575,6 +1575,81 @@ export function createPipeline() {
                   ops.channels[i] = node.params.value1 + l * (node.params.value2 - node.params.value1) ;
                 }
                 break;
+              }
+              case 3: { // one way antialiased dot chaser
+                // position inside animation scaled to 0..1
+                const p = (now % (node.params.dt * 1000)) / (node.params.dt * 1000);
+                // fractional position of the point
+                const x = p * ops.channels.length;
+
+                var x1 = Math.floor(x)
+                var x2 = Math.ceil(x)
+                const v1 = node.params.value1 + (1 - x + x1) * (node.params.value2 - node.params.value1);
+                const v2 = node.params.value1 + (1 - x2 + x) * (node.params.value2 - node.params.value1);
+
+                if (x2 === ops.channels.length) {
+                  x2 = 0;
+                }
+                ops.channels.fill(node.params.value1)
+                ops.channels[x1] = v1;
+                ops.channels[x2] = v2;
+                break;
+              }
+              case 4: { // one way not antialiased dot chaser
+                // position inside animation scaled to 0..1
+                const p = (now % (node.params.dt * 1000)) / (node.params.dt * 1000);
+                // fractional position of the point
+                const x = p * (ops.channels.length - 1);
+
+                var x1 = Math.round(x)
+                ops.channels.fill(node.params.value1)
+                ops.channels[x1] = node.params.value2;
+                break;
+              }
+              case 5:
+              case 6: { // ping pong antialiased linear / sin-eased dot chaser
+                // position inside animation scaled to 0..1
+                const p = (now % (node.params.dt * 1000)) / (node.params.dt * 1000);
+                // fractional position of the point
+                var x;
+                if (node.params.mode === 5) {
+                  // ping pong
+                  x =(p > 0.5 ? 1 - p : p) * 2 * (ops.channels.length - 1);
+                } else {
+                  // sin
+                  x = (0.5 + 0.5 * Math.sin(p * 2 * 3.14159)) * (ops.channels.length - 1);
+                }
+
+                var x1 = Math.floor(x)
+                var x2 = Math.ceil(x)
+                const v1 = node.params.value1 + (1 - x + x1) * (node.params.value2 - node.params.value1);
+                const v2 = node.params.value1 + (1 - x2 + x) * (node.params.value2 - node.params.value1);
+
+                ops.channels.fill(node.params.value1)
+                ops.channels[x1] = v1;
+                ops.channels[x2] = v2;
+                break;
+              }
+              case 7:
+              case 8: { // ping pong not antialiased linear / sin-eased dot chaser
+                // position inside animation scaled to 0..1
+                const p = (now % (node.params.dt * 1000)) / (node.params.dt * 1000);
+                // fractional position of the point
+                var x;
+                if (node.params.mode === 7) {
+                  // ping pong
+                  x =(p > 0.5 ? 1 - p : p) * 2 * (ops.channels.length - 1);
+                } else {
+                  // sin
+                  x = (0.5 + 0.5 * Math.sin(p * 2 * 3.14159)) * (ops.channels.length - 1);
+                }
+
+                var x1 = Math.round(x)
+
+                ops.channels.fill(node.params.value1)
+                ops.channels[x1] = node.params.value2;
+                break;
+              }
               case 9: // DVD screensaver for 7x5 matrix / 35 ch mode
                 if (node.params.channels === 35) {
                   if (now - state.lastStep >= node.params.dt * 1000) {
