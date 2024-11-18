@@ -1544,6 +1544,7 @@ export function createPipeline() {
                   if (node.params.mode === 1) {
                     // symmetric case
                     d = Math.min(Math.abs(x - i + 0.5), Math.abs(x - i + 0.5 - ops.channels.length));
+                    d = Math.min(d, Math.abs(x - i + 0.5 + ops.channels.length));
                   } else {
                     // asymmetric case, only left distance is
                     var d1 = x - i + 0.5;
