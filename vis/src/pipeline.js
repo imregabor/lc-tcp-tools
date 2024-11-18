@@ -1546,16 +1546,30 @@ export function createPipeline() {
                     d = Math.min(Math.abs(x - i + 0.5), Math.abs(x - i + 0.5 - ops.channels.length));
                     d = Math.min(d, Math.abs(x - i + 0.5 + ops.channels.length));
                   } else {
-                    // asymmetric case, only left distance is
+                    // asymmetric case, only left distance is considered
                     var d1 = x - i + 0.5;
-                    if (d1 < 0) {
+                    if (d1 < -1) {
                       d1 = 999999;
                     }
                     var d2 = x - i - ops.channels.length + 0.5;
-                    if (d2 < 0) {
+                    if (d2 < -1) {
                       d2 = 999999;
                     }
+                    var d3 = x - i + ops.channels.length + 0.5;
+                    if (d2 < -1) {
+                      d2 = 999999;
+                    }
+                    if (d1 < 0) {
+                      d1 = - d1 * node.params.dotsize;
+                    }
+                    if (d2 < 0) {
+                      d2 = - d2 * node.params.dotsize;
+                    }
+                    if (d3 < 0) {
+                      d3 = - d3 * node.params.dotsize;
+                    }
                     d = Math.min(d1, d2);
+                    d = Math.min(d, d3);
                   }
                   var l = d > node.params.dotsize ? 0 : 1 - d / node.params.dotsize;
                   ops.channels[i] = node.params.value1 + l * (node.params.value2 - node.params.value1) ;
