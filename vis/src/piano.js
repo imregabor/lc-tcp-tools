@@ -18,7 +18,7 @@ export function layout88keys(w, h, spaceForExtended) {
   }
   var whiteKeyHeight = whiteKeyWidth * 3;
   if (h < whiteKeyHeight * 3) {
-    whiteKeyHeight = Math.round(ch / 3);
+    whiteKeyHeight = Math.round(h / 3);
   }
   const key0x = Math.floor((w - whiteKeyWidth * whiteKeyCount - 1) / 2);
   const ret = {

@@ -23,7 +23,7 @@ function m(label, message) {
     .style('opacity', 1)
     .transition()
     .duration(350)
-    .delay(1000)
+    .delay(1500)
     .style('height', '0px') // not the nicest hide; enclosing div would be better
     .style('margin-bottom', '0px')
     .style('padding', '0px')

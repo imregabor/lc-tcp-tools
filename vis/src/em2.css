@@ -106,6 +106,8 @@ rect.box {
   fill: #ccc;
 }
 
+rect.box.white-box {
+  fill: #fff;
 }
 
 .node-error-marked rect.box {

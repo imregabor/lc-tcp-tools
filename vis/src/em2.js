@@ -18,6 +18,8 @@ import qrOverlay from './qr-overlay.js';
 import * as mp3SelectDialog from './mp3-select-dialog.js';
 import * as pipelinePresets from './pipeline-presets.js';
 import * as u from './util.js';
+import * as atf from './doc-title-field.js';
+import * as persist from './persist.js';
 
 // see https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
 function download(filename, text) {
@@ -62,10 +64,21 @@ export function initPage() {
     nodePosition : e
   }));
   events.changed.add(e => console.log('changed', e));
+  events.changed.add(e => {
+    if (titleField.isEmpty()) {
+      titleField.setWarn(!isGraphEmpty());
+      return;
+    }
+    const eg = exportGraph(false, true);
+    const egs = JSON.stringify(eg);
+    persist.put(titleField.getText(), egs);
+    titleField.setWarn(false);
+  });
 
   function exportGraph(includeIds, includeLayout) {
     var ni = 0;
     return {
+      title : titleField.getText(),
       nodes : nodes.map(n => {
         n.tmp_index = ni++;
         const gn = {
@@ -142,10 +155,8 @@ export function initPage() {
     sendToWss : (rgb) => {
       wsLink.send(`WSSb100 ${u.channelsToBulk100(rgb)}`);
     },
-    getWssSize : () => 8
+    getWssSize : () => 32
   };
-
-
 
   const p = panes.init().bottomPaneName('visualizations');
 
@@ -165,20 +176,87 @@ export function initPage() {
 
   const pageButtonsOverlayDiv = overlays.append('div').classed('pagebuttons-leftblock playback-extra-controls', true);
 
+  const docTitleFieldParent = overlays.append('div').classed('pagebuttons-leftblock', true);
   overlays.append('div').classed('pagebuttons-grower', true);
 
   const playerOverlayDiv = overlays.append('div').classed('player-overlay pagebuttons-rightblock', true);
 
+  const titleField = atf.addTo(docTitleFieldParent);
+  titleField.onChanged((to, from) => {
+    if (!to) {
+      return;
+    }
+    const eg = exportGraph(false, true);
+    const egs = JSON.stringify(eg);
+    if (from) {
+      persist.rename(from, to, egs);
+      notes.top('Updated name in local storage');
+    } else {
+      persist.put(to, egs);
+      notes.top('Saved to local storage');
+    }
+    titleField.setWarn(false);
+  });
+
+  function selectGraphLoadDialog() {
+    const keys = persist.keys();
+    mp3SelectDialog.showModal({
+      title : "Select graph",
+      resolve : v => {
+        const gs = persist.get(v);
+        const g = JSON.parse(gs);
+        importGraph(g);
+        connDrag.registerListenersOnPorts(connDragOpts);
+        titleField.setText(v);
+      }
+    })
+      .appendH2("Saved graphs:")
+      .appendResolvingList(keys, k => k);
+  }
+
+  function abandonGraphDialogWhenRequired(action) {
+    if (!isGraphEmpty() && titleField.isWarn()) {
+      mp3SelectDialog.showModal({
+        title : "Warning",
+        warn : true,
+        resolve : () => {
+          action();
+        },
+        ok : () => {},
+        okLabel : 'yes',
+        okWarn : true,
+        cancel : true
+      })
+        .appendH2("Current graph is not saved. Do you want to abandon it?");
+    } else {
+      action();
+    }
+  }
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-home', true)
     .attr('title', 'Go to landing page')
-    .on('click', () => window.location.href = '/vis/#catalog');
+    .on('click', () => {
+      abandonGraphDialogWhenRequired(() => window.location.href = '/vis/#catalog');
+    });
+
+  pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-folder-open', true)
+    .attr('title', 'Open saved graph from local storage')
+    .on('click', () => {
+      if (persist.isEmpty()) {
+        mp3SelectDialog.showInfoModal('Storage is empty', 'No graph is available in local storage.');
+      } else {
+        abandonGraphDialogWhenRequired(() => selectGraphLoadDialog());
+      }
+    });
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-file', true)
     .attr('title', 'Clear graph')
-    .on('click', () => clearGraph());
+    .on('click', () => {
+      abandonGraphDialogWhenRequired(() => clearGraph(true));
+    });
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-expand', true)
@@ -1010,13 +1088,15 @@ export function initPage() {
 
     nodesg.append('rect')
         .classed('box', true)
+        .classed('white-box', d => !!nodeTypes[d.type].white)
         .attr('width', d => nodeTypes[d.type].w)
         .attr('height', d => nodeTypes[d.type].h)
-        .attr('rx', 5);
+        .attr('rx', d => nodeTypes[d.type].square ? 0 : 5);
 
     var titleg = nodesg.append('g').classed('paramg titleg', true);
     titleg.append('rect') // mask bottom corners with no radius
         .classed('param-bg-rect', true)
+        .attr('display', d => nodeTypes[d.type].h < 24 ? 'none' : null) // port connection node is too small
         .attr('x', 0.5)
         .attr('y', 7.5)
         .attr('width', d => nodeTypes[d.type].w - 1)
@@ -1025,17 +1105,17 @@ export function initPage() {
         .classed('param-bg-rect', true)
         .attr('x', 0.5)
         .attr('y', 0.5)
-        .attr('rx', 4.5)
-        .attr('ry', 4.5)
+        .attr('rx', d => nodeTypes[d.type].square ? 0 : 4.5)
+        .attr('ry', d => nodeTypes[d.type].square ? 0 : 4.5)
         .attr('width', d => nodeTypes[d.type].w - 1)
-        .attr('height', 15);
+        .attr('height', 19);
 
 
     titleg.append('text')
         .classed('node-label', true)
         .attr('text-anchor', 'middle')
         .attr('x', d => nodeTypes[d.type].w / 2)
-        .attr('y', 15.5)
+        .attr('y', d => Math.min(nodeTypes[d.type].h / 2, 12))
         .text(d => d.label);
 
     if (registerDrag) {
@@ -1196,19 +1276,47 @@ export function initPage() {
     (doTransition ? svg.transition().duration(600) : svg).call(svgZoom.transform, t);
   }
 
-  function clearGraph() {
+  function isGraphEmpty() {
+    return !nodes.length;
+  }
+
+  function clearGraph(doTransition) {
     nodes = [];
     edges = [];
+    titleField.setText("");
     renderNodes();
     renderEdges();
     fireTopologyChanged();
+
+    var t = d3.zoomIdentity;
+    (doTransition ? svg.transition().duration(600) : svg).call(svgZoom.transform, t);
   }
+
+
 
   function importGraph(g) {
     // avoid polluting incomming argument
-    g = JSON.parse(JSON.stringify(g));
+    const gs = JSON.stringify(g);
+    g = JSON.parse(gs);
     console.log('Import graph to UI ===================')
     console.log('Graph:', g)
+
+    /*
+    if (g.title) {
+      const persisted = persist.get(g.title);
+      if (persisted && persisted !== gs) {
+        // mismatch
+        return;
+      } else if (!persisted) {
+        // not yet saved
+        persist.put(g.title, gs);
+        notes.top(`Saved as "${g.title}"`);
+      }
+    }
+
+    titleField.setText(g.title ? g.title : "");
+    */
+
     nodes = g.nodes;
     const gridSize = 15;
     nodes.forEach(n => {
@@ -1226,10 +1334,16 @@ export function initPage() {
     });
     renderNodes();
     renderEdges();
-    fireTopologyChanged();
+    // connection drags are not registered, they should be here
+
+    // Title field should be set by the caller if it is read from persistence
+    titleField.clearText(); // otherwise topology changed would result in a save
+    fireTopologyChanged(); // put title into warn (TODO: refine change events)
+    titleField.setWarn(false);
+
     setTimeout(() => fitGraph(false), 0);
   }
-  importGraph(pipelinePresets.vuAndSpect);
+  importGraph(pipelinePresets.vuAndSpectAndWss);
 
   function routeEdges() {
     edgePaths.each(function (d) {

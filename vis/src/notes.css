@@ -11,11 +11,14 @@
 }
 
 .note-top {
-  padding: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
   border: 1px solid #74c476;
   background: #c7e9c0;
   color: #238b45;
-  border-radius: 10px;
+  border-radius: 5px;
   margin-bottom: 5px;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
 }

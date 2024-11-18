@@ -1,5 +1,591 @@
 'use strict';
 
+export const vuAndSpectAndWss = {
+    // "title": "Default with WS2812",
+    "nodes": [
+      {
+        "type": "aa",
+        "label": "Analyzer",
+        "params": {
+          "fftSize": "2048",
+          "targetFps": 200
+        },
+        "layout": {
+          "x": -150,
+          "y": 150
+        }
+      },
+      {
+        "type": "aa",
+        "label": "Analyzer 2",
+        "params": {
+          "fftSize": "512",
+          "targetFps": "25"
+        },
+        "layout": {
+          "x": -165,
+          "y": -405
+        }
+      },
+      {
+        "type": "dbm2linm",
+        "label": "Spectrum to lin",
+        "layout": {
+          "x": 90,
+          "y": 270
+        }
+      },
+      {
+        "type": "aw",
+        "label": "A-weights",
+        "layout": {
+          "x": 330,
+          "y": 270
+        }
+      },
+      {
+        "type": "fde",
+        "label": "FD energy",
+        "layout": {
+          "x": 570,
+          "y": 225
+        }
+      },
+      {
+        "type": "vu",
+        "label": "VU",
+        "params": {
+          "channels": 35,
+          "maxDecayH": 5000,
+          "minDecayH": 5000,
+          "maxFloor": 0.0001,
+          "onValueA": 0.5,
+          "onValueB": 0.5
+        },
+        "layout": {
+          "x": 810,
+          "y": 225
+        }
+      },
+      {
+        "type": "tde",
+        "label": "TD energy",
+        "layout": {
+          "x": 570,
+          "y": -60
+        }
+      },
+      {
+        "type": "vu",
+        "label": "VU 2",
+        "params": {
+          "channels": 24,
+          "maxDecayH": 5000,
+          "minDecayH": 5000,
+          "maxFloor": 0.0001,
+          "onValueA": 0.5,
+          "onValueB": 0.5
+        },
+        "layout": {
+          "x": 810,
+          "y": 15
+        }
+      },
+      {
+        "type": "lr",
+        "label": "Legacy router",
+        "params": {
+          "targetFps": 45
+        },
+        "layout": {
+          "x": 1770,
+          "y": 45
+        }
+      },
+      {
+        "type": "tde",
+        "label": "TD energy 2",
+        "layout": {
+          "x": 90,
+          "y": -405
+        }
+      },
+      {
+        "type": "mh",
+        "label": "Max hold",
+        "params": {
+          "sustain": "1500",
+          "decay": "0",
+          "attack": 0
+        },
+        "layout": {
+          "x": 330,
+          "y": -405
+        }
+      },
+      {
+        "type": "linScale",
+        "label": "Linear scale",
+        "params": {
+          "scaleA": 100000,
+          "scaleB": -0.00001,
+          "clip": 1
+        },
+        "layout": {
+          "x": 570,
+          "y": -405
+        }
+      },
+      {
+        "type": "mh",
+        "label": "Max hold 2",
+        "params": {
+          "sustain": "500",
+          "decay": "1000",
+          "attack": "300"
+        },
+        "layout": {
+          "x": 810,
+          "y": -405
+        }
+      },
+      {
+        "type": "fixedEffect",
+        "label": "Fixed effect",
+        "params": {
+          "channels": "24",
+          "dt": 5,
+          "mode": "1",
+          "value1": 0.4,
+          "value2": 0.6,
+          "dotsize": 5
+        },
+        "layout": {
+          "x": 1290,
+          "y": -180
+        }
+      },
+      {
+        "type": "fixedEffect",
+        "label": "Fixed effect 2",
+        "params": {
+          "channels": "35",
+          "dt": 1,
+          "mode": "0",
+          "value1": "1.0",
+          "value2": 1,
+          "dotsize": 3
+        },
+        "layout": {
+          "x": 1290,
+          "y": 270
+        }
+      },
+      {
+        "type": "linCombine",
+        "label": "Linear combine",
+        "params": {},
+        "layout": {
+          "x": 1530,
+          "y": -165
+        }
+      },
+      {
+        "type": "linCombine",
+        "label": "Linear combine 3",
+        "params": {},
+        "layout": {
+          "x": 1530,
+          "y": 285
+        }
+      },
+      {
+        "type": "mh",
+        "label": "Max hold 3",
+        "params": {
+          "sustain": "25",
+          "decay": "50",
+          "attack": 0
+        },
+        "layout": {
+          "x": 570,
+          "y": 315
+        }
+      },
+      {
+        "type": "sb",
+        "label": "Subbands",
+        "params": {
+          "channels": "35",
+          "lf": 100,
+          "hf": 1500,
+          "maxDecayH": "1000",
+          "maxFloor": 0,
+          "maxSpillHbc": "8",
+          "spillXpf": 0,
+          "doAvg": 0,
+          "doLpf": 0,
+          "doHpf": 0
+        },
+        "layout": {
+          "x": 810,
+          "y": 465
+        }
+      },
+      {
+        "type": "mh",
+        "label": "Max hold 4",
+        "params": {
+          "sustain": "50",
+          "decay": 150,
+          "attack": 0
+        },
+        "layout": {
+          "x": 1050,
+          "y": 465
+        }
+      },
+      {
+        "type": "channelRemap",
+        "label": "Channel remap",
+        "params": {
+          "mode": "8"
+        },
+        "layout": {
+          "x": 1290,
+          "y": 465
+        }
+      },
+      {
+        "type": "channelRemap",
+        "label": "Channel remap 2",
+        "params": {
+          "mode": "2"
+        },
+        "layout": {
+          "x": 1290,
+          "y": 15
+        }
+      },
+      {
+        "type": "connection",
+        "label": "noise gate",
+        "layout": {
+          "x": 1050,
+          "y": -375
+        }
+      },
+      {
+        "type": "connection",
+        "label": "noise gate",
+        "layout": {
+          "x": 1290,
+          "y": 210
+        }
+      },
+      {
+        "type": "connection",
+        "label": "noise gate",
+        "layout": {
+          "x": 1290,
+          "y": -240
+        }
+      },
+      {
+        "type": "fde",
+        "label": "FD energy 2",
+        "layout": {
+          "x": 570,
+          "y": 15
+        }
+      },
+      {
+        "type": "sb",
+        "label": "Subbands 2",
+        "params": {
+          "channels": 8,
+          "lf": 100,
+          "hf": 1500,
+          "maxDecayH": "1000",
+          "maxFloor": 0,
+          "maxSpillHbc": "1.5",
+          "spillXpf": 0,
+          "doAvg": 0,
+          "doLpf": 0,
+          "doHpf": 0
+        },
+        "layout": {
+          "x": 810,
+          "y": 945
+        }
+      },
+      {
+        "type": "mh",
+        "label": "Max hold 5",
+        "params": {
+          "sustain": "5",
+          "decay": 150,
+          "attack": "35"
+        },
+        "layout": {
+          "x": 1050,
+          "y": 945
+        }
+      },
+      {
+        "type": "rgbmap",
+        "label": "RGB map",
+        "params": {
+          "mode": "4"
+        },
+        "layout": {
+          "x": 1770,
+          "y": 795
+        }
+      },
+      {
+        "type": "connection",
+        "label": "noise gate",
+        "layout": {
+          "x": 1290,
+          "y": 675
+        }
+      },
+      {
+        "type": "fixedEffect",
+        "label": "Fixed effect 3",
+        "params": {
+          "channels": "8",
+          "dt": "1",
+          "mode": "1",
+          "value1": "0",
+          "value2": "1",
+          "dotsize": "2"
+        },
+        "layout": {
+          "x": 1290,
+          "y": 735
+        }
+      },
+      {
+        "type": "linCombine",
+        "label": "Linear combine 4",
+        "params": {},
+        "layout": {
+          "x": 1530,
+          "y": 795
+        }
+      },
+      {
+        "type": "wss",
+        "label": "WS2812 strip",
+        "params": {
+          "targetFps": "90",
+          "gamma": 5,
+          "scale": "1"
+        },
+        "layout": {
+          "x": 2010,
+          "y": 795
+        }
+      }
+    ],
+    "edges": [
+      {
+        "n1index": 0,
+        "n2index": 6,
+        "p1": "tdo",
+        "p2": "tdi"
+      },
+      {
+        "n1index": 0,
+        "n2index": 2,
+        "p1": "spo",
+        "p2": "spi"
+      },
+      {
+        "n1index": 2,
+        "n2index": 3,
+        "p1": "spo",
+        "p2": "spi"
+      },
+      {
+        "n1index": 3,
+        "n2index": 4,
+        "p1": "spo",
+        "p2": "fdi"
+      },
+      {
+        "n1index": 4,
+        "n2index": 5,
+        "p1": "eo",
+        "p2": "ein"
+      },
+      {
+        "n1index": 16,
+        "n2index": 8,
+        "p1": "out",
+        "p2": "lm35"
+      },
+      {
+        "n1index": 25,
+        "n2index": 7,
+        "p1": "eo",
+        "p2": "ein"
+      },
+      {
+        "n1index": 15,
+        "n2index": 8,
+        "p1": "out",
+        "p2": "lb24"
+      },
+      {
+        "n1index": 1,
+        "n2index": 9,
+        "p1": "tdo",
+        "p2": "tdi"
+      },
+      {
+        "n1index": 10,
+        "n2index": 11,
+        "p1": "out",
+        "p2": "in"
+      },
+      {
+        "n1index": 9,
+        "n2index": 10,
+        "p1": "eo",
+        "p2": "in"
+      },
+      {
+        "n1index": 11,
+        "n2index": 12,
+        "p1": "out",
+        "p2": "in"
+      },
+      {
+        "n1index": 23,
+        "n2index": 16,
+        "p1": "out",
+        "p2": "a"
+      },
+      {
+        "n1index": 13,
+        "n2index": 15,
+        "p1": "out",
+        "p2": "in0"
+      },
+      {
+        "n1index": 14,
+        "n2index": 16,
+        "p1": "out",
+        "p2": "in0"
+      },
+      {
+        "n1index": 21,
+        "n2index": 15,
+        "p1": "out",
+        "p2": "in1"
+      },
+      {
+        "n1index": 20,
+        "n2index": 16,
+        "p1": "out",
+        "p2": "in1"
+      },
+      {
+        "n1index": 3,
+        "n2index": 17,
+        "p1": "spo",
+        "p2": "in"
+      },
+      {
+        "n1index": 17,
+        "n2index": 18,
+        "p1": "out",
+        "p2": "in"
+      },
+      {
+        "n1index": 18,
+        "n2index": 19,
+        "p1": "out",
+        "p2": "in"
+      },
+      {
+        "n1index": 19,
+        "n2index": 20,
+        "p1": "out",
+        "p2": "in"
+      },
+      {
+        "n1index": 7,
+        "n2index": 21,
+        "p1": "out",
+        "p2": "in"
+      },
+      {
+        "n1index": 12,
+        "n2index": 22,
+        "p1": "out",
+        "p2": "in"
+      },
+      {
+        "n1index": 24,
+        "n2index": 15,
+        "p1": "out",
+        "p2": "a"
+      },
+      {
+        "n1index": 3,
+        "n2index": 25,
+        "p1": "spo",
+        "p2": "fdi"
+      },
+      {
+        "n1index": 28,
+        "n2index": 32,
+        "p1": "out",
+        "p2": "channels"
+      },
+      {
+        "n1index": 31,
+        "n2index": 28,
+        "p1": "out",
+        "p2": "in1"
+      },
+      {
+        "n1index": 29,
+        "n2index": 31,
+        "p1": "out",
+        "p2": "a"
+      },
+      {
+        "n1index": 30,
+        "n2index": 31,
+        "p1": "out",
+        "p2": "in0"
+      },
+      {
+        "n1index": 27,
+        "n2index": 31,
+        "p1": "out",
+        "p2": "in1"
+      },
+      {
+        "n1index": 26,
+        "n2index": 27,
+        "p1": "out",
+        "p2": "in"
+      },
+      {
+        "n1index": 17,
+        "n2index": 26,
+        "p1": "out",
+        "p2": "in"
+      }
+    ]
+  };
+
 export const vuAndSpect = {
   "nodes": [
     {

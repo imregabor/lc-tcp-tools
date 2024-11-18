@@ -30,7 +30,7 @@ export const nodeFunctions = {
         // Decay rate constants
         // lambda from https://en.wikipedia.org/wiki/Exponential_decay
         decayL : Math.log(2) / params.decay,
-        attackL : Math.log(2) / params.attack
+        attackL : Math.log(2) / params.attack,
       }
     },
     updateState : (params, state) => {
@@ -39,6 +39,29 @@ export const nodeFunctions = {
       params.attack = +params.attack;
       state.decayL = Math.log(2) / params.decay;
       state.attackL = Math.log(2) / params.attack;
+    }
+  },
+  normalize : {
+    initState : params => {
+      params.maxDecayH = +params.maxDecayH;
+      params.sustain = +params.sustain;
+      params.maxFloor = +params.maxFloor;
+      params.globalNorm = +params.globalNorm;
+      return {
+
+        // Decay rate constants
+        // lambda from https://en.wikipedia.org/wiki/Exponential_decay
+        holdTill : 0,
+        maxDecayL : Math.log(2) / params.maxDecayH
+      }
+    },
+    updateState : (params, state) => {
+      params.maxDecayH = +params.maxDecayH;
+      params.sustain = +params.sustain;
+      params.maxFloor = +params.maxFloor;
+      params.globalNorm = +params.globalNorm;
+      state.holdTill = 0;
+      state.maxDecayL = Math.log(2) / params.maxDecayH;
     }
   },
   linScale : {
@@ -149,6 +172,101 @@ export const nodeFunctions = {
               : Math.pow(0.5, 1 / params.maxSpillHbc);
     }
   },
+  vsb : {
+    initState : params => {
+      params.maxFloor = +params.maxFloor;
+      params.doNormalize = +params.doNormalize;
+      params.doLpf = +params.doLpf;
+      params.doHpf = +params.doHpf;
+      const freqs = params.freqs.split(',').map(s => +s);
+      console.log('freqs:', freqs);
+
+      return {
+        freqs : freqs,
+        channels : freqs.length - 1 + (params.doLpf ? 1 : 0) + (params.doHpf ? 1 : 0), // number of output channels
+
+        maxDecayL : Math.log(2) / params.maxDecayH,
+        max : undefined,
+        binCount : 0, // cached input spectrum properties
+        maxFreq : 0, // cached input spectrum properties
+        firstChannelFirstBin : undefined, // first bin index of the first channel
+        channelBinCounts  : undefined // bin counts for each output channels
+      };
+    },
+    updateState : (params, state) => {
+      params.maxFloor = +params.maxFloor;
+      params.doNormalize = +params.doNormalize;
+      params.doLpf = +params.doLpf;
+      params.doHpf = +params.doHpf;
+      const freqs = params.freqs.split(',').map(s => +s);
+      console.log('freqs:', freqs);
+      state.freqs = freqs;
+      state.channels = freqs.length - 1 + (params.doLpf ? 1 : 0) + (params.doHpf ? 1 : 0);
+      state.max = undefined;
+      state.maxDecayL = Math.log(2) / params.maxDecayH;
+      state.binCount = 0;
+      state.maxFreq = 0;
+      state.firstChannelFirstBin = undefined;
+      state.channelBinCounts = undefined;
+    }
+  },
+  pid : {
+    initState : params => {
+      params.width = +params.width;
+      params.p = +params.p;
+      params.d = +params.d;
+      params.i = +params.i;
+      params.iDecayH = +params.iDecayH;
+      params.dClip0 = +params.dClip0;
+      return {
+        i : undefined, // integrated channel values, only when I is requested
+        v : undefined, // sample values for channels, only when D is requested
+        dt : undefined, // dt since last sample (in milliseconds), only when D is requested
+        pos : undefined, // next sample to store in buff, only when D is requested
+        buffull : false, // buffers full, only when D is requested
+        iDecayL : Math.log(2) / params.iDecayH
+      }
+    },
+    updateState : (params, state) => {
+      params.width = +params.width;
+      params.p = +params.p;
+      params.d = +params.d;
+      params.i = +params.i;
+      params.iDecayH = +params.iDecayH;
+      params.dClip0 = +params.dClip0;
+      state.i = undefined;
+      state.v = undefined;
+      state.dt = undefined;
+      state.pos = undefined;
+      state.buffull = false;
+      state.iDecayL = Math.log(2) / params.iDecayH;
+    }
+  },
+  hhc : {
+    initState : params => {
+      params.width = +params.width;
+      const state = {
+        c : [],
+        a : 0
+      };
+      for (var i = 0; i < params.width; i++) {
+        const ci = 0.5 + 0.5 * Math.cos(i * 3.14159 / params.width);
+        state.c.push(ci);
+        state.a = state.a + ci;
+      }
+      return state;
+    },
+    updateState : (params, state) => {
+      params.width = +params.width;
+      state.c = [];
+      state.a = 0;
+      for (var i = 0; i < params.width; i++) {
+        const ci = 0.5 + 0.5 * Math.cos(i * 3.14159 / params.width);
+        state.c.push(ci);
+        state.a = state.a + ci;
+      }
+    }
+  },
   lr : {
     initState : params => {
       params.targetFps = u.clip(params.targetFps, 5, 1000);
@@ -253,6 +371,27 @@ export const nodeFunctions = {
 };
 
 export const nodeTypes = {
+  connection : { // special node for connecting distant ports; skipped from DAG and pipeline processing
+    w : 150,
+    h : 20,
+    title : 'Port connection',
+    square : true,
+    white : true,
+    ports : {
+      in : {
+        type : 'in',
+        x : -15,
+        y : 10,
+        l : 5
+      },
+      out : {
+        type : 'out',
+        x : 165,
+        y : 10,
+        l : 5
+      }
+    }
+  },
   aa : {
     w : 150,
     h : 135,
@@ -396,30 +535,89 @@ export const nodeTypes = {
     },
     params : {
       sustain : {
-        label: 'sustain (ms)',
+        label: 'Sustain (ms)',
         descriptionMd : `## Sustain time
-Time in \`ms\` to sustain the last max value before decaying.`,
+Time in \`ms\` to sustain the last (per channel) max value before decaying.`,
         initial : 0,
         x : 5,
         y : 70,
         len : 140
       },
       decay : {
-        label: 'decay (ms)',
+        label: 'Decay (ms)',
         descriptionMd : `## Decay half time
-Time in \`ms\` to decay to the half value after sustaining.`,
+Time in \`ms\` to decay the hold the per channel max value to the half after sustaining.`,
         initial : 150,
         x : 5,
         y : 85,
         len : 140
       },
       attack : {
-        label: 'attack (ms)',
+        label: 'Attack (ms)',
         descriptionMd : `## Attack half time
-Time in \`ms\` to close half the distance to the input.`,
+Time in \`ms\` to close half the distance to the input when the (per channel) input is greater than its currently tracked value.`,
         initial : 0,
         x : 5,
         y : 100,
+        len : 140
+      }
+    }
+  },
+  normalize : {
+    w : 150,
+    h : 135,
+    title : 'Normalize',
+    ports : {
+      in : {
+        type : 'in',
+        label : 'In',
+        x : -15,
+        y : 40,
+        l : 50
+      },
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 165,
+        y : 40,
+        l : 50
+      }
+    },
+    params : {
+      maxDecayH : {
+        label: 'Max decay (ms)',
+        descriptionMd : `## Normalization max tracking half time
+Time to decay the per channel tracked max value to its half (when normalization is requested).`,
+        initial : 5000,
+        x : 5,
+        y : 70,
+        len : 140
+      },
+      maxFloor : {
+        label: 'Max floor',
+        descriptionMd : `## Max floor
+Smallest max value to decay into.`,
+        initial : 0.0001,
+        x : 5,
+        y : 85,
+        len : 140
+      },
+      sustain : {
+        label: 'Sustain (ms)',
+        descriptionMd : `## Max sustain time
+Time in \`ms\` to sustain the last (per channel) max value before start decaying.`,
+        initial : 0,
+        x : 5,
+        y : 100,
+        len : 140
+      },
+      globalNorm: {
+        label: 'Global',
+        descriptionMd : `## Do global normalization
+Track and apply a single max value instead of per channel/band. Ignored for scalar input.`,
+        initial : 0,
+        x : 5,
+        y : 115,
         len : 140
       }
     }
@@ -572,28 +770,28 @@ Use the following values:
     },
     params : {
       channels : {
-        label: 'channels',
+        label: 'Channels',
         initial : 24,
         x : 5,
         y : 70,
         len : 140
       },
       maxDecayH : {
-        label: 'max decay',
+        label: 'Max decay (ms)',
         initial : 5000,
         x : 5,
         y : 85,
         len : 140
       },
       minDecayH : {
-        label: 'min decay',
+        label: 'Min decay (ms)',
         initial : 5000,
         x : 5,
         y : 100,
         len : 140
       },
       maxFloor : {
-        label: 'max floor',
+        label: 'Max floor',
         initial : 0.0001,
         x : 5,
         y : 115,
@@ -601,14 +799,14 @@ Use the following values:
       },
       // Value for "on" channels is calculated by ax + b where x is the input value after normalization
       onValueA : {
-        label : 'on cv "a"',
+        label : 'On v "a"',
         initial : 0.5,
         x : 5,
         y : 130,
         len : 140
       },
       onValueB : {
-        label : 'on cv "b"',
+        label : 'On cv "b"',
         initial : 0.5,
         x : 5,
         y : 145,
@@ -645,21 +843,21 @@ Use the following values:
         len : 140
       },
       lf : {
-        label: 'Low freq',
+        label: 'Low freq (Hz)',
         initial : 100,
         x : 5,
         y : 85,
         len : 140
       },
       hf : {
-        label: 'High freq',
+        label: 'High freq (Hz)',
         initial : 1500,
         x : 5,
         y : 100,
         len : 140
       },
       maxDecayH : {
-        label: 'Max decay',
+        label: 'Max decay (ms)',
         initial : 5000,
         x : 5,
         y : 115,
@@ -705,6 +903,201 @@ Use the following values:
         initial : 0,
         x : 5,
         y : 205,
+        len : 140
+      }
+    }
+  },
+  vsb : {
+    w : 150,
+    h : 180,
+    title : 'V Subbands',
+    ports : {
+      in : {
+        type : 'in',
+        label : 'FD [lin mag]',
+        x : -15,
+        y : 40,
+        l : 70
+      },
+      out : {
+        type : 'out',
+        label : 'Channels',
+        x : 165,
+        y : 40,
+        l : 70
+      }
+    },
+    params : {
+      freqs : {
+        label: 'Frequencies',
+        descriptionMd : `## Frequency limits
+Comma (\`,\`) separated list of limit frequencies for subbands.
+
+ - **Low pass filter**: When \`Do LPF\` is requested the
+first channel is derived from an LPF up to the first limit frequency value.
+ - **High pass filter**: When \`Do HPF\` is requested
+the last channel is derived from an HPF from the last limit frequency value.
+ - All other channels are bordered by the limit frequencies`,
+        type : 'string',
+        initial : '200, 400, 800, 1600, 3200',
+        x : 5,
+        y : 70,
+        len : 140
+      },
+      doNormalize : {
+        label : 'Do normalize',
+        descriptionMd : `## Normalize channel values
+When set to non-\`0\` then normalize channel values according to tracked per-channel exponencially decaying maximum value.`,
+        initial : 1,
+        x : 4,
+        y : 85,
+        len : 140
+      },
+      maxDecayH : {
+        label: 'Max decay (ms)',
+        initial : 5000,
+        x : 5,
+        y : 100,
+        len : 140
+      },
+      maxFloor : {
+        label: 'Max floor (ms)',
+        initial: 0,
+        x : 5,
+        y : 115,
+        len : 140
+      },
+      doAvg : {
+        label: 'Do AVG',
+        initial : 0,
+        x : 5,
+        y : 130,
+        len : 140
+      },
+      doLpf : {
+        label: 'Do LPF band',
+        initial : 1,
+        x : 5,
+        y : 145,
+        len : 140
+      },
+      doHpf : {
+        label: 'Do HPF band',
+        initial : 1,
+        x : 5,
+        y : 160,
+        len : 140
+      }
+    }
+  },
+  hhc : {
+    w : 150,
+    h : 90,
+    title : 'Half Hanning',
+    ports : {
+      in : {
+        type : 'in',
+        label : 'In',
+        x : -15,
+        y : 40,
+        l : 70
+      },
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 165,
+        y : 40,
+        l : 70
+      }
+    },
+    params : {
+      width : {
+        label: 'Width (ms)',
+        descriptionMd : `## Window width
+Window width in millisecond`,
+        initial : 200,
+        x : 5,
+        y : 70,
+        len : 140
+      }
+    }
+  },
+  pid : {
+    w : 150,
+    h : 165,
+    title : 'PID',
+    ports : {
+      in : {
+        type : 'in',
+        label : 'In',
+        x : -15,
+        y : 40,
+        l : 70
+      },
+      out : {
+        type : 'out',
+        label : 'Out',
+        x : 165,
+        y : 40,
+        l : 70
+      }
+    },
+    params : {
+      p : {
+        label: 'P',
+        descriptionMd : `## **P**roportional component
+Coefficient for the input value for the proportional compontn`,
+        initial : 0,
+        x : 5,
+        y : 70,
+        len : 140
+      },
+      i : {
+        label: 'I',
+        descriptionMd : `## **I**ntegrated component
+Coefficient for the integral of the input value (subject to decay)`,
+        initial : 0,
+        x : 5,
+        y : 85,
+        len : 140
+
+      },
+      iDecayH : {
+        label: 'I decay to 1/2 (ms)',
+        descriptionMd : `## Integrated component decay to half
+Time in \`ms\` for the integrated component to decay to half of its value. Since the typical use of
+this PID node is in an open loop signal processing pipeline the integrated component would grow
+indefinitely without any decay.`,
+        initial : 50,
+        x : 5,
+        y : 100,
+        len : 140
+      },
+      d : {
+        label: 'D',
+        descriptionMd : `## **D**differential component
+Coefficient for the time derivative of the input value`,
+        initial : 250,
+        x : 5,
+        y : 115,
+        len : 140
+      },
+      width : {
+        label: 'D-Width (samples)',
+        descriptionMd : `## Window width for D
+Window width in consecutive samples`,
+        initial : 2,
+        x : 5,
+        y : 130,
+        len : 140
+      },
+      dClip0 : {
+        label: 'D clip < 0',
+        descriptionMd : `## Clip negative D values
+When set to non-\`0\` negative output values are clipped at \`0\`, providing half wave rectification of the differential component`,
+        initial : 1,
+        x : 5,
+        y : 145,
         len : 140
       }
     }
@@ -855,8 +1248,8 @@ Use the following values:
 Use the following values:
  - \`0\`: **Sawtooth**, Sawtooth - linear ramp from \`0.0\` to \`1.0\` then fall back to \`0.0\`
  - \`1\`: **Sin**, Sinus
- - \'2\': **Square**, Square wave with adjustable duty cycle
- - \'3\': **Triangle**, Triangle wave with adjustable duty cycle (assymetric on/off ramps)'
+ - \`2\`: **Square**, Square wave with adjustable duty cycle
+ - \`3\`: **Triangle**, Triangle wave with adjustable duty cycle (assymetric on/off ramps)'
  - \`4\`: **1-cos pulse**, \`1 - cos\` pulse
 `,
         initial : 0,

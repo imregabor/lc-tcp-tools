@@ -1,0 +1,33 @@
+.title-field-container {
+  line-height: 32px;
+  border-radius: 10px;
+  transition: background-color 0.5s;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.title-field-container.warn {
+  background-color: #f7d4d4;
+}
+
+.title-field-text {
+  color: #888;
+  font-style: italic;
+  width: 300px;
+  border: none;
+  font-size: 18px;
+  text-overflow: ellipsis;
+}
+
+input.title-field-text {
+  transition: color 0.5s;
+  background: none;
+}
+
+.warn input.title-field-text::placeholder {
+  color: #b31919;
+}
+
+input.title-field-text::placeholder {
+  color: #bbb;
+}

@@ -20,8 +20,22 @@ export function createPipeline() {
     sampleRate : () => 48000,
     newAnalyserNode : () => {
       return {
+        _fftSize : 2048,
         frequencyBinCount : 1024,
-        fftSize : 2048,
+        get fftSize() {
+          return this._fftSize;
+        },
+        set fftSize(val) {
+          // be consistent with AudioContext error handling to ensure proper error messages before context creation
+          if (val < 32 || val > 32768) {
+            throw new Error(`Failed to set the 'fftSize' property on 'AnalyserNode': The FFT size provided (${val}) is outside the range [32, 32768].`);
+          }
+          if (Math.log2(val) % 1 !== 0) {
+            throw new Error(`Failed to set the 'fftSize' property on 'AnalyserNode': The value provided (${val}) is not a power of two.`);
+          }
+          this.frequencyBinCount = val / 2;
+          this._fftSize = val;
+        },
         getFloatFrequencyData : b => b.fill(-1e9),
         getFloatTimeDomainData : b => b.fill(0)
       };
@@ -58,7 +72,7 @@ export function createPipeline() {
         method : 'POST',
       }).then(() => {}, () => {});
     },
-    getWssSize : () => 8
+    getWssSize : () => 32
   };
 
   // map of analyzer ID to node defined in createAnalyzers()
@@ -116,11 +130,14 @@ export function createPipeline() {
         const ps = portStates[psId];
         ps.type = 'spectrum';
         ps.maxf = sampleRate / 2;
-        ps.updated = true;
+
         if (!ps.bins || ps.bins.length !== a.analyzerNode.frequencyBinCount) {
           ps.bins = new Float32Array(a.analyzerNode.frequencyBinCount);
         }
         a.analyzerNode.getFloatFrequencyData(ps.bins);         // fftdb - spectrum magnitudes in dB
+
+        // until audio node starts the playback bins are -Infinity, avoid overshooting a downstream D node
+        ps.updated = isFinite(ps.bins[0]);
       }
       if (graph.nodeIds[id].portStateIds.tdo) {
         const psId = graph.nodeIds[id].portStateIds.tdo;
@@ -265,7 +282,7 @@ export function createPipeline() {
             ips = portStates[node.portStateIds.in];
             if (ips.type !== 'scalar' && ips.type !== 'spectrum' && ips.type !== 'channels') {
               // TODO: better error handling; in graph init time
-              console.log(`MH: Expected "scalar", "spectrum" or "channels" as input, got "${ips.type}"`);
+              console.log(`Max hold: Expected "scalar", "spectrum" or "channels" as input, got "${ips.type}"`);
               break;
             }
           }
@@ -346,6 +363,112 @@ export function createPipeline() {
                     state.holdFrom = now;
                   }
                 }
+                break;
+            }
+            ops.updated = true;
+          }
+
+          break;
+        case 'normalize':
+          var ips;
+          var ops;
+          if (node.portStateIds.in) {
+            ips = portStates[node.portStateIds.in];
+            if (ips.type !== 'scalar' && ips.type !== 'spectrum' && ips.type !== 'channels') {
+              // TODO: better error handling; in graph init time
+              console.log(`Max hold: Expected "scalar", "spectrum" or "channels" as input, got "${ips.type}"`);
+              break;
+            }
+          }
+          if (node.portStateIds.out && ips) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = ips.type;
+
+            switch (ips.type) {
+              case 'scalar':
+                if (!ops.value) {
+                  ops.value = 0;
+                  ops.channels = undefined;
+                  ops.bins = undefined;
+                  state.holdTill = 0;
+                  state.max = 0;
+                }
+                break;
+              case 'channels':
+                if (
+                  !ops.channels ||
+                  ops.channels.length !== ips.channels.length ||
+                  !state.holdTill ||
+                  state.holdTill.length !== (node.params.globalNorm ? 1 : ips.channels.length) ||
+                  !state.max ||
+                  state.max.length !== (node.params.globalNorm ? 1 : ips.channels.length)
+                ) {
+                  ops.value = undefined;
+                  ops.channels = new Float32Array(ips.channels.length);
+                  ops.bins = undefined;
+                  state.holdTill = new Array(node.params.globalNorm ? 1 : ips.channels.length).fill(0);
+                  state.max = new Array(node.params.globalNorm ? 1 : ips.channels.length).fill(0);
+                }
+                break;
+              case 'spectrum':
+                ops.maxf = ips.maxf;
+                if (
+                  !ops.bins ||
+                  ops.bins.length !== ips.bins.length ||
+                  !state.holdTill ||
+                  state.holdTill.length !== (node.params.globalNorm ? 1 : ips.bins.length) ||
+                  !state.max ||
+                  state.max.length !== (node.params.globalNorm ? 1 : ips.bins.length)) {
+                  ops.value = undefined;
+                  ops.channels = undefined;
+                  ops.bins = new Float32Array(ips.bins.length);
+                  state.holdTill = new Array(node.params.globalNorm ? 1 : ips.bins.length).fill(0);
+                  state.max = new Array(node.params.globalNorm ? 1 : ips.bins.length).fill(0);
+                }
+                break;
+            }
+          }
+          if (ips && ops && ips.updated) {
+            const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
+            state.lastUpdate = now; // todo - common implementation
+            const maxDecay = node.params.maxDecayH ? Math.exp( -state.maxDecayL * dt) : 0.0;
+            switch (ips.type) {
+              case 'channels':
+              case 'spectrum':
+                const ia = ips.type === 'channels' ? ips.channels : ips.bins;
+                const oa = ips.type === 'channels' ? ops.channels : ops.bins;
+
+                for (var i = 0; i < (node.params.globalNorm ? 1 : oa.length); i++) {
+                  if (state.holdTill[i] < now) {
+                    state.max[i] = (state.max[i] - node.params.maxFloor) * maxDecay + node.params.maxFloor;
+                    if (state.max[i] < node.params.maxFloor) {
+                      state.max[i] = node.params.maxFloor;
+                    }
+                  }
+                }
+                for (var i = 0; i < oa.length; i++) {
+                  const maxIndex = node.params.globalNorm ? 0 : i;
+                  if (state.max[maxIndex] < ia[i]) {
+                    state.max[maxIndex] = ia[i];
+                    state.holdTill[maxIndex] = now + node.params.sustain;
+                  }
+                }
+                for (var i = 0; i < oa.length; i++) {
+                  oa[i] = ia[i] / state.max[node.params.globalNorm ? 0 : i];
+                }
+                break;
+              case 'scalar':
+                if (state.holdTill < now) {
+                  state.max = (state.max - node.params.maxFloor) * maxDecay + node.params.maxFloor;
+                }
+                if (state.max < ips.value) {
+                  state.max = ips.value;
+                  state.holdTill = now + node.params.sustain;
+                  if (state.max < node.params.maxFloor) {
+                    state.max = node.params.maxFloor;
+                  }
+                }
+                ops.value = ips.value / state.max;
                 break;
             }
             ops.updated = true;
@@ -859,6 +982,285 @@ export function createPipeline() {
             ops.updated = true;
           }
           break;
+        case 'vsb':
+          var ips;
+          var ops;
+          if (node.portStateIds.in) {
+            ips = portStates[node.portStateIds.in];
+            if (ips.type !== 'spectrum') {
+              // TODO: better error handling; in graph init time
+              throw new Error(`Expected "spectrum" as input, got ${ips.type}`);
+            }
+          }
+          if (node.portStateIds.out) {
+            ops = portStates[node.portStateIds.out];
+            ops.type = 'channels';
+
+            if (!ops.channels || ops.channels.length !== state.channels) {
+              ops.channels = new Float32Array(state.channels);
+            }
+          }
+          if (ips && ops && ips.updated) {
+            if (state.binCount !== ips.bins.length || state.maxFreq !== ips.maxf || !state.max || state.max.length !== state.channels || !state.channelBinCounts || state.channelBinCounts.length !== state.channels) {
+              console.log('Variable subbands bin layout');
+
+              const binWidth = ips.maxf / ips.bins.length;
+
+              state.binCount = ips.bins.length;
+              state.maxFreq = ips.maxf;
+
+              state.max = new Float32Array(state.channels);
+              state.channelBinCounts = [];
+
+              // iterate from the LPF band
+              var bc = 0;
+              for (var i = 0; i < state.freqs.length; i++) {
+                const fi = state.freqs[i];
+                const bini = Math.round(fi * state.binCount / state.maxFreq);
+                const chw = bini - bc;
+                if (!!i === 0 || node.params.doLpf) {
+                  // capture LPF band only when requested
+                  state.channelBinCounts.push(chw);
+                  state.firstChannelFirstBin = 0;
+                } else {
+                  state.firstChannelFirstBin = chw;
+                }
+                bc = bc + chw;
+              }
+              if (node.params.doHpf) {
+                state.channelBinCounts.push(state.binCount - bc);
+              }
+
+              console.log('Variable subbands bins layouted. Params: ', node.params, 'state:', state);
+            }
+
+            const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
+            state.lastUpdate = now; // todo - common implementation
+
+            var firstBinIndex = state.firstChannelFirstBin;
+            for (var i = 0; i < state.channels; i++) {
+              const lastBinIndex = firstBinIndex + state.channelBinCounts[i];
+              var sume = 0;
+              for (var bin = firstBinIndex; bin < lastBinIndex; bin++) {
+                const e = ips.bins[bin] * ips.bins[bin];
+                sume = sume + e;
+              }
+              firstBinIndex = lastBinIndex;
+              const chi = node.params.doAvg ? sume / state.channelBinCounts[i] : sume;
+              ops.channels[i] = chi;
+            }
+
+            if (node.params.doNormalize) {
+              const maxDecay = Math.exp( -state.maxDecayL * dt);
+              for (var i = 0; i < state.channels; i++) {
+                state.max[i] = maxDecay * state.max[i];
+                if (node.params.maxFloor > state.max[i]) {
+                  state.max[i] = node.params.maxFloor;
+                }
+                if (ops.channels[i] > state.max[i]) {
+                  state.max[i] = ops.channels[i];
+                }
+              }
+              for (var i = 0; i < state.channels; i++) {
+                ops.channels[i] = ops.channels[i] / state.max[i];
+              }
+            }
+
+            ops.updated = true;
+          }
+          break;
+        case 'hhc':
+          var ips;
+          var ops;
+
+          if (node.portStateIds.in) {
+            ips = portStates[node.portStateIds.in];
+            if (ips.type !== 'channels' && ips.type !== 'scalar') {
+              // TODO: better error handling; in graph init time
+              console.log(`Half Hanning: Expected "channels" or "scalar" as input, got ${ips.type}`);
+              break;
+            }
+          }
+
+          if (ips && node.portStateIds.out) {
+            ops = portStates[node.portStateIds.out];
+
+            if (ips.type === 'channels') {
+              ops.type = 'channels';
+              if (!ops.channels || ops.channels.length !== ips.channels.length) {
+                ops.channels = new Float32Array(ips.channels);
+              }
+            } else {
+              ops.type = 'scalar';
+              ops.value = 0;
+
+            }
+          }
+
+          if (ops && ips && ips.updated) {
+            const dt = state.lastUpdate ? (now - state.lastUpdate) : 0;
+            state.lastUpdate = now; // todo - common implementation
+
+            const channelCount = ips.type === 'channels' ? ips.channels.length : 1;
+
+            if (!state.dts || state.dts.length * 3 < node.params.width) {
+              state.dts = new Array(Math.round(node.params.width / 3)).fill(0);
+              state.dtsp = 0;
+            }
+            if (!state.chv || state.chv.length !== channelCount || state.chv[0].length !== state.dts.length) {
+              state.chv = [];
+              for (var i = 0; i < channelCount; i++) {
+                state.chv.push(new Array(state.dts.length).fill(0));
+              }
+            }
+
+            state.dts[state.dtsp] = dt;
+            for (var chi = 0; chi < channelCount; chi++) {
+              var chv;
+              if (ips.type === 'channels') {
+                chv = ips.channels[chi];
+              } else {
+                chv = ips.value;
+              }
+              state.chv[chi][state.dtsp] = chv;
+
+              var sum = 0;
+              var t = 0;
+              var pos = state.dtsp;
+              while (true) {
+                sum = sum + state.chv[chi][pos] * state.c[t] * state.dts[pos];
+
+                t = t + state.dts[pos];
+                if (t >= node.params.width) {
+                  break;
+                }
+
+                pos = pos - 1;
+                if (pos < 0) {
+                  pos = state.chv[chi].length - 1;
+                }
+                if (pos === state.dtsp) {
+                  break;
+                }
+              }
+
+              const v = sum / state.a;
+              if (ips.type === 'channels') {
+                ops.channels[chi] = v;
+              } else {
+                ops.value = v;
+              }
+            }
+            state.dtsp = (state.dtsp + 1) % state.dts.length;
+            ops.updated = true;
+          }
+          break;
+        case 'pid':
+          var ips;
+          var ops;
+
+          if (node.portStateIds.in) {
+            ips = portStates[node.portStateIds.in];
+            if (ips.type !== 'channels' && ips.type !== 'scalar') {
+              // TODO: better error handling; in graph init time
+              console.log(`PID: Expected "channels" or "scalar" as input, got ${ips.type}`);
+              break;
+            }
+          }
+
+          if (ips && node.portStateIds.out) {
+            ops = portStates[node.portStateIds.out];
+
+            if (ips.type === 'channels') {
+              ops.type = 'channels';
+              if (!ops.channels || ops.channels.length !== ips.channels.length) {
+                ops.channels = new Float32Array(ips.channels);
+              }
+            } else {
+              ops.type = 'scalar';
+              ops.value = 0;
+            }
+          }
+
+          if (ops && ips && ips.updated) {
+            const dt = state.lastUpdate ? (now - state.lastUpdate) : 5;
+            state.lastUpdate = now; // todo - common implementation
+
+            const channelCount = ips.type === 'channels' ? ips.channels.length : 1;
+            const iDecay = node.params.i ? Math.exp( -state.iDecayL * dt) : 0;
+
+            if (node.params.i && (!state.i || state.i.length !== channelCount)) {
+              state.i = new Array(channelCount).fill(0);
+            }
+            if (node.params.d && (!state.dt || state.dt.length !== node.params.width || !state.v || state.v.length !== channelCount || state.v[0].length !== node.params.width)) {
+              state.pos = 0;
+              state.v = [];
+              state.dt = new Array(node.params.width).fill(0);
+              for (var i = 0; i < channelCount; i++) {
+                state.v.push(new Array(node.params.width).fill(0));
+              }
+            }
+
+            var fp = 0;
+            var ddt = 0;
+            if (node.params.d) {
+              state.dt[state.pos] = dt;
+              fp = (state.pos + node.params.width - 1) % node.params.width;
+              for (var i = 0; i < node.params.width; i++) {
+                ddt = ddt + state.dt[i];
+              }
+            }
+
+
+            for (var chi = 0; chi < channelCount; chi++) {
+              var chv;
+              if (ips.type === 'channels') {
+                chv = ips.channels[chi];
+              } else {
+                chv = ips.value;
+              }
+              if (!isFinite(chv)) {
+                chv = 0;
+              }
+              var ov = 0;
+
+              if (node.params.p) {
+                ov = ov + chv * node.params.p;
+              }
+
+              if (node.params.i) {
+                state.i[chi] = state.i[chi] * iDecay + chv * dt;
+                ov = ov + state.i[chi] * node.params.i;
+              }
+
+              if (node.params.d) {
+                state.v[chi][state.pos] = chv;
+                const fchv = state.v[chi][fp];
+                if (state.buffull) {
+                  // avoid injecting spurious values after parameter change
+                  const dv = (chv - fchv) / ddt;
+                  if (!node.params.dClip0 || dv > 0) {
+                    ov = ov + node.params.d * dv;
+                  }
+                }
+              }
+
+              if (ips.type === 'channels') {
+                ops.channels[chi] = ov;
+              } else {
+                ops.value = ov;
+              }
+            }
+
+            if (node.params.d) {
+              state.pos = (state.pos + 1) % node.params.width;
+              if (state.pos === 0) {
+                state.buffull = true;
+              }
+            }
+            ops.updated = true;
+          }
+          break;
         case 'lr':
           var ipsLb24;
           var ipsLm35;
@@ -1340,6 +1742,206 @@ export function createPipeline() {
     apoll.setDelay(pollDelay);
   }
 
+  var additionalEdges = [];
+  var connectionLabels = {};
+  function processConnectionNodes(g) {
+    additionalEdges = [];
+    connectionLabels = {};
+
+    // check for empty label
+    g.nodes.forEach(n => {
+      if (n.type !== 'connection') {
+        return;
+      }
+      if (!connectionLabels[n.label]) {
+        connectionLabels[n.label] = {
+          connectedOutput : undefined,
+          connectedInputs : [],
+          errMsgs : []
+        };
+        if (!n.label) {
+          connectionLabels[n.label].errMsgs.push('No label specified');
+        }
+      }
+    });
+
+    // capture connected ports
+    // check for invariants (no links between connections, at most one input)
+    g.edges.forEach(e => {
+      const n1 = g.nodes[e.n1index];
+      const n2 = g.nodes[e.n2index];
+      const n1type = n1.type;
+      const n2type = n2.type;
+      const n1label = n1.label;
+      const n2label = n2.label;
+      if (n1type !== 'connection' && n2type !== 'connection') {
+        return;
+      }
+      e.skipFromDag = true;
+      if (n1type === 'connection' && n2type === 'connection') {
+        if (e.n1index === e.n2index) {
+          // should be recognized earlier (no loops allowed)
+          connectionLabels[n1label].errMsgs.push(`Circular self link`);
+        } else {
+          const s = 'Multiple connection nodes are linked';
+          if (!connectionLabels[n1label].errMsgs.find(e => e === s)) {
+            connectionLabels[n1label].errMsgs.push(s);
+          }
+          if (!connectionLabels[n2label].errMsgs.find(e => e === s)) {
+            connectionLabels[n2label].errMsgs.push(s);
+          }
+        }
+        return;
+      }
+      if (n2type === 'connection') {
+        // an output is connected
+        const conn = connectionLabels[n2label];
+        if (conn.connectedOutput) {
+          conn.errMsgs.push(`Multiple outputs are connected with "${n2label}"`);
+        } else {
+          conn.connectedOutput = {
+            nindex : e.n1index,
+            nid : e.n1id,
+            p : e.p1
+          };
+        }
+      } else {
+        const conn = connectionLabels[n1label];
+        conn.connectedInputs.push({
+          nindex : e.n2index,
+          nid : e.n2id,
+          p : e.p2
+        });
+      }
+    });
+
+    // check for output connection when output is connected
+    // enumerate additional connections
+    for (var connectionLabel in connectionLabels) {
+      if (!connectionLabels.hasOwnProperty(connectionLabel)) {
+        continue;
+      }
+      const conn = connectionLabels[connectionLabel];
+      if (!conn.connectedOutput && conn.connectedInputs.length > 0) {
+        conn.errMsgs.push(`No output is feeding "${connectionLabel}"`);
+      }
+    }
+
+    // enumerate additional connections
+    for (var connectionLabel in connectionLabels) {
+      if (!connectionLabels.hasOwnProperty(connectionLabel)) {
+        continue;
+      }
+      const conn = connectionLabels[connectionLabel];
+      if (conn.errMsgs.length > 0) {
+        continue;
+      }
+      if (!conn.connectedOutput) {
+        continue;
+      }
+      conn.connectedInputs.forEach(i => {
+        additionalEdges.push({
+          n1index : conn.connectedOutput.nindex,
+          n1id : conn.connectedOutput.nid,
+          p1 : conn.connectedOutput.p,
+
+          n2index : i.nindex,
+          n2id : i.nid,
+          p2 : i.p
+        });
+      });
+    }
+
+    // emit errors/error fixes
+    g.nodes.forEach(n => {
+      if (n.type !== 'connection') {
+        return;
+      }
+      if (connectionLabels[n.label].errMsgs.length > 0) {
+        n.err = {
+          err : true,
+          nodeId : n.id,
+          nodeLabel : n.label,
+          message: connectionLabels[n.label].errMsgs.join(' / ')
+        };
+        errEvent(n.err);
+      } else if (n.err && n.err.err) {
+        n.err.err = false;
+        console.log('Fixed', n.err);
+        errEvent(n.err);
+      }
+    });
+
+    console.log('Process connection nodes:');
+    console.log('additional edges:', additionalEdges);
+    console.log('connectionLabels:', connectionLabels);
+  }
+
+  function updateTopology(g) {
+    // note that passed graph is extended / updated
+    //   g.nodeIds:     map of ID to nodes
+    //   g.dagOrderIds: Array of DAG ordered node IDs to be traverse for ticks
+    //   g.nodes[].isConnected: true when there is an in/out edge
+    //   g.nodes[].portStateIds: map of port ID to ID in portStates (when connected)
+    //   g.nodes[].err: last error event (optional)
+    //   g.edges[].skipFromDag: edges not to be considered for DAF or during ticks
+    g.nodeIds = {};
+
+    processConnectionNodes(g);
+
+    g.nodes.forEach(n => {
+      n.isConnected = false;
+      g.nodeIds[n.id] = n;
+      n.portStateIds = {};
+      if (nodeFunctions[n.type] && nodeFunctions[n.type].initState) {
+        n.state = nodeFunctions[n.type].initState(n.params);
+      }
+    });
+
+    const dagEdges = g.edges.filter(e => !e.skipFromDag).concat(additionalEdges);
+    console.log('DAG edges:', dagEdges);
+
+    dagEdges.forEach(e => {
+      g.nodeIds[e.n1id].isConnected = true;
+      g.nodeIds[e.n2id].isConnected = true;
+      g.nodeIds[e.n1id].portStateIds[ e.p1 ] = `${e.n1id}/${e.p1}`;
+      g.nodeIds[e.n2id].portStateIds[ e.p2 ] = `${e.n1id}/${e.p1}`;
+    });
+
+    const dagLevels = {};
+    g.nodes.forEach(n => { dagLevels[n.id] = 0; });
+    var nextRound = true;
+    var loopFound = false;
+    while (nextRound && !loopFound) {
+      nextRound = false;
+      dagEdges.forEach(e => {
+        const minDagLevel = dagLevels[e.n1id] + 1;
+        if (dagLevels[e.n2id] < minDagLevel) {
+          nextRound = true;
+          dagLevels[e.n2id] = minDagLevel;
+          if (minDagLevel > g.nodes.lenght || minDagLevel > g.edges.length) {
+            // TODO: This will leave editor in an inconsistent state
+            // better error handling / reporting is needed
+            loopFound = true;
+          }
+        }
+      });
+    }
+
+    if (loopFound) {
+      throw new Error('Loop found');
+    }
+
+    g.dagOrderIds = [];
+    g.nodes.forEach(n => g.dagOrderIds.push(n.id));
+    g.dagOrderIds.sort((a, b) => dagLevels[a] - dagLevels[b]);
+    console.log('Processing graph set', g);
+
+    graph = g;
+    updatePortStates();
+    updateAnalyzers();
+  }
+
   const ret = {
     onError : h => {
       errEvent.add(h);
@@ -1357,65 +1959,25 @@ export function createPipeline() {
       return ret;
     },
     setGraph : g => {
-      // note that passed graph is extended
-      //   g.nodeIds:     map of ID to nodes
-      //   g.dagOrderIds: DAG ordered node IDs
-      //   g.nodes[].isConnected: true when there is an in/out edge
-      //   g.nodes[].portStateIds: map of port ID to ID in portStates (when connected)
-      g.nodeIds = {};
-
-
-      g.nodes.forEach(n => {
-        n.isConnected = false;
-        g.nodeIds[n.id] = n;
-        n.portStateIds = {};
-        if (nodeFunctions[n.type] && nodeFunctions[n.type].initState) {
-          n.state = nodeFunctions[n.type].initState(n.params);
-        }
-      });
-      g.edges.forEach(e => {
-        g.nodeIds[e.n1id].isConnected = true;
-        g.nodeIds[e.n2id].isConnected = true;
-
-        g.nodeIds[e.n1id].portStateIds[ e.p1 ] = `${e.n1id}/${e.p1}`;
-        g.nodeIds[e.n2id].portStateIds[ e.p2 ] = `${e.n1id}/${e.p1}`;
-      });
-
-      const dagLevels = {};
-      g.nodes.forEach(n => { dagLevels[n.id] = 0; });
-      var nextRound = true;
-      while (nextRound) {
-        nextRound = false;
-        g.edges.forEach(e => {
-          const minDagLevel = dagLevels[e.n1id] + 1;
-          if (dagLevels[e.n2id] < minDagLevel) {
-            nextRound = true;
-            dagLevels[e.n2id] = minDagLevel;
-            if (minDagLevel > g.nodes.lenght || minDagLevel > g.edges.length) {
-              // TODO: This will leave editor in an inconsistent state
-              // better error handling / reporting is needed
-              throw new Error('Loop found');
-            }
-          }
-        });
+      updateTopology(g);
+      return ret;
+    },
+    updateLabel : l => {
+      console.log('Label update', l);
+      const node = graph.nodeIds[l.nodeid];
+      node.label = l.value;
+      if (node.type === 'connection') {
+        // processConnectionNodes(graph);
+        updateTopology(graph);
       }
-
-      g.dagOrderIds = [];
-      g.nodes.forEach(n => g.dagOrderIds.push(n.id));
-      g.dagOrderIds.sort((a, b) => dagLevels[a] - dagLevels[b]);
-
-      console.log('Processing graph set', g);
-
-      graph = g;
-      updatePortStates();
-      updateAnalyzers();
       return ret;
     },
     updateParameter : p => {
       console.log('Parameter update', p);
       const node = graph.nodeIds[p.nodeid];
       node.params[p.paramid] = p.value;
-      if (node.type === 'aa') {
+      if (node.type === 'aa' || p.paramid === 'targetFps') {
+        // also max FPS for poll is identified in updateAnalyzers()
         updateAnalyzers();
       }
 

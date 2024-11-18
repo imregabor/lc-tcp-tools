@@ -126,6 +126,20 @@ export function addItemsTo(m2, select) {
 
 }
 
+/**
+ * Show a modal dialog
+ *
+ * opts:
+ *  - reject(): invoked on dialog reject
+ *  - resolve(value): invoked on dialog resolve with optional value
+ *  - title : dialog title
+ *  - warn : make dialog reddish
+ *  - ok() : display an ok button which resolves the dialog with its returned value
+ *  - okLabel : specifies the label of the ok button.
+ *  - okWarn : display the resolving ok button in a warn color
+ *  - cancel : display a rejecting button
+ *  - cancelLabel : display a rejecting button with the specified title
+ */
 export function showModal(opts) {
   const body = d3.select('body');
   body.classed('modal-open', true);
@@ -170,21 +184,39 @@ export function showModal(opts) {
 
   const m2 = m1.append('div')
       .classed('modal-dg', true)
+      .classed('warn', !!opts.warn)
       .on('click', () => event.stopPropagation());
 
   m2.append('h1')
       .text(opts.title)
+      .classed('warn', !!opts.warn)
       .append('i')
       .classed('fa fa-times', true)
       .on('click', cancel);
 
   const m2_body = m2.append('div');
 
-  if (opts.ok) {
-    const m2_ft = m2.append('div').classed('modal-dg-ftr', true);
+  var m2_ft;
+  if (opts.ok || opts.okLabel || opts.cancel) {
+    m2_ft = m2.append('div').classed('modal-dg-ftr', true);
+  }
+
+  if (opts.cancel) {
     m2_ft.append('div')
         .classed('btn', true)
-        .text('ok')
+        .classed('neutral', true)
+        .text(opts.cancelLabel ? opts.cancelLabel : 'cancel')
+        .on('click', () => {
+          cancel();
+        });
+  }
+
+  if (opts.ok || opts.okLabel) {
+
+    m2_ft.append('div')
+        .classed('btn', true)
+        .classed('warn', !!opts.okWarn)
+        .text(opts.okLabel ? opts.okLabel : 'ok')
         .on('click', () => {
           select(opts.ok());
         });
@@ -280,6 +312,14 @@ export function showModal(opts) {
     }
   };
   return ret;
+}
+
+export function showInfoModal(title, message) {
+  showModal({
+    title: title,
+    ok : () => {}
+  })
+  .appendP(message);
 }
 
 
