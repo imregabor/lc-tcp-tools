@@ -18,8 +18,8 @@ SerialPort.list().then( l => {
 
 
 const port = new SerialPort({
-  path: 'COM7',
-  baudRate: 115200,
+  path: 'COM6',
+  baudRate: 115200, // 2000000, // 115200,
   hupcl : false
 }, f => {
   if (f) {
@@ -43,7 +43,7 @@ parser.on('data', d => {
 port.write('?;');
 
 
-const n = 8;
+const n =32 ;
 
 
 function vToHex2(v) {
@@ -58,7 +58,7 @@ function vToHex2(v) {
 }
 
 function frame() {
-  const f = (Date.now() % 500) / 500;
+  const f = (Date.now() % 1000) / 1000;
   var s = '@';
   for (var i = 0; i < n; i++) {
     var r = 0.5 + 0.5 * Math.cos(2 * Math.PI * (f + i / n));
@@ -75,6 +75,6 @@ function frame() {
       console.log(`[WRITE ERROR] "${e.message}"`);
     }
   });
-  setTimeout(frame, 10);
+  setTimeout(frame, 20);
 }
 
