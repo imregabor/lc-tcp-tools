@@ -38,9 +38,30 @@ export function initPage() {
     // Nodes or edges added or removed; not fired on parametrization change
     topologyChanged : ed.ed(),
 
-    // Parameters changed; not fired on topology change or node moves
-    parametersChanged : ed.ed()
+    // Parameter changed; not fired on topology change or node moves
+    parameterChanged : ed.ed(),
+
+    // Fired only on node label change
+    labelChanged : ed.ed(),
+
+    nodePositionChanged : ed.ed(),
+
+    changed : ed.ed()
   };
+
+  events.topologyChanged.add(graph => events.changed({
+    topology : graph
+  }));
+  events.labelChanged.add(e => events.changed({
+    label : e
+  }));
+  events.parameterChanged.add(e => events.changed({
+    label : e
+  }));
+  events.nodePositionChanged.add(e => events.changed({
+    nodePosition : e
+  }));
+  events.changed.add(e => console.log('changed', e));
 
   function exportGraph(includeIds, includeLayout) {
     var ni = 0;
@@ -136,9 +157,19 @@ export function initPage() {
   const svgdiv = p.topD3().append('div').classed('svg-ctr', true);
   const svg = svgdiv.append('svg').attr('width', '100%').attr('height', '100%').attr('preserveAspectRatio', 'none');
 
-  const playerOverlayDiv = svgdiv.append('div').classed('player-overlay', true);
 
-  const pageButtonsOverlayDiv = svgdiv.append('div').classed('pagebuttons-overlay playback-extra-controls', true);
+  const overlays = svgdiv.append('div').classed('pagebuttons-overlay', true);
+
+
+
+
+  const pageButtonsOverlayDiv = overlays.append('div').classed('pagebuttons-leftblock playback-extra-controls', true);
+
+  overlays.append('div').classed('pagebuttons-grower', true);
+
+  const playerOverlayDiv = overlays.append('div').classed('player-overlay pagebuttons-rightblock', true);
+
+
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-home', true)
     .attr('title', 'Go to landing page')
@@ -286,28 +317,43 @@ export function initPage() {
     playerOverlayDiv.append('div').classed('pb-player', true),
     svgdiv.append('div').classed('pb-message', true));
 
+  events.topologyChanged.add(() => {
+    // no tracking of error markers; clean up canvas
+    nodelayerg.selectAll('g.node-error-marked').classed('node-error-marked', false)
+      .selectAll('g.node-err-mark').remove();
+  });
   events.topologyChanged.add(pipeline.setGraph);
-  events.parametersChanged.add(pipeline.updateParameter);
+
+  events.parameterChanged.add(pipeline.updateParameter);
+
+  events.labelChanged.add(pipeline.updateLabel);
+
   pipeline.onError(e => {
     console.log('PIPELINE ERROR EVENT', e);
     if (e.nodeId) {
       const nodeG = nodelayerg.select(`#${e.nodeId}`);
       if (nodeG) {
-        nodeG.select('rect.box').classed('err', e.err);
+        nodeG.classed('node-error-marked', e.err);
+        nodeG.select('g.node-err-mark').remove(); // might be an err update, make sure previous err mark is not left on
 
-        if (!e.err) {
-          nodeG.select('g.node-err-mark').remove();
-        } else {
+        if (e.err) {
           const markG = nodeG.append('g').classed('node-err-mark', true);
           markG.attr('transform', d => `translate(15, -20)`);
           markG.append('path')
               .attr('d', 'M -15 9 l 15 -26 l 15 26 l -30 0 Z');
           markG.append('text')
+              .classed('xclm-icon', true)
               .attr('text-anchor', 'middle')
               .attr('alignment-baseline', 'middle')
               .attr('x', 0)
               .attr('y', 0)
               .text('!');
+          markG.append('text')
+              .attr('text-anchor', 'left')
+              .attr('alignment-baseline', 'middle')
+              .attr('x', 20)
+              .attr('y', 0)
+              .text(e.message);
           markG.append('title').text(e.message);
           markG.on('click', () => {
             dg.showModal({
@@ -595,11 +641,9 @@ export function initPage() {
       .attr('y2', y + 5);
   }
   function updateAlignmentHintLayer(nd, translateX, translateY) {
-    console.log('edges', edges)
     translateX = !!translateX ? translateX : 0;
     translateY = !!translateY ? translateY : 0;
     alignmentHintLayerG.selectAll('*').remove();
-
 
     const ndDef = nodeTypes[nd.type];
     const ownEdges = [];
@@ -682,11 +726,6 @@ export function initPage() {
         }
       }
     }
-
-
-
-
-
 
     var lfound = false;
     var lx = nd.layout.x + translateX;
@@ -816,6 +855,13 @@ export function initPage() {
           renderNodes();
           renderEdges();
           fireTopologyChanged();
+        } else {
+          events.nodePositionChanged({
+            id : d.id,
+            label : d.label,
+            x : d.layout.x,
+            y : d.layout.y
+          });
         }
         alignmentHintLayerG.selectAll('*').remove();
         hNodeDragging.exit();
@@ -861,6 +907,8 @@ export function initPage() {
       return;
     }
     const thisD3 = d3.select(this);
+    const parentD3 = d3.select(this.parentNode);
+    const pd = parentD3.datum();
     if (thisD3.classed('titleg')) {
       console.log('Title of node', d);
       const modal = dg.showModal({
@@ -872,14 +920,17 @@ export function initPage() {
           console.log('Resolved; update title', v);
           d.label = v;
           updateNodeTitles();
+          events.labelChanged({
+            value: v,
+            nodetype: pd.type,
+            nodeid: pd.render.id
+          });
         },
         ok : () => nvf()
       });
       modal.appendKV('Current value:', d.label);
       const nvf = modal.appendStrInput('New value:', d.label);
     } else if (d.paramid) {
-      const parentD3 = d3.select(this.parentNode);
-      const pd = parentD3.datum();
       console.log('Param', d, pd);
 
       const modal = dg.showModal({
@@ -891,8 +942,14 @@ export function initPage() {
 
           console.log('Resolved; update value', v);
           d.value = v;
+
+          d.displayValue = d.value; // todo: factor out param display value / param / title binding
+          if (d.def.type === 'string' && d.displayValue.length > 12) {
+            d.displayValue = d.displayValue.substring(0, 8) + ' ...';
+          }
+
           updateNodeParamValues();
-          events.parametersChanged({
+          events.parameterChanged({
             paramid: d.paramid,
             value: d.value,
             nodetype: pd.type,
@@ -903,7 +960,13 @@ export function initPage() {
       });
       modal.appendKV('Default value:', d.def.initial);
       modal.appendKV('Current value:', d.value);
-      const nvf = modal.appendNumInput('New value:', d.value);
+      var nvf;
+      if (d.def.type && d.def.type === 'string') {
+        nvf = modal.appendStrInput('New value:', d.value);
+      } else {
+        nvf = modal.appendNumInput('New value:', d.value);
+      }
+
       if (d.def.descriptionMd) {
         modal.appendMarkdown(d.def.descriptionMd);
       }
@@ -923,7 +986,7 @@ export function initPage() {
         return;
       }
       const paramvs = sel.selectAll('g.paramg text.param-value')
-        .text(d => d.value);
+        .text(d => d.displayValue);
     });
   }
 
@@ -1019,12 +1082,19 @@ export function initPage() {
 
       if (nodeTypes[d.type].params) {
         const params = Object.entries(nodeTypes[d.type].params)
-            .map(([k, v]) => { return {
-              domid : newId(),
-              paramid : k,
-              def : v,
-              value : (d.params && d.params[k]) ? d.params[k] : v.initial
-            };});
+            .map(([k, v]) => {
+              const ret = {
+                domid : newId(),
+                paramid : k,
+                def : v,
+                value : (d.params && d.params[k]) ? d.params[k] : v.initial
+              };
+              ret.displayValue = ret.value;
+              if (v.type === 'string' && ret.displayValue.length > 12) {
+                ret.displayValue = ret.displayValue.substring(0, 8) + ' ...';
+              }
+              return ret;
+            });
         d.params = params;
         const paramsctr = sel.append('g');
         const paramgs = paramsctr.selectAll('g.paramg').data(params).enter().append('g')
@@ -1056,7 +1126,7 @@ export function initPage() {
             .attr('alignment-baseline', 'middle')
             .attr('x', d => d.def.len)
             .attr('y', 0)
-            .text(d => d.value);
+            .text(d => d.displayValue);
       }
     }); nodes = null;
   }
@@ -1089,7 +1159,7 @@ export function initPage() {
     var x0, y0, x1, y1;
 
     nodes.forEach(n => {
-      const nodeDef = nodeTypes[selectedAddNodeType];
+      const nodeDef = nodeTypes[n.type];
 
       if (first || n.layout.x < x0) { x0 = n.layout.x; }
       if (first || n.layout.x + nodeDef.w > x1) { x1 = n.layout.x + nodeDef.w; }
@@ -1439,6 +1509,5 @@ export function initPage() {
     hoverPreviewG.classed('shown', !lastOcc);
   }
   */
-  connDrag.registerListenersOnPorts(connDragOpts);
-
+  connDrag.registerListenersOnPorts(connDragOpts); // this should be in importGraph or in renderNodes
 }

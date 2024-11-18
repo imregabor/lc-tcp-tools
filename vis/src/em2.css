@@ -17,9 +17,9 @@ svg {
 }
 
 div.player-overlay {
-  position:  absolute;
+  /* position:  absolute;
   right: 10px;
-  top: 10px;
+  top: 10px; */
   display: flex;
   flex-direction: column;
   align-items: end;
@@ -29,8 +29,26 @@ div.player-overlay {
 div.pagebuttons-overlay {
   position:  absolute;
   left: 80px;
+  right: 10px;
   top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 10px;
 }
+
+div.pagebuttons-leftblock {
+  flex-shrink: 0;
+  margin-right: 15px;
+}
+
+div.pagebuttons-rightblock {
+  flex-grow: 1;
+}
+
+div.pagebuttons-grower {
+  flex-grow: 1;
+}
+
 
 .pb-player {
   display: inline-block;
@@ -86,13 +104,13 @@ rect.box {
   stroke: black;
   stroke-width: 1;
   fill: #ccc;
+}
 
 }
 
-rect.box.err {
-  stroke: #5b0b0c;
+.node-error-marked rect.box {
+  stroke: #b61619;
   fill:  #fee9e7;
-
 }
 
 g.node-err-mark {
@@ -101,13 +119,18 @@ g.node-err-mark {
 
 g.node-err-mark text {
   fill: #5b0b0c;
+  font-size: 10px;
+}
+
+g.node-err-mark text.xclm-icon {
+  fill:  #b61619;
   font-family: monospace;
   font-weight: bold;
   font-size: 20px;
 }
 
 g.node-err-mark path {
-  stroke: #5b0b0c;
+  stroke: #b61619;
   stroke-width: 2px;
   fill: #fee9e7;
 }
@@ -185,6 +208,7 @@ text {
 text.node-label {
   font-family: monospace;
   font-size: 12px;
+  alignment-baseline: middle;
 }
 
 text.port-label {
@@ -209,6 +233,11 @@ text.param-value {
   stroke-width: 1px;
   fill: white;
   transition: fill 0.1s;
+}
+
+.node-error-marked .portg path {
+  stroke: #b61619;
+  fill:  #fee9e7;
 }
 
 .portg:hover path {

@@ -1299,7 +1299,7 @@ export function createPipeline() {
       na.targetDelayMs = 1000 / n.params.targetFps;
       try {
         na.analyzerNode.fftSize = n.params.fftSize;
-        if (na.err) {
+        if (na.err && na.err.err) {
           na.err.err = false;
           console.log('Fixed', na.err);
           errEvent(na.err);
