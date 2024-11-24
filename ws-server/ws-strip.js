@@ -158,7 +158,10 @@ function connect(port) {
   function autoConnect() {
     listSerialPorts().then(ports => {
       for(var p of ports) {
-        if (p['vendorId'] === '1A86' &&  p['productId'] === '7523') {
+        if (
+          (p['vendorId'] === '1A86' &&  p['productId'] === '7523') ||
+          (p['vendorId'] === '0403' &&  p['productId'] === '6001')
+        ) {
           a = connectTo(p['path'], () => {
             a = undefined;
             log('Error with connection, retry in 2s');
