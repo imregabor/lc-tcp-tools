@@ -72,7 +72,7 @@ export function createPipeline() {
         method : 'POST',
       }).then(() => {}, () => {});
     },
-    getWssSize : () => 32
+    getWssSize : () => 256
   };
 
   // map of analyzer ID to node defined in createAnalyzers()
@@ -1338,9 +1338,9 @@ export function createPipeline() {
           }
 
           if (ipsChannels && ipsChannels.updated) {
-            state.channelCount = Math.min(remoteCalls.getWssSize() * 3, Math.max(ipsChannels.channels.length, state.channelCount));
+            state.channelCount = Math.min(remoteCalls.getWssSize() * 3, ipsChannels.channels.length);
 
-            if (state.channelCount !== state.chs.length) {
+            if (state.channelCount > state.chs.length) {
               const oldChs = state.chs;
               state.chs = new Float32Array(state.channelCount);
               for (var i = 0; i < Math.min(state.channelCount, oldChs.length); i++) {

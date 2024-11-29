@@ -155,7 +155,7 @@ export function initPage() {
     sendToWss : (rgb) => {
       wsLink.send(`WSSbFF ${u.channelsToBulkFF(rgb)}`);
     },
-    getWssSize : () => 32
+    getWssSize : () => 256
   };
 
   const p = panes.init().bottomPaneName('visualizations');
