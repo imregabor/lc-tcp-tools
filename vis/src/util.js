@@ -197,6 +197,28 @@ export function channelsToBulk100(values, length) {
   return ret;
 }
 
+export function channelsToBulkFF(values, length) {
+  var ret = '';
+  if (!length) {
+    length = values.length;
+  }
+  for (var i = 0; i < length; i++) {
+    var vi = values[i];
+    if (! (vi >= 0)) {
+      vi = 0;
+    } else if (! (vi <= 1)) {
+      vi = 1;
+    }
+    const s = '' + Math.round(255 * vi).toString(16);
+    if (s.length == 1) {
+      ret = ret + '0';
+    }
+    ret = ret + s
+  }
+  return ret;
+}
+
+
 export function from7to35(values, out) {
   if (values.length !== 7) {
     throw new Error();

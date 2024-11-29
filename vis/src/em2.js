@@ -153,7 +153,7 @@ export function initPage() {
       wsLink.send(`LRb100 ${lb24 ? u.channelsToBulk100(lb24) : '-'} ${lm35 ? u.channelsToBulk100(lm35) : '-'}`);
     },
     sendToWss : (rgb) => {
-      wsLink.send(`WSSb100 ${u.channelsToBulk100(rgb)}`);
+      wsLink.send(`WSSbFF ${u.channelsToBulkFF(rgb)}`);
     },
     getWssSize : () => 32
   };

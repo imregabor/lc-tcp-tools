@@ -139,6 +139,9 @@ const cc2Srv = openWsSrv({
     } else if (parts[0] === 'WSSb100') {
       const values = lowLevel.parseBulk100(parts[1]);
       wsStripConnection.sendValues(values);
+    } else if (parts[0] === 'WSSbFF') {
+      const values = lowLevel.parseBulkFF(parts[1]);
+      wsStripConnection.sendValues(values);
     }
 
   },

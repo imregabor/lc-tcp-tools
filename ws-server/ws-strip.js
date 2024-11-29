@@ -213,7 +213,7 @@ function connect(port) {
       var message = '@';
       var sendCount = Math.min(maxLedCount * 3, values.length);
       for (var i = 0; i < sendCount; i++) {
-        message = message + lowLevel.vToHex2(v[i]);
+        message = message + lowLevel.vToHex2(values[i]);
       }
       if (sendCount % 3 !== 0) {
         for (var i = 0; i < 3 - sendCount % 3; i++) {
