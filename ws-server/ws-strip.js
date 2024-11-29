@@ -152,6 +152,7 @@ function connect(port) {
   var a;
   var sentCount = 0;
   var droppedCount = 0;
+  var maxLedCount = 256;
 
   const log = message => console.log(`[ws-strip] ${message}`);
 
@@ -170,7 +171,7 @@ function connect(port) {
         }
       }
       if (!a) {
-        log('[ws-strip] CH340 not found, retry in 1s');
+        log('[ws-strip] CH340/MAX232 not found, retry in 1s');
         setTimeout(autoConnect, 1000);
       }
     });
@@ -196,7 +197,8 @@ function connect(port) {
         sentCount : sentCount,
         droppedCount : droppedCount,
         up : !!a && a.isUp(),
-        waiting : !!a && a.isWaiting()
+        waiting : !!a && a.isWaiting(),
+        maxLedCount : maxLedCount
       };
     },
     send : message => {
@@ -209,11 +211,12 @@ function connect(port) {
     },
     sendValues : values => {
       var message = '@';
-      for (var v of values) {
-        message = message + lowLevel.vToHex2(v);
+      var sendCount = Math.min(maxLedCount * 3, values.length);
+      for (var i = 0; i < sendCount; i++) {
+        message = message + lowLevel.vToHex2(v[i]);
       }
-      if (values.length % 3 !== 0) {
-        for (var i = 0; i < 3 - values.length % 3; i++) {
+      if (sendCount % 3 !== 0) {
+        for (var i = 0; i < 3 - sendCount % 3; i++) {
           message = message + '00';
         }
       }
