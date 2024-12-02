@@ -34,7 +34,14 @@ function connectTo(portName, onError) {
 
   var state = STATE_OPENING;
   var lastSend;
-  var waitingPingCount = 0;
+  var waitingSince = Date.now();
+  // last heartbeat, relevant after first one
+  var lastHb;
+  // time since last two heartbeats
+  var lastHbPeriod;
+  var lastDeviceId = '';
+  // number of '?' messages
+  var protocolErrorCount = 0;
 
   function ready() {
     state = STATE_READY;
@@ -45,6 +52,7 @@ function connectTo(portName, onError) {
       return;
     }
     state = STATE_ERROR;
+    lastDeviceId = '';
     try {
       port.close();
     } catch (e) {
@@ -83,12 +91,28 @@ function connectTo(portName, onError) {
       continueSending();
       return;
     }
+    if (d === '?') {
+      protocolErrorCount++;
+      return;
+    }
     if (state === STATE_ERROR) {
       log(`Data received in error state; stay in error: "${d}"`);
       return;
     }
     if (state === STATE_WAITING) {
-      log(`First data arrived: "${d}"`);
+      log(`Data arrived during waiting (@ ${Date.now() - waitingSince} ms): "${d}"`);
+    }
+    if (d.startsWith('wssgw @ ')) {
+      lastDeviceId = d.substring(8);
+      const now = Date.now();
+      if (lastHb) {
+        lastHbPeriod = now - lastHb;
+      }
+      lastHb = now;
+      if (state === STATE_WAITING) {
+        log('  -> valid heartbeat, ready to send');
+        ready();
+      }
     }
     if (d === '+') {
       ready();
@@ -128,6 +152,9 @@ function connectTo(portName, onError) {
     isError : () => state === STATE_ERROR,
     isUp : () => state === STATE_READY || state === STATE_SENDING,
     isWaiting : () => state === STATE_WAITING,
+    getDeviceId : () => lastDeviceId,
+    getProtocolErrorCount : () => protocolErrorCount,
+    getLastHbPeriod : () => lastHbPeriod,
     sendBuffer : buffer => {
       if (state !== STATE_READY && state !== STATE_WAITING) {
         return;
@@ -159,33 +186,35 @@ function connectTo(portName, onError) {
     }
   };
 
+  setTimeout(() => {
+    if (state  === STATE_WAITING) {
+      log(`error: no initial HB after ${Date.now() - waitingSince} ms`);
+      error();
+    }
+  }, 5000);
+
   function periodicPing() {
     if (state === STATE_ERROR) {
       // no more ping
       return;
     }
 
-    if (state == STATE_WAITING) {
-      if (waitingPingCount > 16) {
-        log(`error: no response after ${waitingPingCount}`);
-        error();
-        return
-      }
-      waitingPingCount++;
-      log(`sending initial ping # ${waitingPingCount}`);
-      ret.send('?;');
-    } else if (state == STATE_READY) {
-      const dt = Date.now() - lastSend;
-      if (!(dt < 100)) {
-        // only ping when there is no recent message exchange
-        ret.send('?;');
-      }
-    } else if (state === STATE_SENDING) {
-      const dt = Date.now() - lastSend;
-      if (dt > 500) {
-        log(`failing due to no response for ${dt} ms`);
+    if (state !== STATE_WAITING) {
+      // waiting is treated in a single shot check
+
+      const timeSinceLastHb = Date.now() - lastHb;
+      if (timeSinceLastHb > 1000) {
+        log(`error: no periodic HB after ${timeSinceLastHb} ms`);
         error();
         return;
+      }
+      if (state === STATE_SENDING) {
+        const dt = Date.now() - lastSend;
+        if (dt > 500) {
+          log(`failing due to no response for ${dt} ms`);
+          error();
+          return;
+        }
       }
     }
     setTimeout(periodicPing, 500);
@@ -219,7 +248,7 @@ function connect(port) {
         }
       }
       if (!a) {
-        log('[ws-strip] CH340/MAX232 not found, retry in 1s');
+        log('[ws-strip] CH340/FT232 not found, retry in 1s');
         setTimeout(autoConnect, 1000);
       }
     });
@@ -246,7 +275,10 @@ function connect(port) {
         droppedCount : droppedCount,
         up : !!a && a.isUp(),
         waiting : !!a && a.isWaiting(),
-        maxLedCount : maxLedCount
+        maxLedCount : maxLedCount,
+        deviceId : !!a ? a.getDeviceId() : '',
+        protocolErrorCount : !!a ? a.getProtocolErrorCount() : 0,
+        lastHbPeriod : !!a ? a.getLastHbPeriod() : 0
       };
     },
     send : message => {
