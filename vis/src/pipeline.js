@@ -1340,7 +1340,7 @@ export function createPipeline() {
           if (ipsChannels && ipsChannels.updated) {
             state.channelCount = Math.min(remoteCalls.getWssSize() * 3, ipsChannels.channels.length);
 
-            if (state.channelCount > state.chs.length) {
+            if (state.channelCount != state.chs.length) {
               const oldChs = state.chs;
               state.chs = new Float32Array(state.channelCount);
               for (var i = 0; i < Math.min(state.channelCount, oldChs.length); i++) {
@@ -1384,7 +1384,6 @@ export function createPipeline() {
             remoteCalls.sendToWss(state.chs);
 
             state.chs.fill(0);
-            state.channelCount = 3;
           }
           break;
         case 'rgbmap':
