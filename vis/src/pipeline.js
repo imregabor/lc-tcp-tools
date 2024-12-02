@@ -72,7 +72,7 @@ export function createPipeline() {
         method : 'POST',
       }).then(() => {}, () => {});
     },
-    getWssSize : () => 256
+    getWssSize : () => 512
   };
 
   // map of analyzer ID to node defined in createAnalyzers()

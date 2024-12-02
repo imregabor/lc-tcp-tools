@@ -58,7 +58,7 @@ function connectTo(portName, onError) {
 
   const port = new SerialPort({
     path: portName,
-    baudRate: 115200,
+    baudRate: 1000000, //115200,
     hupcl : false
   }, f => {
     if (f) {
@@ -68,6 +68,8 @@ function connectTo(portName, onError) {
     if (f === null) {
       log('Port opened, waiting controller to answer');
       state = STATE_WAITING;
+
+      console.log(port)
     }
   });
 
@@ -77,6 +79,10 @@ function connectTo(portName, onError) {
     error();
   });
   parser.on('data', d => {
+    if (d === 'e') {
+      continueSending();
+      return;
+    }
     if (state === STATE_ERROR) {
       log(`Data received in error state; stay in error: "${d}"`);
       return;
@@ -84,8 +90,37 @@ function connectTo(portName, onError) {
     if (state === STATE_WAITING) {
       log(`First data arrived: "${d}"`);
     }
-    ready();
+    if (d === '+') {
+      ready();
+    }
   });
+
+  var bufferToSend = undefined;
+  var firstByteToSend = undefined;
+  var fragmentNo = 0;
+  function continueSending() {
+    if (!bufferToSend) {
+      return;
+    }
+    if (firstByteToSend < bufferToSend.length) {
+      /*
+      const amountToSend = Math.min(fragmentNo == 0 ? 250 : 370, bufferToSend.length - firstByteToSend);
+      const buffer = Buffer.alloc(amountToSend);
+      bufferToSend.copy(buffer, 0, firstByteToSend, firstByteToSend + amountToSend);
+      firstByteToSend += amountToSend;
+      fragmentNo = fragmentNo + 1;
+      */
+      port.write(bufferToSend, e => {
+        if (e) {
+          log(`send error ${e.message}`)
+          error();
+        }
+      });
+      bufferToSend = undefined;
+    } else {
+      bufferToSend = undefined;
+    }
+  }
 
 
   const ret = {
@@ -93,6 +128,19 @@ function connectTo(portName, onError) {
     isError : () => state === STATE_ERROR,
     isUp : () => state === STATE_READY || state === STATE_SENDING,
     isWaiting : () => state === STATE_WAITING,
+    sendBuffer : buffer => {
+      if (state !== STATE_READY && state !== STATE_WAITING) {
+        return;
+      }
+      if (state === STATE_READY) {
+        state = STATE_SENDING;
+        lastSend = Date.now();
+      }
+      bufferToSend = buffer;
+      firstByteToSend = 0;
+      fragmentNo = 0;
+      continueSending();
+    },
     send : message => {
       if (state !== STATE_READY && state !== STATE_WAITING) {
         return;
@@ -152,7 +200,7 @@ function connect(port) {
   var a;
   var sentCount = 0;
   var droppedCount = 0;
-  var maxLedCount = 256;
+  var maxLedCount = 512;
 
   const log = message => console.log(`[ws-strip] ${message}`);
 
@@ -209,9 +257,48 @@ function connect(port) {
         droppedCount = droppedCount + 1;
       }
     },
+    sendBuffer : message => {
+      if (!!a && a.isReady()) {
+        sentCount = sentCount + 1;
+        a.sendBuffer(message);
+      } else {
+        droppedCount = droppedCount + 1;
+      }
+    },
     sendValues : values => {
-      var message = '@';
+      if (values.length === 0) {
+        return;
+      }
       var sendCount = Math.min(maxLedCount * 3, values.length);
+      var padCount = (3 - sendCount % 3) % 3;
+      var ledCount = Math.round((sendCount + padCount) / 3);
+
+      const buffer = Buffer.alloc(sendCount + padCount + 4);
+      buffer[0] = 'b'.charCodeAt(0);
+      buffer[1] = Math.floor(ledCount / 256); // MSB
+      buffer[2] = ledCount % 256;             // LSB
+      for (var i = 0; i < sendCount; i++) {
+        buffer[i + 3] = Math.round(values[i] * 255);
+      }
+      for (var i = 0; i < padCount; i++) {
+        buffer[sendCount + i + 3] = 0;
+      }
+      buffer[sendCount + padCount + 3] = '\n'.charCodeAt(0);
+
+      // reorder
+      for (var i = 0; i < ledCount; i++) {
+        const t = buffer[3 + 3 * i];
+        buffer[3 + 3 * i] = buffer[3 + 3 * i + 1];
+        buffer[3 + 3 * i + 1] = t;
+      }
+
+
+
+      ret.sendBuffer(buffer);
+      // log(buffer)
+
+      /*
+      var message = '@';
       for (var i = 0; i < sendCount; i++) {
         message = message + lowLevel.vToHex2(values[i]);
       }
@@ -222,6 +309,7 @@ function connect(port) {
       }
       message = message + ';';
       ret.send(message);
+      */
     }
 
   };
