@@ -369,7 +369,12 @@ export function initPage() {
   }
   updateTickLoopIcon();
 
-
+  pageButtonsOverlayDiv.append('i')
+    .classed('fa fa-fw fa-refresh', true)
+    .attr('title', 'Reset pipeline state')
+    .on('click', () => {
+      pipeline.reset();
+    });
 
   pageButtonsOverlayDiv.append('i')
     .classed('fa fa-fw fa-solid fa-paper-plane', true)
@@ -462,7 +467,9 @@ export function initPage() {
     pipeline.reset();
     updateTickLoopIcon();
   });
-
+  playback.onPlaybackResumed(() => {
+    pipeline.reset();
+  });
   vp.setDataSource(pipeline);
   p.onOpened(() => {
     if (isPipelineRunning()) {
