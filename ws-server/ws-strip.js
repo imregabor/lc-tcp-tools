@@ -30,6 +30,11 @@ function connectTo(portName, onError) {
   // error or timeout happened
   const STATE_ERROR = 4;
 
+  // abort received; no send normal packets till a grace period
+  const STATE_ABORTING = 5;
+  var abortingTill = 0;
+
+
 
 
   var state = STATE_OPENING;
@@ -79,7 +84,11 @@ function connectTo(portName, onError) {
       log('Port opened, waiting controller to answer');
       state = STATE_WAITING;
 
-      console.log(port)
+      log('  -> sending abort frame trail');
+      // abort frame without terminating ';' - no need to receive ';' for transition to ready
+      const buffer = Buffer.alloc(2000);
+      buffer.fill(' '.charCodeAt(0));
+      ret.sendBuffer(buffer);
     }
   });
 
@@ -121,10 +130,39 @@ function connectTo(portName, onError) {
         ready();
       }
     }
-    if (d === '+') {
+    if (d === '+' && state !== STATE_ABORTING) {
       ready();
     }
+    if (d === 'x') {
+      log('abort received, state: ' + state);
+      log('  -> sending abort frame trail');
+      // abort frame trail is sent regardless of aborting state
+      const buffer = Buffer.alloc(2000);
+      buffer.fill(' '.charCodeAt(0));
+      buffer[1999] = ';'.charCodeAt(0);
+      ready();
+      ret.sendBuffer(buffer);
+
+      abortingTill = Date.now() + 100;
+      if (state !== STATE_ABORTING) {
+        state = STATE_ABORTING;
+        pollAborting();
+      }
+    }
   });
+
+  function pollAborting() {
+    if (state !== STATE_ABORTING) {
+      return;
+    }
+    if (Date.now() > abortingTill) {
+      ready();
+    } else {
+      setTimeout(pollAborting, 100);
+    }
+  }
+
+
 
   var bufferToSend = undefined;
   var firstByteToSend = undefined;
@@ -324,7 +362,7 @@ function connect(port) {
       for (var i = 0; i < padCount; i++) {
         buffer[sendCount + i + 3] = 0;
       }
-      buffer[sendCount + padCount + 3] = '\n'.charCodeAt(0);
+      buffer[sendCount + padCount + 3] = ';'.charCodeAt(0);
 
       // reorder
       for (var i = 0; i < ledCount; i++) {
