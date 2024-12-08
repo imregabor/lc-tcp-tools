@@ -112,6 +112,9 @@ function connectTo(portName, onError) {
       if (lastHb) {
         lastHbPeriod = now - lastHb;
       }
+      if (lastHbPeriod > 800) {
+        log(`HB arrived after ${lastHbPeriod} ms`);
+      }
       lastHb = now;
       if (state === STATE_WAITING) {
         log('  -> valid heartbeat, ready to send');
@@ -208,7 +211,7 @@ function connectTo(portName, onError) {
       // waiting is treated in a single shot check
 
       const timeSinceLastHb = Date.now() - lastHb;
-      if (timeSinceLastHb > 1000) {
+      if (timeSinceLastHb > 2000) {
         log(`error: no periodic HB after ${timeSinceLastHb} ms`);
         error();
         return;
