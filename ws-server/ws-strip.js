@@ -60,14 +60,18 @@ function connectTo(portName, onError) {
     state = STATE_ERROR;
     lastDeviceId = '';
     lastIdent = false;
-    try {
-      port.close();
-    } catch (e) {
-      log(`Close attempt error: ${e}`)
-    }
-    if (onError) {
-      onError();
-    }
+    setTimeout(() => {
+      try {
+        port.close();
+      } catch (e) {
+        log(`Close attempt error: ${e}`)
+      }
+      if (onError) {
+        setTimeout(() => {
+          onError();
+        }, 200);
+      }
+    }, 200);
   }
 
 
@@ -181,7 +185,10 @@ function connectTo(portName, onError) {
       */
       port.write(bufferToSend, e => {
         if (e) {
-          log(`send error ${e.message}`)
+          if (state !== STATE_ERROR) {
+            // supress further errors
+            log(`send error ${e.message}`)
+          }
           error();
         }
       });
@@ -225,7 +232,10 @@ function connectTo(portName, onError) {
 
       port.write(message, e => {
         if (e) {
-          log(`send error ${e.message}`)
+          if (state !== STATE_ERROR) {
+            // supress further errors
+            log(`send error ${e.message}`)
+          }
           error();
         }
       })
