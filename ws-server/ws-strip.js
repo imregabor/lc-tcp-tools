@@ -255,6 +255,10 @@ function connectTo(portName, onError) {
       return;
     }
 
+    if (state === STATE_READY) {
+      ret.send('p');
+    }
+
     if (state !== STATE_WAITING) {
       // waiting is treated in a single shot check
 
