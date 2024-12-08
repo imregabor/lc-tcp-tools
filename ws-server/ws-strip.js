@@ -40,6 +40,7 @@ function connectTo(portName, onError) {
   // time since last two heartbeats
   var lastHbPeriod;
   var lastDeviceId = '';
+  var lastIdent = false;
   // number of '?' messages
   var protocolErrorCount = 0;
 
@@ -53,6 +54,7 @@ function connectTo(portName, onError) {
     }
     state = STATE_ERROR;
     lastDeviceId = '';
+    lastIdent = false;
     try {
       port.close();
     } catch (e) {
@@ -103,7 +105,9 @@ function connectTo(portName, onError) {
       log(`Data arrived during waiting (@ ${Date.now() - waitingSince} ms): "${d}"`);
     }
     if (d.startsWith('wssgw @ ')) {
-      lastDeviceId = d.substring(8);
+      const p = d.substring(8).split(' ');
+      lastDeviceId = p[0];
+      lastIdent = p[1] === 'ident';
       const now = Date.now();
       if (lastHb) {
         lastHbPeriod = now - lastHb;
@@ -152,6 +156,7 @@ function connectTo(portName, onError) {
     isError : () => state === STATE_ERROR,
     isUp : () => state === STATE_READY || state === STATE_SENDING,
     isWaiting : () => state === STATE_WAITING,
+    isIdent : () => !!lastIdent,
     getDeviceId : () => lastDeviceId,
     getProtocolErrorCount : () => protocolErrorCount,
     getLastHbPeriod : () => lastHbPeriod,
@@ -278,7 +283,8 @@ function connect(port) {
         maxLedCount : maxLedCount,
         deviceId : !!a ? a.getDeviceId() : '',
         protocolErrorCount : !!a ? a.getProtocolErrorCount() : 0,
-        lastHbPeriod : !!a ? a.getLastHbPeriod() : 0
+        lastHbPeriod : !!a ? a.getLastHbPeriod() : 0,
+        ident : !!a ? a.isIdent() : false
       };
     },
     send : message => {
