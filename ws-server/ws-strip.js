@@ -133,6 +133,9 @@ function connectTo(portName, onError) {
         log('  -> valid heartbeat, ready to send');
         ready();
       }
+      if (state === STATE_READY) {
+        ret.send('p');
+      }
     }
     if (d === '+' && state !== STATE_ABORTING) {
       ready();
@@ -253,10 +256,6 @@ function connectTo(portName, onError) {
     if (state === STATE_ERROR) {
       // no more ping
       return;
-    }
-
-    if (state === STATE_READY) {
-      ret.send('p');
     }
 
     if (state !== STATE_WAITING) {
