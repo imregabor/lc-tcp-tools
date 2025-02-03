@@ -335,7 +335,8 @@ export function initPage() {
     .on('click', () => {
       const graph = exportGraph(false, true);
       const graphJson = JSON.stringify(graph, null, 2);
-      download('graph.json', graphJson);
+      const filename = (titleField.isWarn() || titleField.isEmpty()) ? 'graph.json' : (titleField.getText() + '.json');
+      download(filename, graphJson);
     });
 
   const tickLoopIcon = pageButtonsOverlayDiv.append('i')
