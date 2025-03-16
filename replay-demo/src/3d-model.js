@@ -14,6 +14,9 @@ import fenceSegmentPng from './fence-segment.png';
 // based on https://opengameart.org/content/tileable-grass-textures-set-1
 // licensed under CC0 Public Domain
 import grassPng from './grass.png';
+// based on https://www.freepik.com/free-vector/wooden-texture-background_851099.htm
+// "Designed by Freepik" http://www.freepik.com/
+import woodPng from './wood.png';
 
 const matrix35 = [];
 
@@ -164,6 +167,17 @@ function getSceneGraph() {
     textureSh : 40
   });
   ret.push({
+    title: 'house roof 1 backside',
+    w : 755,
+    h : 429.47899819031966091114091917158,
+    plane: 'front',
+    coord : { x : 2224, y : 893, z: 312 },
+    tilt1 : 50,
+    texture: woodPng,
+    textureSw: 100,
+    textureSh: 100
+  });
+  ret.push({
     title: 'house roof 2',
     w : 755,
     h : 429.47899819031966091114091917158,
@@ -174,6 +188,17 @@ function getSceneGraph() {
     texture : roofTilePng,
     textureSw : 25,
     textureSh : 40
+  });
+  ret.push({
+    title: 'house roof 2 backside',
+    w : 755,
+    h : 429.47899819031966091114091917158,
+    plane: 'front',
+    coord : { x : 2224, y : 235, z: 312 },
+    tilt1 : -50,
+    texture: woodPng,
+    textureSw: 100,
+    textureSh: 100
   });
 
 
