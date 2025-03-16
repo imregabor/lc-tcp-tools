@@ -4,6 +4,10 @@ import houseFrontPng from './house-front.png';
 import houseSidePng from './house-side.png';
 import thujasPng from './thujas.png';
 import tilePng from './tile.png';
+// based on https://www.publicdomainpictures.net/en/view-image.php?image=186620&picture=abstract-background-water-blue
+// licensed under CC0 Public Domain
+import waterPng from './water.png';
+// generated
 import roofTilePng from './roof-tile.png'
 // http://www.clker.com/clipart-66043.html
 import fenceSegmentPng from './fence-segment.png';
@@ -86,7 +90,31 @@ function getSceneGraph() {
 
   // House ==============================================================
   ret.push({
-    title: 'house front',
+    title: 'terrace floor',
+    w : 230,
+    h : 658,
+    backgroundColor : '#524431',
+    plane: 'ground',
+    coord : { x : 2224, y : 235, z: 34.4 }
+  });
+  ret.push({
+    title: 'terrace roof',
+    w : 230,
+    h : 658,
+    backgroundColor : '#85745c',
+    plane: 'ground',
+    coord : { x : 2224, y : 235, z: 280 }
+  });
+  ret.push({
+    title: 'terrace back wall',
+    w : 658,
+    h : 278.6,
+    backgroundColor : '#7a664b',
+    plane: 'side',
+    coord : { x : 2454, y : 235, z: 34.4 }
+  });
+  ret.push({
+    title: 'house front (with door)',
     w : 658,
     h : 435,
     // backgroundColor : '#ffffff',
@@ -102,6 +130,14 @@ function getSceneGraph() {
     plane: 'front',
     coord : { x : 2224, y : 893, z: 0 },
     texture : houseSidePng
+  });
+  ret.push({
+    title: 'house back side',
+    w : 755,
+    h : 313,
+    backgroundColor : '#615e42',
+    plane: 'front',
+    coord : { x : 2224, y : 235, z: 0 }
   });
   ret.push({
     title: 'house roof 1',
@@ -270,16 +306,58 @@ function getSceneGraph() {
     plane: 'ground',
     coord : { x : 1952, y : 943, z: 3 }
   });
+  /*
   ret.push({
-    title: 'pool',
+    title: 'pool top',
     w : 400,
     h : 250,
     backgroundColor : '#75d1f0',
     plane: 'ground',
     coord : { x : 1552, y : 943, z: 18 }
   });
+  */
   ret.push({
-    title: 'pool front',
+    title: 'water',
+    w : 350,
+    h : 200,
+    texture : waterPng,
+    plane: 'ground',
+    coord : { x : 1577, y : 968, z: 8 }
+  });
+  ret.push({
+    title: 'pool top 1',
+    w : 400,
+    h : 25,
+    backgroundColor : '#75d1f0',
+    plane: 'ground',
+    coord : { x : 1552, y : 943, z: 18 }
+  });
+  ret.push({
+    title: 'pool top 2',
+    w : 25,
+    h : 201,
+    backgroundColor : '#75d1f0',
+    plane: 'ground',
+    coord : { x : 1552, y : 968, z: 18 }
+  });
+  ret.push({
+    title: 'pool top 3',
+    w : 400,
+    h : 25,
+    backgroundColor : '#75d1f0',
+    plane: 'ground',
+    coord : { x : 1552, y : 1168, z: 18 }
+  });
+  ret.push({
+    title: 'pool top 4',
+    w : 25,
+    h : 201,
+    backgroundColor : '#75d1f0',
+    plane: 'ground',
+    coord : { x : 1927, y : 968, z: 18 }
+  });
+  ret.push({
+    title: 'pool front outer 1',
     w : 400,
     h : 15,
     backgroundColor : '#30bae8',
@@ -287,12 +365,60 @@ function getSceneGraph() {
     coord : { x : 1552, y : 1193, z: 3 }
   });
   ret.push({
-    title: 'pool side',
+    title: 'pool front inner 1',
+    w : 350,
+    h : 10,
+    backgroundColor : '#30bae8',
+    plane: 'front',
+    coord : { x : 1577, y : 1168, z: 8 }
+  });
+  ret.push({
+    title: 'pool front outer 2',
+    w : 400,
+    h : 15,
+    backgroundColor : '#30bae8',
+    plane: 'front',
+    coord : { x : 1552, y : 943, z: 3 }
+  });
+  ret.push({
+    title: 'pool front inner 2',
+    w : 350,
+    h : 10,
+    backgroundColor : '#30bae8',
+    plane: 'front',
+    coord : { x : 1577, y : 968, z: 8 }
+  });
+  ret.push({
+    title: 'pool side outer 1',
     w : 250,
     h : 15,
     backgroundColor : '#148fb8',
     plane: 'side',
     coord : { x : 1552, y : 943, z: 3 }
+  });
+  ret.push({
+    title: 'pool side inner 1',
+    w : 200,
+    h : 10,
+    backgroundColor : '#148fb8',
+    plane: 'side',
+    coord : { x : 1577, y : 968, z: 8 }
+  });
+  ret.push({
+    title: 'pool side outer 2',
+    w : 250,
+    h : 15,
+    backgroundColor : '#148fb8',
+    plane: 'side',
+    coord : { x : 1952, y : 943, z: 3 }
+  });
+  ret.push({
+    title: 'pool side inner 2',
+    w : 200,
+    h : 10,
+    backgroundColor : '#148fb8',
+    plane: 'side',
+    coord : { x : 1927, y : 968, z: 8 }
   });
 
 
