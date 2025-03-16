@@ -11,7 +11,9 @@ import waterPng from './water.png';
 import roofTilePng from './roof-tile.png'
 // http://www.clker.com/clipart-66043.html
 import fenceSegmentPng from './fence-segment.png';
-
+// based on https://opengameart.org/content/tileable-grass-textures-set-1
+// licensed under CC0 Public Domain
+import grassPng from './grass.png';
 
 const matrix35 = [];
 
@@ -33,60 +35,70 @@ function getSceneGraph() {
 
   const ret = [];
   // Ground and fences ============================================
-  /*
-  ret.push( {
-    title: 'ground',
-    w : 4000,
-    h : 2000,
-    backgroundColor : '#06792d',
-    plane: 'ground',
-    coord : { x : 0, y : 0, z: 0 }
-  });
-  */
-  ret.push({
-    title: 'fence',
-    w : 4000,
-    h : 160,
-    // backgroundColor : 'rgba(1,1,1,0.3)',
-    texture : fenceSegmentPng,
-    textureSw : 8.8,
-    textureSh : 10,
-    plane: 'front',
-    coord : { x : 0, y : 0, z: 0 }
-  });
-  ret.push({
-    title: 'fence',
-    w : 4000,
-    h : 160,
-    // backgroundColor : 'rgba(1,1,1,0.3)',
-    texture : fenceSegmentPng,
-    textureSw : 8.8,
-    textureSh : 10,
-    plane: 'front',
-    coord : { x : 0, y : 2000, z: 0 }
-  });
-  ret.push({
-    title: 'fence',
-    w : 2000,
-    h : 160,
-    // backgroundColor : 'rgba(1,1,1,0.3)',
-    texture : fenceSegmentPng,
-    textureSw : 8.8,
-    textureSh : 10,
-    plane: 'side',
-    coord : { x : 0, y : 0, z: 0 }
-  });
-  ret.push({
-    title: 'fence',
-    w : 2000,
-    h : 160,
-    // backgroundColor : 'rgba(1,1,1,0.3)',
-    texture : fenceSegmentPng,
-    textureSw : 8.8,
-    textureSh : 10,
-    plane: 'side',
-    coord : { x : 4000, y : 0, z: 0 }
-  });
+
+  for(var x = 0; x < 16; x++) {
+    for(var y = 0; y < 8; y++) {
+      ret.push( {
+        title: `ground ${y * 16 + x + 1}`,
+        w : 250,
+        h : 250,
+        texture : grassPng,
+        textureSw : 250,
+        textureSh : 250,
+        plane: 'ground',
+        coord : { x : x * 250, y : y * 250, z: 0 }
+      });
+    }
+  }
+
+  for (var x = 0; x < 16; x++) {
+    ret.push({
+      title: 'fence',
+      w : 250,
+      h : 160,
+      // backgroundColor : 'rgba(1,1,1,0.3)',
+      texture : fenceSegmentPng,
+      textureSw : 250 / 25,
+      textureSh : 10,
+      plane: 'front',
+      coord : { x : x * 250, y : 0, z: 0 }
+    });
+    ret.push({
+      title: 'fence',
+      w : 250,
+      h : 160,
+      // backgroundColor : 'rgba(1,1,1,0.3)',
+      texture : fenceSegmentPng,
+      textureSw : 250 / 28,
+      textureSh : 10,
+      plane: 'front',
+      coord : { x : x * 250, y : 2000, z: 0 }
+    });
+  }
+  for (var y = 0; y < 8; y++) {
+    ret.push({
+      title: 'fence',
+      w : 250,
+      h : 160,
+      // backgroundColor : 'rgba(1,1,1,0.3)',
+      texture : fenceSegmentPng,
+      textureSw : 250 / 28,
+      textureSh : 10,
+      plane: 'side',
+      coord : { x : 0, y : y * 250, z: 0 }
+    });
+    ret.push({
+      title: 'fence',
+      w : 250,
+      h : 160,
+      // backgroundColor : 'rgba(1,1,1,0.3)',
+      texture : fenceSegmentPng,
+      textureSw : 250 / 28,
+      textureSh : 10,
+      plane: 'side',
+      coord : { x : 4000, y : y * 250, z: 0 }
+    });
+  }
 
   // House ==============================================================
   ret.push({
