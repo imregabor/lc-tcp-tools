@@ -211,6 +211,7 @@ function getSceneGraph() {
   const poleCrossbarHeight = 400;
   const firstLightX = 2174; // 50 cm from house front
   const lampHeight = 330;
+  const bulbCenterShift = 7.3; // distance from box surface to bulb center
 
   for (var i = 0; i < 5; i++) {
     const poleName = (i == 4) ? 'pole CENTER' : 'pole ' + (i + 1);
@@ -243,7 +244,7 @@ function getSceneGraph() {
       matrix35.push({
         x : lx,
         y : ly,
-        z : lampHeight - 5
+        z : lampHeight - bulbCenterShift
       });
 
       ret.push({ // box bottom

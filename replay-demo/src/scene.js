@@ -5,6 +5,7 @@
 
 import * as d3 from 'd3';
 import './scene.css';
+import lightbulbPng from './lightbulb.png';
 
 
 
@@ -214,11 +215,26 @@ export function bind(parentD3, sceneGraph, matrix35) {
 
 
 
-  container2Div.append('div').classed('matrix35-container', true).selectAll('div').data(matrix35).enter().append('div').classed('element', true)
-    .attr('title', 'LAMP')
-    .classed('lamp', true)
+  const bulbs = container2Div.append('div').classed('matrix35-container', true).selectAll('div').data(matrix35).enter();
+
+  bulbs.append('div').classed('element', true)
+    .attr('title', 'LAMP socket')
+    .classed('lamp lamp-socket', true)
+    .style('width', `${5 * ppcm}px`)
+    .style('height', `${2 * ppcm}px`)
     .style('transform', d => {
-      var translate3d = 'translate3d(' + d.x * ppcm + 'px,' + (-d.z) * ppcm + 'px,' + d.y * ppcm + 'px)';
+      var translate3d = `translate3d(${(d.x  - 2.5) * ppcm}px,${(-d.z - 7.3) * ppcm}px,${d.y * ppcm}px)`;
+      return translate3d
+    });
+
+  const glass = bulbs.append('div').classed('element lightbulb', true)
+    .attr('title', 'lightbulb')
+    .style('width', `${8 * ppcm}px`)
+    .style('height', `${9.24 * ppcm}px`)
+    .style('background-image', `url(${lightbulbPng})`)
+    .style('background-size', `${8 * ppcm}px ${9.24 * ppcm}px`)
+    .style('transform', d => {
+      var translate3d = `translate3d(${(d.x - 4) * ppcm}px,${(-d.z - 5.3) * ppcm}px,${d.y * ppcm}px)`;
       return translate3d
     });
 

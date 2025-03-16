@@ -55,6 +55,6 @@ div.element:hover {
   transition: filter 0.0s;
 }
 
-div.lamp {
-  outline:  10px solid yellow;
+div.lamp.lamp-socket {
+  background-color: #f3f1cc;
 }
