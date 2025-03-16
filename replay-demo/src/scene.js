@@ -228,19 +228,27 @@ export function bind(parentD3, sceneGraph, matrix35) {
     .style('transform', d => {
       const scale3d = '' ; // 'scale3d(' + scale + ',' + scale + ',' + scale + ')';
 
+      var tilt3d = '';
       var translate3d = '';
       var rotate3d = '';
+
+      if (d.tilt1) {
+        tilt3d = ` translate3d(0, ${d.h * ppcm}px, 0) rotate3d(1,0,0,${d.tilt1}deg) translate3d(0, ${-d.h * ppcm}px, 0)`;
+        //tilt3d = ` rotate3d(1,0,0,${d.tilt1}deg)`;
+        // tilt3d = `translate3d(${-d.w * ppcm / 2}px, ${-d.h * ppcm / 2}px, 0) rotate3d(1,0,0,${d.tilt1}deg) translate3d(${d.w * ppcm / 2}px, ${d.h * ppcm / 2}px, 0) `;
+      }
+
       if (d.plane === 'front') {
         translate3d = 'translate3d(' + d.coord.x * ppcm + 'px,' + (-d.coord.z-d.h) * ppcm + 'px,' + d.coord.y * ppcm+ 'px)';
-        return translate3d;
+        return translate3d + tilt3d;
       } else if (d.plane === 'side') {
         translate3d = 'translate3d(' + d.coord.x * ppcm + 'px,' + (-d.coord.z-d.h) * ppcm + 'px,' + d.coord.y * ppcm + 'px)';
         rotate3d = 'rotate3d(0,1,0,-90deg)';
-        return translate3d + ' ' + rotate3d;
+        return translate3d + ' ' + rotate3d + tilt3d;
       }else if (d.plane === 'ground') {
         translate3d = 'translate3d(' + d.coord.x * ppcm + 'px,' + (-d.coord.z) * ppcm + 'px,' + d.coord.y * ppcm + 'px)';
         rotate3d = 'rotate3d(1,0,0,90deg)';
-        return translate3d + ' ' + rotate3d;
+        return translate3d + ' ' + rotate3d + tilt3d;
       }
       //return rotate3d + ' ' + translate3d + ' ' + scale3d;
     })

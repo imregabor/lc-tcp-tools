@@ -4,6 +4,7 @@ import houseFrontPng from './house-front.png';
 import houseSidePng from './house-side.png';
 import thujasPng from './thujas.png';
 import tilePng from './tile.png';
+import roofTilePng from './roof-tile.png'
 // http://www.clker.com/clipart-66043.html
 import fenceSegmentPng from './fence-segment.png';
 
@@ -101,6 +102,30 @@ function getSceneGraph() {
     plane: 'front',
     coord : { x : 2224, y : 893, z: 0 },
     texture : houseSidePng
+  });
+  ret.push({
+    title: 'house roof 1',
+    w : 755,
+    h : 429.47899819031966091114091917158,
+    // backgroundColor : '#ffffff',
+    plane: 'front',
+    coord : { x : 2224, y : 893, z: 313 },
+    tilt1 : 50,
+    texture : roofTilePng,
+    textureSw : 25,
+    textureSh : 40
+  });
+  ret.push({
+    title: 'house roof 2',
+    w : 755,
+    h : 429.47899819031966091114091917158,
+    // backgroundColor : '#ffffff',
+    plane: 'front',
+    coord : { x : 2224, y : 235, z: 313 },
+    tilt1 : -50,
+    texture : roofTilePng,
+    textureSw : 25,
+    textureSh : 40
   });
 
 
