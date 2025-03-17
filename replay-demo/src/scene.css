@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  overflow: hidden;
 }
 
 div.scene {
@@ -23,11 +24,14 @@ div.scene-container {
 div.xperimental {
   width: 100px;
   height: 100px;
-  background-color: yellow;
   left: 500px;
   position: absolute;
   top: 500px;
+  background: radial-gradient(closest-side, rgba(255,255,255,1) 5%, rgba(255,255,255,0.0));
+  /*
   opacity: 50%;
+  background-color: yellow;
+   */
 }
 
 div.scene-container2 {

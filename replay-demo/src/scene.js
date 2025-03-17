@@ -51,6 +51,13 @@ export function bind(parentD3, sceneGraph, matrix35) {
 
   const xpdiv = sceneDiv.append('div').classed('xperimental', true);
 
+  var bgtxt = 'radial-gradient(closest-side, rgba(255,255,255,1) 5%';
+  for(var i = 9; i >=0; i--) {
+    bgtxt = `${bgtxt}, rgba(255,255,255,${(i/10)}) ${5 + 95 * (1-i/10)*(1-i/10)*(1-i/10)}%`;
+  }
+  bgtxt = `${bgtxt})`
+  xpdiv.style('background', bgtxt);
+
   var scale = 0.2;
   // pixel per cm
   const ppcm = 3;
@@ -205,7 +212,7 @@ export function bind(parentD3, sceneGraph, matrix35) {
         // very out of viewport
         xpdiv.style('display', 'none');
       } else {
-        const siz = Math.max(scene.width, scene.height) * factor / 5; // glare size is reversely proportional to the distance to the lightbulb, this is approximated here
+        const siz = Math.max(scene.width, scene.height) * factor * factor / 2; // glare size is reversely proportional to the distance to the lightbulb, this is approximated here
         xpdiv
           .style('display', null)
           .style('width', `${siz}px`)
