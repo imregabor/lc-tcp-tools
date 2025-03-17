@@ -128,7 +128,27 @@ function getSceneGraph() {
     coord : { x : 2224, y : (234 + 893 - 210) / 2, z : 500},
     texture: woodPng,
     backgroundColor: 'rgba(255,255,255,0.5)',
+    clipPath : 'polygon(0 100%, 50% 0, 100% 100%)', // TBD, now directly applied
     textureRotate: 90, // only 90 is supported
+    textureSw: 100,
+    textureSh: 100
+  });
+  ret.push({
+    title: 'terrace upper back wall',
+    w : 658,
+    h : 90 + 500 - 278.6 - 34.4,
+    backgroundColor : '#7a664b',
+    clipPath : 'polygon(0 100%, 50% 0, 100% 100%)', // TBD, now directly applied
+    plane: 'side',
+    coord : { x : 2454, y : 235, z: 278.6 + 34.4 }
+  });
+  ret.push({
+    title: 'terrace upper roof',
+    w : 230,
+    h : 210,
+    texture: woodPng,
+    plane: 'ground',
+    coord : { x : 2224, y : (234 + 893 - 210) / 2, z: 500 },
     textureSw: 100,
     textureSh: 100
   });
