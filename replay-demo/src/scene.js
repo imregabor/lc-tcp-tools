@@ -371,17 +371,34 @@ export function bind(parentD3, sceneGraph, matrix35) {
       }
       //return rotate3d + ' ' + translate3d + ' ' + scale3d;
     })
-    .style('background-color', d => d.backgroundColor )
+    .style('background-color', d => d.backgroundColor)
     .style('width', d => d.w * ppcm + 'px')
     .style('height', d => d.h * ppcm  + 'px');
-    //.style('opacity', '0.8');
 
-  // see https://github.com/d3/d3-selection/blob/v3.0.0/README.md#selection_each
   sceneDivs.each(function(d, i) {
-
     if (!d.texture) {
       return;
     }
+    if (!d.textureRotate) {
+      d3.select(this).classed('texture-div', true);
+    } else {
+      // cannot do texture rotation, using properly sized child div; assume 90deg rotation
+      d3.select(this).append('div')
+        .classed('texture-div', true)
+        .style('width', d => d.h * ppcm + 'px')
+        .style('height', d => d.w * ppcm  + 'px')
+        .style('transform-origin', 'top left')
+        .style('transform', `translateX(${d.w * ppcm}px) rotate(90deg)`);
+    }
+  })
+
+
+  // see https://github.com/d3/d3-selection/blob/v3.0.0/README.md#selection_each
+  //sceneDivs.selectAll('.texture-div').each(function(d, i) {
+  modelContainer.selectAll('.texture-div').each(function(d, i) {
+    //if (!d.texture) {
+    //  return;
+    //}
     // console.log(d, 'url(' + d.texture + ')', this)
     // See https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Backgrounds_and_Borders/Resizing_background_images
     var sw, sh;

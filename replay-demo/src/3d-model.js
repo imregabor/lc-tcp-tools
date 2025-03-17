@@ -121,6 +121,18 @@ function getSceneGraph() {
     coord : { x : 2224, y : 235, z: 280 }
   });
   ret.push({
+    title : 'roof upper triangle',
+    w : 210,
+    h : 90,
+    plane: 'side',
+    coord : { x : 2224, y : (234 + 893 - 210) / 2, z : 500},
+    texture: woodPng,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    textureRotate: 90, // only 90 is supported
+    textureSw: 100,
+    textureSh: 100
+  });
+  ret.push({
     title: 'terrace back wall',
     w : 658,
     h : 278.6,
