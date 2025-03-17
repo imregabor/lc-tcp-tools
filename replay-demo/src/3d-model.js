@@ -129,6 +129,7 @@ function getSceneGraph() {
     texture: woodPng,
     backgroundColor: 'rgba(255,255,255,0.5)',
     clipPath : 'polygon(0 100%, 50% 0, 100% 100%)', // TBD, now directly applied
+    brightness : 2,
     textureRotate: 90, // only 90 is supported
     textureSw: 100,
     textureSh: 100
@@ -149,6 +150,7 @@ function getSceneGraph() {
     texture: woodPng,
     plane: 'ground',
     coord : { x : 2224, y : (234 + 893 - 210) / 2, z: 500 },
+    brightness : 0.7,
     textureSw: 100,
     textureSh: 100
   });

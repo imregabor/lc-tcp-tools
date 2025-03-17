@@ -372,6 +372,7 @@ export function bind(parentD3, sceneGraph, matrix35) {
       //return rotate3d + ' ' + translate3d + ' ' + scale3d;
     })
     .style('background-color', d => d.backgroundColor)
+    .style('filter', d => d.brightness ? `brightness(${d.brightness})` : null)
     .style('clip-path', d => d.clipPath ? d.clipPath : null)
     .style('width', d => d.w * ppcm + 'px')
     .style('height', d => d.h * ppcm  + 'px');
