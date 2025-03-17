@@ -21,14 +21,55 @@ function normV2(v) {
 export function bind(parentD3, sceneGraph, matrix35) {
   // see more or less https://w3c.github.io/csswg-drafts/css-transforms-2/#3d-rendering-contexts
   // and https://dev.opera.com/articles/understanding-the-css-transforms-matrix/
+
+
+  // Fixed size, linear gradient background for sky
+  // this is our viewport
   const sceneDiv = parentD3.append('div').classed('scene', true);
+
+  // fixed to camera, this is the camera's coordinate system in pixels:
+  //  - origo of this coordinate system is the center of the viewpoint
+  //  - X axis points to right (1px is 1 screen pixel for Z=0)
+  //  - Y axis points to up (1px os 1 screen pizel for Z=0)
+  //  - Z axis points out of the screen (towards camera)
+  //  - camera (eye) is above this, at (+) (perspective), as defined by the rendering behavior
+  // translated to the middle of the sceneDiv (containerDiv's 0,0 is in the center of viewport), perspective is set according to the fov
   const containerDiv = sceneDiv.append('div').classed('scene-container', true);
+
+  // world coordinate system
+  //  - transform origin (embedded into the transform chain) is the 3D camera
+  //  - rotated according to camera direction
+  //  - translated and scaled to match camera
+  //  - 1 unit is 1 cm in the world
+  //  - X is ground level horizontal direction
+  //  - Z points up (above ground)
+  //  - Y if ground level, perpendicular to X
   const container2Div = containerDiv.append('div').classed('scene-container2', true);
+
+
+  const aLamp = matrix35[17];
+
+  const xpdiv = sceneDiv.append('div').classed('xperimental', true);
+
   var scale = 0.2;
   // pixel per cm
   const ppcm = 3;
 
-  var camera = { rv : 10, rh : 52, x : 500, y : 100, z : 1500, eye : 1500, eyeAlpha : 0.75 };
+  var camera = {
+    // camera rotation horizontal / vertical
+    rv : 10, rh : 52,
+    // camera position in world
+    x : 500, y : 100, z : 1500,
+
+    // eye: perspective value, distance of camera from the screen in pixels, in the world coordinate system
+    // TODO: keep camera in world coordinate system, do not store this value
+    eye : 1500,
+
+    // eye = max(viewportWidth, viewportHeight) * eyeAlpha
+    // determines FOV tan(FOV/2) = 1/eyeAlpha
+    // TODO: use FOV rather, adjust it in degs on zooming
+    eyeAlpha : 0.75
+  };
 
   // see https://codepen.io/billyysea/pen/nLroLY
   const g03 = [
@@ -58,6 +99,8 @@ export function bind(parentD3, sceneGraph, matrix35) {
     d : 5000,
     gradient : g21
   };
+
+  // viewport
   var scene = { width : 1600, height: 1200 };
 
   // containerDiv.style('transform', 'translate3d(-10000, 180, 0) scale3d(0.2, 0.2, 0.2)');
@@ -66,10 +109,25 @@ export function bind(parentD3, sceneGraph, matrix35) {
 
   //container2Div.style('transform', 'scale3d(0.3, 0.3, 0.3)');
 
+  function getDOMMatrix(sel, childMatrix) {
+    // TODO: check
+    let computedStyle = window.getComputedStyle(sel.node());
+    let transform = computedStyle.transform || computedStyle.webkitTransform;
+    let matrix = !transform || transform === 'none' ? new DOMMatrix() : new DOMMatrix(transform);
+    if (childMatrix) {
+      return matrix.multiply(childMatrix);
+    } else {
+      return matrix;
+    }
+  }
+
   function getMatrixForGround() {
+    // TODO: rather use DOMMatrix?
     // see https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle
     // see https://stackoverflow.com/questions/3432446/how-to-read-parse-individual-transform-style-values-in-javascript
     const matrix3d = window.getComputedStyle(container2Div.node()).transform;
+
+    // for example "matrix3d(0.785857, 0.0931853, -0.611347, 0, 0, 0.988582, 0.150686, 0, 0.618408, -0.118417, 0.776884, 0, -3058.39, 300, -1304, 1)"
     const matrix = matrix3d
         .split('(')[1]
         .split(')')[0]
@@ -86,7 +144,6 @@ export function bind(parentD3, sceneGraph, matrix35) {
     };
   }
 
-
   function updateViewport() {
     const ws = getWindowSize();
     scene.width = ws.width;
@@ -102,12 +159,62 @@ export function bind(parentD3, sceneGraph, matrix35) {
 
   function bindCamera() {
     containerDiv.style('perspective', camera.eye + 'px');
-    container2Div.style('transform-origin', camera.x * ppcm + 'px ' + (-camera.y) * ppcm + 'px ' + camera.z * ppcm + 'px');
+    /*container2Div.style('transform-origin', camera.x * ppcm + 'px ' + (-camera.y) * ppcm + 'px ' + camera.z * ppcm + 'px');
     container2Div.style('transform',
       'translate3d(' + (-camera.x) * ppcm + 'px, ' + camera.y * ppcm + 'px, ' + (camera.eye - camera.z * ppcm) + 'px) ' +
       'rotate3d(1, 0, 0, ' + camera.rv + 'deg) ' +
       'rotate3d(0, 1, 0, ' + camera.rh + 'deg)'
+    );*/
+    // embed transform-origin into the transform chain because domMatrix does not contain it
+    container2Div.style('transform',
+      `translate3d(${ camera.x * ppcm}px, ${-camera.y * ppcm}px, ${ camera.z * ppcm}px) ` +
+      `translate3d(${-camera.x * ppcm}px, ${ camera.y * ppcm}px, ${ camera.eye - camera.z * ppcm}px) ` +
+      `rotate3d(1, 0, 0, ${camera.rv}deg) ` +
+      `rotate3d(0, 1, 0, ${camera.rh}deg) ` +
+      `translate3d(${-camera.x * ppcm}px, ${ camera.y * ppcm}px, ${-camera.z * ppcm}px) `
     );
+
+    const wm = getDOMMatrix(container2Div);
+    let { m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44 } = wm;
+
+    let x = aLamp.x * ppcm, y = -aLamp.z * ppcm, z = aLamp.y * ppcm, w = 1;
+/*
+    let tx = m11 * x + m21 * y + m31 * z + m41 * w;
+    let ty = m12 * x + m22 * y + m32 * z + m42 * w;
+    let tz = m13 * x + m23 * y + m33 * z + m43 * w;
+    let tw = m14 * x + m24 * y + m34 * z + m44 * w;
+*/
+    const t = wm.transformPoint({x : x, y : y, z : z, w : 1})
+    let tx = t.x, ty = t.y, tz = t.z, tw = t.w
+
+    if (tw !== 0) {
+        tx /= tw;
+        ty /= tw;
+        tz /= tw;
+    }
+
+    let factor = camera.eye / (camera.eye - tz);
+    const xxx = tx * factor;
+    const yyy = ty * factor
+
+    if (camera.eye <= tz) {
+      // behind the camera
+      xpdiv.style('display', 'none');
+    } else {
+      if (xxx < -scene.width || xxx > scene.width || yyy < -scene.height || yyy > scene.height) {
+        // very out of viewport
+        xpdiv.style('display', 'none');
+      } else {
+        const siz = Math.max(scene.width, scene.height) * factor / 5; // glare size is reversely proportional to the distance to the lightbulb, this is approximated here
+        xpdiv
+          .style('display', null)
+          .style('width', `${siz}px`)
+          .style('height', `${siz}px`)
+          .style('left', `${scene.width / 2 + xxx - siz / 2}px`).style('top', `${scene.height / 2 + yyy - siz / 2}px`);
+      }
+    }
+
+
     const m = getMatrixForGround();
     if (Math.abs(m[5]) > 1e-6) {
       // real horizon in scene
@@ -151,7 +258,6 @@ export function bind(parentD3, sceneGraph, matrix35) {
 
       sceneDiv.style('background', bgg);
     }
-
   }
 
   updateViewport();
@@ -161,7 +267,6 @@ export function bind(parentD3, sceneGraph, matrix35) {
       updateViewport();
     }
   }, 500);
-
 
   function dragHeight(e) {
     camera.y -= e.dy;
@@ -212,8 +317,6 @@ export function bind(parentD3, sceneGraph, matrix35) {
 
 
   const modelContainer = container2Div.append('div').classed('model-container', true);
-
-
 
   const bulbs = container2Div.append('div').classed('matrix35-container', true).selectAll('div').data(matrix35).enter();
 

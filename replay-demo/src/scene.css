@@ -20,6 +20,16 @@ div.scene-container {
   height: 0;
 }
 
+div.xperimental {
+  width: 100px;
+  height: 100px;
+  background-color: yellow;
+  left: 500px;
+  position: absolute;
+  top: 500px;
+  opacity: 50%;
+}
+
 div.scene-container2 {
   /* https://developer.mozilla.org/en-US/docs/Web/CSS/transform-style */
   transform-style: preserve-3d;
