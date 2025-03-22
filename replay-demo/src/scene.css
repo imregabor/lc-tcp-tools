@@ -21,6 +21,14 @@ div.scene-container {
   height: 0;
 }
 
+div.flare-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
 div.xperimental {
   width: 100px;
   height: 100px;

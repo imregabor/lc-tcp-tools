@@ -5,13 +5,51 @@ import * as scene from './scene.js';
 import * as d3 from 'd3';
 import model3d from './3d-model.js';
 
+import * as setup from './current-setup.js';
+import parsePacket from './packet-parsing.js';
+import * as apiClient from './api-client.js';
+
+
+
+function startListening(s) {
+  const i24 = []
+  const i35 = []
+
+  function mapPacket(packet) {
+    setup.linear24.mapPacket(packet, (x, y, v) => i24[x] = v);
+    setup.matrix35.mapPacket(packet, (x, y, v) => {
+      // need to sync index mappings
+      // input:
+      //  - x: 0..6, chain, 0: road side, 6: thuja side
+      //  - y: 0..4, pos,   0: garden side, 4: house side
+
+      // out:
+      //  - 0: house/thuja corner
+      //  - +1: 1 step along chain to gardern
+      //  - +5: 1 step to next chain to road
+
+      i35[4 - y + (6 - x) * 5] = v;
+    });
+    s.setM35(i35);
+  }
+
+  apiClient.openWsLink({
+    endpoint : '/ws-api/effects',
+    onPackets : packets => {
+      for (const packet of packets) {
+        mapPacket(parsePacket(packet));
+      }
+    },
+  });
+}
+
 export function initPage() {
   const sceneGraph = model3d.sceneGraph; //  scene.getScene();
   const matrix35 = model3d.matrix35;
   console.log(model3d)
 
 
-  scene.bind(d3.select('body'), sceneGraph, matrix35);
+  const s = scene.bind(d3.select('body'), sceneGraph, matrix35);
 
   // upper left control div
   const ulcd = d3.select('body').append('div').classed('ul-ctrl', true);
@@ -55,6 +93,7 @@ export function initPage() {
   r4c1.append('div').classed('keyhelp', true).text('+');
   r4c1.append('div').classed('keyhelp', true).text('-');
 
+  startListening(s);
 }
 
 // document.addEventListener('DOMContentLoaded', initPage);

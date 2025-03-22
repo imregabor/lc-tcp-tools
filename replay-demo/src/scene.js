@@ -47,16 +47,22 @@ export function bind(parentD3, sceneGraph, matrix35) {
   const container2Div = containerDiv.append('div').classed('scene-container2', true);
 
 
-  const aLamp = matrix35[17];
 
-  const xpdiv = sceneDiv.append('div').classed('xperimental', true);
+
+
+  const m35i = [];
+  for (var i = 0; i < 35; i++) {
+    m35i.push({ i : i, v : 0, r : {}});
+  }
+
+  const xpdivs = sceneDiv.append('div').classed('flare-container', true).selectAll('div').data(m35i).enter().append('div').classed('xperimental', true);
 
   var bgtxt = 'radial-gradient(closest-side, rgba(255,255,255,1) 5%';
   for(var i = 9; i >=0; i--) {
     bgtxt = `${bgtxt}, rgba(255,255,255,${(i/10)}) ${5 + 95 * (1-i/10)*(1-i/10)*(1-i/10)}%`;
   }
   bgtxt = `${bgtxt})`
-  xpdiv.style('background', bgtxt);
+  xpdivs.style('background', bgtxt);
 
   var scale = 0.2;
   // pixel per cm
@@ -151,10 +157,12 @@ export function bind(parentD3, sceneGraph, matrix35) {
     };
   }
 
+
   function updateViewport() {
     const ws = getWindowSize();
     scene.width = ws.width;
     scene.height = ws.height;
+    scene.side = Math.max(scene.width, scene.height);
 
     sceneDiv.style('width', scene.width + 'px');
     sceneDiv.style('height', scene.height + 'px');
@@ -162,6 +170,68 @@ export function bind(parentD3, sceneGraph, matrix35) {
 
     containerDiv.style('transform', 'translate(' + (scene.width / 2) + 'px, ' + (scene.height / 2) + 'px)');
     bindCamera();
+  }
+
+  var flareInvalid = true;
+  function bindFlare() {
+    if (!flareInvalid) {
+      return;
+    }
+    flareInvalid = false;
+    const wm = getDOMMatrix(container2Div);
+    let { m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44 } = wm;
+
+
+    xpdivs.each(d => {
+      const xpdiv = d3.select(this);
+
+      const aLamp = matrix35[d.i];
+      const x = aLamp.x * ppcm;
+      const y = -aLamp.z * ppcm;
+      const z = aLamp.y * ppcm;
+      const w = 1;
+
+      const t = wm.transformPoint({x : x, y : y, z : z, w : 1})
+      let tx = t.x;
+      let ty = t.y;
+      let tz = t.z;
+      const tw = t.w;
+
+      if (tw !== 0) {
+          tx /= tw;
+          ty /= tw;
+          tz /= tw;
+      }
+
+      let factor = camera.eye / (camera.eye - tz);
+      const xxx = tx * factor;
+      const yyy = ty * factor
+
+
+      if (camera.eye <= tz) {
+        // behind the camera
+        d.r.show = false;
+        // xpdiv.style('display', 'none');
+      } else {
+        if (xxx < -scene.width || xxx > scene.width || yyy < -scene.height || yyy > scene.height) {
+          // very out of viewport
+          d.r.show = false;
+          // xpdiv.style('display', 'none');
+        } else {
+          d.r.show = true;
+          const siz = d.v * scene.side * factor * factor * 1500000 / (camera.eye * camera.eye); // glare size is reversely proportional to the distance to the lightbulb, this is approximated here
+          d.r.siz = siz;
+          d.r.x = xxx;
+          d.r.y = yyy;
+        }
+      }
+      xpdivs
+        .style('display', d => d.r.show ? null : 'none')
+        .style('width', d => `${d.r.siz}px`)
+        .style('height', d => `${d.r.siz}px`)
+        .style('left', d => `${scene.width / 2 + d.r.x - d.r.siz / 2}px`)
+        .style('top', d => `${scene.height / 2 + d.r.y - d.r.siz / 2}px`);
+    });
   }
 
   function bindCamera() {
@@ -181,45 +251,8 @@ export function bind(parentD3, sceneGraph, matrix35) {
       `translate3d(${-camera.x * ppcm}px, ${ camera.y * ppcm}px, ${-camera.z * ppcm}px) `
     );
 
-    const wm = getDOMMatrix(container2Div);
-    let { m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44 } = wm;
-
-    let x = aLamp.x * ppcm, y = -aLamp.z * ppcm, z = aLamp.y * ppcm, w = 1;
-/*
-    let tx = m11 * x + m21 * y + m31 * z + m41 * w;
-    let ty = m12 * x + m22 * y + m32 * z + m42 * w;
-    let tz = m13 * x + m23 * y + m33 * z + m43 * w;
-    let tw = m14 * x + m24 * y + m34 * z + m44 * w;
-*/
-    const t = wm.transformPoint({x : x, y : y, z : z, w : 1})
-    let tx = t.x, ty = t.y, tz = t.z, tw = t.w
-
-    if (tw !== 0) {
-        tx /= tw;
-        ty /= tw;
-        tz /= tw;
-    }
-
-    let factor = camera.eye / (camera.eye - tz);
-    const xxx = tx * factor;
-    const yyy = ty * factor
-
-    if (camera.eye <= tz) {
-      // behind the camera
-      xpdiv.style('display', 'none');
-    } else {
-      if (xxx < -scene.width || xxx > scene.width || yyy < -scene.height || yyy > scene.height) {
-        // very out of viewport
-        xpdiv.style('display', 'none');
-      } else {
-        const siz = Math.max(scene.width, scene.height) * factor * factor / 2; // glare size is reversely proportional to the distance to the lightbulb, this is approximated here
-        xpdiv
-          .style('display', null)
-          .style('width', `${siz}px`)
-          .style('height', `${siz}px`)
-          .style('left', `${scene.width / 2 + xxx - siz / 2}px`).style('top', `${scene.height / 2 + yyy - siz / 2}px`);
-      }
-    }
+    flareInvalid = true;
+    bindFlare();
 
 
     const m = getMatrixForGround();
@@ -519,6 +552,22 @@ export function bind(parentD3, sceneGraph, matrix35) {
     }
   }
 
+  var rafRequested = false;
+  function ensureRaf() {
+    if (rafRequested) {
+      return;
+    }
+    rafRequested = true;
+
+    requestAnimationFrame(() => {
+      rafRequested = false;
+      if (flareInvalid) {
+        bindFlare();
+      }
+    });
+  }
+
+
   const keyIsDown = {
     w : false,
     a : false,
@@ -573,6 +622,19 @@ export function bind(parentD3, sceneGraph, matrix35) {
   const ret = {
     camera : (x, y, z) => {
 
+    },
+    setM35 : values => {
+      for (var i = 0; i < 35; i++) {
+        var v = values[i];
+        if (v > 1) {
+          v = 1;
+        } else if (! v > 0) {
+          v = 0;
+        }
+        m35i[i].v = v;
+      }
+      flareInvalid = true;
+      ensureRaf();
     }
   };
   return ret;
