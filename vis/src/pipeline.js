@@ -1649,6 +1649,21 @@ export function createPipeline() {
                 ops.channels[x1] = node.params.value2;
                 break;
               }
+              case 10: // individual/consecutive ramp up
+              case 11:
+                // position inside animation scaled to 0..1
+                const p = (now % (node.params.dt * 1000)) / (node.params.dt * 1000);
+
+                const channels = ops.channels.length;
+                const active_channel = Math.floor(p * 35);
+                const channel_value = p * 35 - active_channel;
+                ops.channels.fill(0)
+                if (node.params.mode == 11) {
+                  ops.channels.fill(1, 0, active_channel);
+                }
+                ops.channels[active_channel] = channel_value;
+                break;
+
               case 9: // DVD screensaver for 7x5 matrix / 35 ch mode
                 if (node.params.channels === 35) {
                   if (now - state.lastStep >= node.params.dt * 1000) {

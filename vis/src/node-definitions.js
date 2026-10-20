@@ -1358,7 +1358,9 @@ Use the following values:
  - \`6\`: **Dot chaser - ping pong (eased, AA)**, antialiased two way single dot chaser with sine wave easing, \`dotsize\` is ignored, loop time specified by \`dt\`.
  - \`7\`: **Dot chaser - ping pong (non-aa)**, not-antialiased two way single dot chaser, \`dotsize\` is ignored, loop time specified by \`dt\`.
  - \`8\`: **Dot chaser - ping pong (eased, non-AA)**, not-antialiased two way single dot chaser with sine wave easing, \`dotsize\` is ignored, loop time specified by \`dt\`.
- - \`9\`: **DVD screensaver for 7x5 matrix**, delay between steps is specified by \`dt\`. Only when 35 channels is set
+ - \`9\`: **DVD screensaver for 7x5 matrix**, delay between steps is specified by \`dt\`. Only when 35 channels is set.
+ - \`10\`: **Individual ramp up**, channels ramp up from 0 to 1 individually. Only one channel is active.
+ - \`11\`: **Consecutive ramp up**, channels ramp up consecutively.
 `,
         initial : 0,
         x : 5,
@@ -1378,7 +1380,7 @@ Typically used as baseline intensiy`,
       },
       value2 : {
         label: 'value2',
-        descriptionMd :
+        descriptionMd : 
 `## Second effect parameter
 
 Typically used as highlight intensiy`,
