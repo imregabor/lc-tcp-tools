@@ -1,16 +1,31 @@
 "use strict";
 
 const net = require('net');
+const dgram = require('node:dgram');
 
 
 function open(opts) {
   const log = opts.log ? opts.log : console.log;
   const host = opts.host;
   const port = opts.port;
+  const datagramPort = opts.datagramPort;
   const retryTimeout = opts.retryTimeout ? opts.retryTimeout : 1;
   var onStatusChange = opts.onStatusChange;
   const conns = host + ':' + port;
   var connectionAttempts = 0;
+
+  var datagramSocket;
+  if (datagramPort) {
+    const s = dgram.createSocket('udp4');
+    s.connect(datagramPort, host, () => {
+      // TODO: how to handle error?
+      log('Datagram (UDP) connect to ' + JSON.stringify(s.remoteAddress()));
+      datagramSocket = s;
+    });
+
+  } else {
+    datagramSocket = null;
+  }
 
   log(`FWD connecting to ${conns} with retyTimeout of ${retryTimeout} s`);
   var connected = false;
@@ -96,6 +111,16 @@ function open(opts) {
     write : data => {
       if (connected) {
         fwdClient.write(data);
+      }
+    },
+    writeDatagram : data => {
+      if (!datagramSocket) {
+        // fallback to TCP
+        ret.write(data);
+      } else if (connected) {
+        // send through UDP
+        datagramSocket.send(data);
+        // log('Sending:\n' + data);
       }
     }
   };

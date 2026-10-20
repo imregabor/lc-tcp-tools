@@ -21,6 +21,7 @@ const cliOpts = [
   { name : 'help', alias : 'h', type : Boolean, description : 'Print usage help' },
   { name : 'fwdHost', type : String, defaultValue : '192.168.22.10', description : 'Host for fwdConn (hardware gateway)' },
   { name : 'fwdPort', type : Number, defaultValue : 23, description : 'Port for fwdConn (hardware gateway)' },
+  { name : 'fwdDatagramPort', type: Number, description : "When defined dgram eligible packets will be sent through UDP" },
   { name : 'fwdRetryTimeout', type : Number, defaultValue : 1, description : 'Connect retry timeout for fowdConn (hardware gateway) in seconds'},
   { name : 'wsStripPort', type : String, description : 'Serial port name to use with WS2812/CH340 LED strip gateway'}
 ];
@@ -59,6 +60,7 @@ if (options.mp3srv) {
 const starttime = Date.now();
 const listeningPort = 12345;
 const fwdPort = options.fwdPort; // 23;
+const fwdDatagramPort = options.fwdDatagramPort;
 const fwdHost = options.fwdHost; // '192.168.22.10';
 // const fwdHost = '192.168.10.102';
 // const fwdHost = 'localhost';
@@ -74,6 +76,7 @@ const wsStripConnection = wsStrip.connect(options.wsStripPort);
 const fwdConn = openFwdConn({
   host : fwdHost,
   port : fwdPort,
+  datagramPort : fwdDatagramPort,
   retryTimeout : options.fwdRetryTimeout,
   log : m => console.log('[FWD conn]', m)
 });
@@ -149,7 +152,7 @@ const cc2Srv = openWsSrv({
 });
 
 function dispatchMessage(message) {
-  fwdConn.write(message);
+  fwdConn.writeDatagram(message);
   wsSrv.broadcast(message);
 }
 
