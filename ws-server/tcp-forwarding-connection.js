@@ -14,7 +14,7 @@ function open(opts) {
   const conns = host + ':' + port;
   var connectionAttempts = 0;
 
-  var datagramSocket;
+  var datagramSocket = null;
   if (datagramPort) {
     const s = dgram.createSocket('udp4');
     s.connect(datagramPort, host, () => {
@@ -22,7 +22,9 @@ function open(opts) {
       log('Datagram (UDP) connect to ' + JSON.stringify(s.remoteAddress()));
       datagramSocket = s;
     });
-
+    s.on('error', () => {
+      log("Datagram (UDP) error");
+    })
   } else {
     datagramSocket = null;
   }
@@ -51,6 +53,9 @@ function open(opts) {
       connected = true;
       connectedTime = Date.now();
       notifyStatusChange();
+
+
+
     });
     fwdClient.on('end', () => {
       log('End FWD connection to ' + conns);
