@@ -169,6 +169,7 @@ app.get('/vis/settings', (req, res) => {
 
 app.use('/vis/data', express.static('../vis/data'));
 app.use('/vis', express.static('../vis/dist'));
+app.use('/bm', express.static('../bm'));
 
 app.get('/api/currentState', (req, res) => {
   const ret = currentSetup.toMessage();

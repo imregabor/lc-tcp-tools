@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="shortcut icon" type="image/png" href="favicon.png">
+  <title>Legacy Browser Benchmarks</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      background-color: #111;
+      color: #eee;
+      line-height: 1.4;
+      padding: 10px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      border: 2px solid #444;
+      background: #222;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+
+    h1 {
+      font-size: 18px;
+      margin-bottom: 18px;
+      color: #0ff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .device-info {
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: #ddd;
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .device-info-container {
+      overflow-y: auto;
+    }
+
+    .device-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      font-family: monospace;
+    }
+
+    .device-table td {
+      padding: 3px 6px;
+      border-bottom: 1px solid #2a2a2a;
+      vertical-align: top;
+    }
+
+    .device-table td.key {
+      color: #f39c12; /* Retro amber for keys */
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .device-table td.val {
+      color: #ccc;
+      word-break: break-all;
+    }
+
+    .controls {
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .btn {
+      background: #333;
+      color: #fff;
+      border: 2px solid #666;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 4px;
+      text-transform: uppercase;
+      width: 15em;
+    }
+
+    .btn:active {
+      background: #555;
+      border-color: #0ff;
+    }
+
+    .btn:disabled {
+      background: #222;
+      color: #555;
+      border-color: #333;
+      cursor: not-allowed;
+    }
+
+    .grid {
+      display: block;
+    }
+
+    .card {
+      border: 2px solid #333;
+      background: #1a1a1a;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 4px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #ff0;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 6px;
+      border: 1px solid #555;
+      background: #222;
+      color: #888;
+      border-radius: 3px;
+    }
+
+    .badge.supported {
+      border-color: #0a0;
+      color: #0f0;
+    }
+
+    .badge.unsupported {
+      border-color: #a00;
+      color: #f55;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-val {
+      font-family: monospace;
+      font-size: 13px;
+      color: #0ff;
+    }
+
+    .result-val.not-run {
+      color: #666;
+    }
+
+    .result-val.runnig {
+      color: #ff0;
+    }
+
+    .console-box {
+      border: 2px solid #444;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 11px;
+      padding: 10px;
+      height: 250px;
+      overflow-y: scroll;
+      margin-top: 15px;
+      border-radius: 4px;
+      white-space: pre-wrap;
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Legacy Device Benchmarks (Android 4.x Compatible)</h1>
+      <div class="device-info" id="deviceInfo">Detecting device parameters...</div>
+      <div class="device-info-container">
+        <table class="device-table" id="deviceTable">
+          <tbody>
+            <!-- Rows will be injected dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+    </header>
+
+    <div class="controls">
+      <button class="btn" onclick="fire(runAllBenchmarks)">Run All Tests</button>
+      <button class="btn" onclick="fire(clearLogs)">Clear Log</button>
+    </div>
+
+    <div class="grid">
+      <!-- Linear Algebra Card -->
+      <div class="card" id="card-math">
+        <div class="card-header">
+          <span class="card-title">1. Linear Algebra / Math</span>
+          <span class="badge" id="badge-math">PENDING</span>
+        </div>
+        <div class="card-desc">Float32Array creation & matrix multiplication loop (ES5 compliant).</div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-64">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 64))">Run Test (64x64)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-80">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 80))">Run Test (80x80)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-96">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 96))">Run Test (96x96)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-112">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 112))">Run Test (112x112)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-128">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 128))">Run Test (128x128)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-160">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 160))">Run Test (160x160)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-192">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 192))">Run Test (192x192)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-224">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 224))">Run Test (224x224)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-256">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 256))">Run Test (256x256)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-320">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 320))">Run Test (320x320)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-384">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 384))">Run Test (384x384)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-448">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 448))">Run Test (446x446)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-512">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 512))">Run Test (512x512)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-640">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 640))">Run Test (640x640)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-768">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 768))">Run Test (768x768)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-896">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 896))">Run Test (896x896)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-1024">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 1024))">Run Test (1024x1024)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-1280">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 1280))">Run Test (1280x1280)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-1536">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 1536))">Run Test (1536x1536)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-1792">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 1792))">Run Test (1792x1792)</button>
+        </div>
+        <div class="card-footer">
+          <span class="result-val not-run" id="res-math-2048">Not run</span>
+          <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runMathBenchmark, 2048))">Run Test (2048x2048)</button>
+        </div>
+      </div>
+
+    <!-- DOM / Layout Stress Card -->
+    <div class="card" id="card-dom">
+      <div class="card-header">
+        <span class="card-title">2. DOM & Layout Stress</span>
+        <span class="badge" id="badge-dom">PENDING</span>
+      </div>
+      <div class="card-desc">Batch element creation, style mutations, and removal reflow check.</div>
+      <div class="card-footer">
+        <span class="result-val" id="res-dom-xxs">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'xxs'))">Run Test (xxs)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val" id="res-dom-xs">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'xs'))">Run Test (xs)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val" id="res-dom-s">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 's'))">Run Test (s)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val" id="res-dom-m">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'm'))">Run Test (m)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val" id="res-dom-l">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'l'))">Run Test (l)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val" id="res-dom-xl">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'xl'))">Run Test (xl)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val" id="res-dom-xxl">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'xxl'))">Run Test (xxl)</button>
+      </div>
+      <!-- Live Visual DOM Viewport Container -->
+      <div class="dom-viewport-container" style="margin: 10px auto; border: 1px solid #444; border-radius: 4px; background: #111; width: 350px; height: 250px; overflow: hidden; position: relative;">
+        <div id="domBenchmarkViewport" style="width: 100%; height: 100%; position: relative; padding: 6px;"></div>
+      </div>
+      <div class="card-footer" style="font-size: 11px; color: #888;">
+        <span>Size: <span id="dom-stat-size" style="color: #0ff;">-</span></span>
+        <span>Iteration: <span id="dom-stat-iteration" style="color: #0ff;">-</span></span>
+        <span>Duration: <span id="dom-stat-duration" style="color: #0ff;">-</span></span>
+      </div>
+    </div>
+
+    <!-- 2D Canvas / D3 Rendering Card -->
+    <div class="card" id="card-canvas">
+        <div class="card-header">
+            <span class="card-title">3. 2D Canvas / D3 Primitives</span>
+            <span class="badge" id="badge-canvas">PENDING</span>
+        </div>
+        <div class="card-desc">Renders path loops and primitive shapes to assess 2D context throughput.</div>
+        <div class="card-footer">
+            <span class="result-val not-run" id="res-canvas">Not run</span>
+            <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(runCanvasBenchmark)">Run Test</button>
+        </div>
+        <!-- Live Visual Canvas Viewport -->
+       <div class="canvas-container" style="text-align: center; margin: 10px 0;">
+             <canvas id="benchmarkCanvas" width="350" height="250" style="background: #111; border: 1px solid #444; border-radius: 4px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Audio Context Card -->
+    <div class="card" id="card-audio">
+        <div class="card-header">
+            <span class="card-title">4. Web Audio API</span>
+            <span class="badge" id="badge-audio">CHECKING...</span>
+        </div>
+        <div class="card-desc">Tests AudioContext / webkitAudioContext support and oscillator generation latency.</div>
+        <div class="card-footer">
+            <span class="result-val" id="res-audio">Checking API...</span>
+            <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="runAudioBenchmark()">Run Test</button>
+        </div>
+    </div>
+
+    <!-- WebGL / Graphics Card -->
+    <div class="card" id="card-webgl">
+        <div class="card-header">
+            <span class="card-title">5. WebGL Graphics</span>
+            <span class="badge" id="badge-webgl">CHECKING...</span>
+        </div>
+        <div class="card-desc">Validates WebGL context creation, basic triangle shader, & max texture size.</div>
+        <div class="card-footer">
+            <span class="result-val" id="res-webgl">Checking API...</span>
+            <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="runWebGLBenchmark()">Run Test</button>
+        </div>
+    </div>
+
+    <!-- Network / WebSocket Ping Card -->
+    <div class="card" id="card-net">
+        <div class="card-header">
+            <span class="card-title">6. Network / Local Ping</span>
+            <span class="badge" id="badge-net">READY</span>
+        </div>
+        <div class="card-desc">Measures HTTP roundtrip / WebSocket latency to local Node.js controller.</div>
+        <div class="card-footer">
+            <span class="result-val" id="res-net">Not run</span>
+            <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="runNetworkBenchmark()">Run Test</button>
+        </div>
+    </div>
+</div>
+
+<div class="console-box" id="consoleLog">System initialized. Ready for benchmarking...<br></div>
+<div class="footer-note">Lightweight legacy browser benchmark &bull; ES5 Vanilla JavaScript &bull; No Frameworks, no libs</div>
+</div>
+
+<script type="text/javascript">
+  // ES5 Safe Logging Helper
+  function logMessage(msg) {
+    var box = document.getElementById('consoleLog');
+    if (msg) {
+      var time = new Date().toTimeString().split(' ')[0];
+      box.innerHTML += '[' + time + '] ' + msg + '\n';
+    } else {
+      box.innerHTML += '\n';
+    }
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function clearLogs() {
+    document.getElementById('consoleLog').innerHTML = 'Console cleared.\n';
+  }
+
+
+  function currySecond(f, secondArg) {
+    return function(a) {
+      return f(a, secondArg);
+    }
+  }
+
+  function disableButtons() {
+    var buttons = document.getElementsByClassName('btn');
+
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].disabled = true;
+    }
+  }
+
+  function enableButtons() {
+    var buttons = document.getElementsByClassName('btn');
+
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].disabled = false;
+    }
+  }
+
+  var running = false;
+
+  // fire an action when not running
+  // action must honor stepper() step function contracts
+  //  - return async token for async execution and honor onComplete callback
+  function fire(action) {
+    if (running) {
+      return;
+    }
+    running = true;
+
+    steps = [
+      disableButtons,
+      action,
+      function() {
+        enableButtons();
+        running = false;
+      }
+    ];
+
+    return stepper(steps)
+  }
+
+  function addDeviceInfo(key, value) {
+    var tbody = document.querySelector('#deviceTable tbody');
+    if (!tbody) return;
+
+    var row = document.createElement('tr');
+    var keyTd = document.createElement('td');
+    keyTd.className = 'key';
+    keyTd.textContent = key;
+
+    var valTd = document.createElement('td');
+    valTd.className = 'val';
+    valTd.textContent = value;
+
+    row.appendChild(keyTd);
+    row.appendChild(valTd);
+    tbody.appendChild(row);
+  }
+
+  // Feature detection on load
+  window.onload = function() {
+    var ua = navigator.userAgent;
+    var screenRes = window.innerWidth + 'x' + window.innerHeight;
+    var devicePixelRatioVal = window.devicePixelRatio || 1;
+
+    addDeviceInfo('User Agent', ua);
+    addDeviceInfo('Resolution', screenRes + ' (DPR: ' + devicePixelRatioVal + ')');
+
+    var infoText = '';
+                           
+    // Check Android version match
+    var androidMatch = ua.match(/Android\s([0-9\.]+)/);
+    if (androidMatch) {
+      addDeviceInfo('Android Version', androidMatch[1]);
+    }
+
+    if (navigator.platform) {
+      addDeviceInfo('Platform', navigator.platform);
+    }
+
+
+    if (window.performance && window.performance.memory) {
+      var usedMB = Math.round(window.performance.memory.usedJSHeapSize / 1048576);
+      var totalMB = Math.round(window.performance.memory.totalJSHeapSize / 1048576);
+      var jsHeapInfo = usedMB + " MB used / " + totalMB + " MB allocated";
+      addDeviceInfo('JS Heap info',  jsHeapInfo);
+    }
+
+    var physicalRes = window.screen.width + 'x' + window.screen.height;
+    var colorDepth = window.screen.colorDepth || 'Unknown';
+    addDeviceInfo('Physical Screen', physicalRes + ' (' + colorDepth + '-bit color)');
+    addDeviceInfo('CSS Viewport', window.innerWidth + 'x' + window.innerHeight);
+
+    var maxTouch = navigator.maxTouchPoints || (('ontouchstart' in window) ? 'Yes (Legacy)' : 'No');
+    var cpuCores = navigator.hardwareConcurrency || 'Unknown (Pre-ES6)';
+    addDeviceInfo('Max Touch Points', maxTouch);
+    addDeviceInfo('CPU Cores', cpuCores);
+
+    var hasWebAudio = !!(window.AudioContext || window.webkitAudioContext);
+    var audioContextType = window.AudioContext ? 'Standard' : (window.webkitAudioContext ? 'Prefixed (webkit)' : 'Not Supported');
+    addDeviceInfo('Web Audio', (hasWebAudio ? 'Yes (' + audioContextType + ')' : 'No'));
+
+    var gpuVendor = "Unknown";
+    var gpuRenderer = "Unknown";
+    var gpuMaxTexSize = 'Unknown';
+    try {
+      var canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (gl) {
+        var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        if (debugInfo) {
+          gpuVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) + ' (from debugInfo)';
+          gpuRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) + ' (from debugInfo)';
+        } else {
+          gpuVendor = gl.getParameter(gl.VENDOR);
+          gpuRenderer = gl.getParameter(gl.RENDERER);
+        }
+        gpuMaxTexSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) + ' px';
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    addDeviceInfo('GPU Vendor', gpuVendor);
+    addDeviceInfo('GPU Renderer', gpuRenderer);
+    addDeviceInfo('GPU Max Tex', gpuMaxTexSize + ' px');
+
+
+    // Feature support flags
+    var hasFloat32 = typeof Float32Array !== 'undefined';
+    var hasCanvas = !!window.CanvasRenderingContext2D;
+    var hasAudio = !!(window.AudioContext || window.webkitAudioContext);
+    var hasWebGL = false;
+            
+    try {
+      var canvasTest = document.createElement('canvas');
+      hasWebGL = !!(canvasTest.getContext('webgl') || canvasTest.getContext('experimental-webgl'));
+    } catch (e) {
+      hasWebGL = false;
+    }
+
+    // Update badges based on feature detection
+    updateBadge('math', hasFloat32);
+    updateBadge('dom', true);
+    updateBadge('canvas', hasCanvas);
+    updateBadge('audio', hasAudio);
+    updateBadge('webgl', hasWebGL);
+
+    var benchmarkFeatures = 'DOM';
+    if (hasFloat32) { benchmarkFeatures += ' | Float32'; }
+    if (hasCanvas) { benchmarkFeatures += ' | Canvas'; }
+    if (hasAudio) { benchmarkFeatures += ' | WebAudio'; }
+    if (hasWebGL) { benchmarkFeatures += ' | WebGL'; }
+
+    addDeviceInfo('Benchmark features', benchmarkFeatures);
+
+
+    document.getElementById('deviceInfo').innerHTML = 'Collected device parameters';
+    logMessage('Initialization check complete. WebGL: ' + hasWebGL + ', WebAudio: ' + hasAudio + ', Float32: ' + hasFloat32);
+  };
+
+  function updateBadge(id, isSupported) {
+    var badge = document.getElementById('badge-' + id);
+    if (isSupported) {
+      badge.className = 'badge supported';
+      badge.innerHTML = 'SUPPORTED';
+    } else {
+      badge.className = 'badge unsupported';
+      badge.innerHTML = 'UNSUPPORTED';
+    }
+  }
+
+  function addClass(id, clazz) {
+    var elmnt = document.getElementById(id);
+    // Check if it already has the class to avoid duplicates
+    if (elmnt.className.indexOf(clazz) === -1) {
+      elmnt.className = (elmnt.className ? elmnt.className + ' ' : '') + clazz;
+    }
+  }
+
+  function removeClass(id, clazz) {
+    var elmnt = document.getElementById(id);
+    if (elmnt && elmnt.className) {
+      // Regex matches the class name bounded by start-of-string/whitespace and end-of-string/whitespace
+      // This prevents accidentally removing partial class matches (e.g. removing "active" from "inactive")
+      var reg = new RegExp('(?:^|\\s)' + clazz + '(?!\\S)', 'g');
+      elmnt.className = elmnt.className.replace(reg, '').trim();
+    }
+  }
+
+  function formatSi(n) {
+    // Check if n is a proper, finite number; if not, return as is
+    if (typeof n !== 'number' || isNaN(n) || !isFinite(n)) {
+      return n;
+    }
+
+    if (n === 0) return '0';
+
+    var sign = n < 0 ? '-' : '';
+    var absN = Math.abs(n);
+
+    if (absN < 1000) {
+      return n.toString();
+    }
+
+    // Thresholds and suffixes (k = 10^3, M = 10^6, G = 10^9, P = 10^12)
+    var units = [
+      { threshold: 1e15, suffix: 'E' },
+      { threshold: 1e12, suffix: 'P' },
+      { threshold: 1e9, suffix: 'G' },
+      { threshold: 1e6, suffix: 'M' },
+      { threshold: 1e3, suffix: 'k' }
+    ];
+
+    for (var i = 0; i < units.length; i++) {
+      if (absN >= units[i].threshold) {
+        var scaled = absN / units[i].threshold;
+        var formatted = parseFloat(scaled.toFixed(1)).toString();
+        return sign + formatted + ' ' + units[i].suffix;
+      }
+    }
+
+    return n.toString();
+  }
+
+  // 1. Linear Algebra Benchmark (ES5)
+  function runMathBenchmark(onComplete, size) {
+    var useTyped = typeof Float32Array !== 'undefined';
+    steps = [
+      function() {
+        logMessage('Starting Linear Algebra benchmark (' + (useTyped ? 'Float32' : 'Array') + ') ' + size + ' x ' + size);
+        document.getElementById('res-math-' + size).innerHTML = 'Running';
+        removeClass('res-math-' + size, 'not-run');
+        addClass('res-math-' + size, 'runnig');
+      },
+      function() {
+        try {
+          var startTime = new Date().getTime();
+
+          var i, j, k;
+          // Fallback or Float32Array
+          var a = useTyped ? new Float32Array(size * size) : [];
+          var b = useTyped ? new Float32Array(size * size) : [];
+          var c = useTyped ? new Float32Array(size * size) : [];
+
+          for (i = 0; i < size * size; i++) {
+            a[i] = Math.random();
+            b[i] = Math.random();
+          }
+
+          var rndTime = new Date().getTime();
+
+          // Simple matrix multiplication O(N^3) stress test
+          for (i = 0; i < size; i++) {
+            for (j = 0; j < size; j++) {
+              var sum = 0;
+              for (k = 0; k < size; k++) {
+                sum += a[i * size + k] * b[k * size + j];
+              }
+              c[i * size + j] = sum;
+            }
+          }
+
+          var endTime = new Date().getTime();
+          var mulDuration = endTime - rndTime;
+          var rndDuration = rndTime - startTime;
+          var resStr = (rndDuration + mulDuration) + ' ms';
+
+          logMessage('Math benchmark finished.');
+          logMessage('RND generation: ' + rndDuration + ' ms.');
+          if (rndDuration > 1) {
+            logMessage('RND performance: ' + formatSi(1000 * size * size * 2 / rndDuration) + ' rnd/sec');
+            resStr += ' | ' + formatSi(1000 * size * size * 2 / rndDuration) + 'rnd/s'
+          }
+          logMessage('MUL duration: ' + mulDuration + ' ms');
+          if (mulDuration > 1) {
+            logMessage('MUL performance: ' + formatSi(1000 * size * size * size / mulDuration) + ' mul/sec');
+            resStr += ' | ' + formatSi(1000 * size * size * size / mulDuration) + 'mul/s'
+          }
+          logMessage();
+          removeClass('res-math-' + size, 'runnig');
+
+          document.getElementById('res-math-' + size).innerHTML = resStr;
+          onComplete(rndDuration + mulDuration);
+        } catch (e) {
+          document.getElementById('res-math-' + size).innerHTML = 'Error';
+          logMessage('Math benchmark error: ' + e.message);
+          logMessage();
+          removeClass('res-math-' + size, 'runnig');
+          onComplete(1e6);
+        }
+      }
+    ];
+    return stepper(steps);
+  }
+
+
+  // 2. DOM Stress & Live Visual Benchmark (ES5)
+  function runDomVisualStressTest(count) {
+    var vp = document.getElementById('domBenchmarkViewport');
+    if (!vp) return;
+
+    // Create fragment to minimize reflow overhead during batch append
+    var frag = document.createDocumentFragment();
+
+    for (var i = 0; i < count; i++) {
+      var node = document.createElement('div');
+
+      node.className = 'dom-node-item';
+      node.style.position = 'absolute';
+      node.style.left = (Math.random() * 92) + '%';
+      node.style.top = (Math.random() * 85) + '%';
+      node.style.width = (Math.random() * 24 + 12) + 'px';
+      node.style.height = (Math.random() * 16 + 8) + 'px';
+      node.style.backgroundColor = 'hsl(' + (i * 137.5 % 360) + ', 70%, 50%)';
+      node.style.border = '1px solid rgba(255,255,255,0.2)';
+      node.style.borderRadius = '2px';
+      node.style.fontSize = '8px';
+      node.style.color = '#fff';
+      node.style.overflow = 'hidden';
+      node.style.textAlign = 'center';
+      node.innerHTML = i;
+
+      frag.appendChild(node);
+    }
+
+    vp.appendChild(frag);
+
+  }
+
+  function runDomBenchmark(onComplete, size) {
+    var vp = document.getElementById('domBenchmarkViewport');
+    if (!vp) return;
+    vp.innerHTML = '';
+
+
+
+    var startTime = new Date().getTime();
+
+    var maxIterations = 10;
+    var sizePerIteration = 5;
+    var iteration = 0;
+    var sizeLabel = 'xxs';
+
+    if (size === 'xxs') {
+      maxIterations = 5;
+      sizePerIteration = 5;
+      sizeLabel = size;
+    } else if (size === 'xs') {
+      maxIterations = 10;
+      sizePerIteration = 7;
+      sizeLabel = size;
+    } else if (size === 's') {
+      maxIterations = 15;
+      sizePerIteration = 10;
+      sizeLabel = size;
+    } else if (size === 'm') {
+      maxIterations = 20;
+      sizePerIteration = 15;
+      sizeLabel = size;
+    } else if (size === 'l') {
+      maxIterations = 35;
+      sizePerIteration = 25;
+      sizeLabel = size;
+    } else if (size === 'xl') {
+      maxIterations = 60;
+      sizePerIteration = 35;
+      sizeLabel = size;
+    } else if (size === 'xxl') {
+      maxIterations = 100;
+      sizePerIteration = 50;
+      sizeLabel = size;
+    }
+
+    logMessage('Starting DOM stress benchmark ' + size + ': ' + maxIterations + ' iterations x ' + sizePerIteration + ' elements');
+
+    var resLabel = document.getElementById('res-dom-' + sizeLabel);
+    var domStatSizeLabel = document.getElementById('dom-stat-size');
+    var domStatIterationLabel = document.getElementById('dom-stat-iteration');
+    var domStatDurationLabel = document.getElementById('dom-stat-duration');
+
+    domStatSizeLabel.textContent = sizeLabel + ' (' + maxIterations + ' x ' + sizePerIteration + ')';
+
+    resLabel.textContent = 'Running';
+    removeClass('res-dom-' + sizeLabel, 'not-run');
+    addClass('res-dom-' + sizeLabel, 'runnig');
+
+
+    function domStep() {
+      var currentTime = new Date().getTime();
+      var duration = currentTime - startTime;
+      if (iteration > 0) {
+        domStatIterationLabel.textContent = iteration + ' of ' + maxIterations;
+        domStatDurationLabel.textContent = duration + ' ms';
+      }
+
+
+      if (iteration < maxIterations) {
+        iteration++;
+        runDomVisualStressTest(sizePerIteration);
+        //setTimeout(domStep, 0);
+        requestAnimationFrame(domStep)
+      } else {
+        vp.innerHTML = '';
+        removeClass('res-dom-' + sizeLabel, 'runnig');
+        resLabel.textContent = duration + ' ms';
+
+
+        var line1 = document.createElement('span');
+        line1.style.fontSize = '15px';
+        line1.style.fontWeight = 'bold';
+        line1.style.color = '#ff0';
+        line1.textContent = 'Test finished (' + sizeLabel + ')';
+
+        var br = document.createElement('br');
+
+        var spanKey = document.createElement('span');
+        spanKey.style.color = '#f39c12';
+        spanKey.textContent = 'time: ';
+
+        var spanVal = document.createElement('span');
+        spanVal.style.color = '#0ff';
+        spanVal.textContent = duration + ' ms ';
+
+        var spanMeta = document.createElement('span');
+        spanMeta.style.color = '#888';
+        spanMeta.textContent = '(' + iteration + ' x ' + sizePerIteration + ')';
+
+        vp.appendChild(line1);
+        vp.appendChild(br);
+        vp.appendChild(spanKey);
+        vp.appendChild(spanVal);
+        vp.appendChild(spanMeta);
+
+        if (onComplete) { onComplete(duration); }
+      }
+    }
+    requestAnimationFrame(domStep)
+    // setTimeout(domStep, 0);
+    return asyncToken;
+  }
+
+  // 3. 2D Canvas Benchmark (ES5)
+  function runCanvasBenchmark(onComplete) {
+    var canvas = document.getElementById('benchmarkCanvas');
+    if (!canvas || !canvas.getContext) {
+      logMessage('No canvas / canvas.getContext');
+      return;
+    };
+
+    var ctx = canvas.getContext('2d');
+    var resLabel = document.getElementById('res-canvas');
+
+    resLabel.textContent = 'Start first iteration';
+    removeClass('res-canvas', 'not-run');
+    addClass('res-canvas', 'runnig');
+
+    var totalPrimitives = 0;
+    var startTime = new Date().getTime();
+    var iteration = 0;
+    var maxIterations = 100;
+    var shapesPerFrame = 2500;
+
+    function canvasStep() {
+      if (iteration < maxIterations) {
+        // 1. Clear background for this frame
+        ctx.fillStyle = 'rgba(17, 17, 17, 0.4);'; // subtle motion blur trail, or use solid '#111'
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Draw a batch of primitives (simulate heavy D3 / 2D rendering)
+        for (var i = 0; i < shapesPerFrame; i++) {
+          ctx.beginPath();
+          var x = Math.random() * canvas.width;
+          var y = Math.random() * canvas.height;
+          var radius = Math.random() * 50 + 5;
+
+          if (i % 3 === 0) {
+            // Circle
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'hsl(' + (Math.random() * 360) + ', 70%, 50%)';
+            ctx.fill();
+          } else if (i % 3 === 1) {
+            // Rectangle / Bar
+            ctx.fillStyle = 'hsla(' + (Math.random() * 360) + ', 80%, 60%, 0.7)';
+            ctx.fillRect(x, y, radius * 1.5, radius);
+          } else {
+            // Complex Path line loop
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + (Math.random() * 200 - 100), y + (Math.random() * 200 - 100));
+            ctx.strokeStyle = '#0ff';
+            ctx.lineWidth = Math.random() * 5 + 0.1;
+            ctx.stroke();
+          }
+          totalPrimitives++;
+        }
+
+        iteration++;
+
+        var elapsed = new Date().getTime() - startTime;
+        var resText = 'Iteration ' + iteration + '/' + maxIterations + ' | ' + elapsed + ' ms';
+
+        if (elapsed > 10) {
+          resText += ' | ' + (1000 * iteration / elapsed).toFixed(1) + ' fps, ' + formatSi(1000 * totalPrimitives / elapsed) + ' pps';
+        }
+
+        resLabel.textContent = resText;
+
+        // Yield to event loop so the DOM & canvas repaint before the next iteration
+        setTimeout(canvasStep, 0);
+
+      } else {
+        // Finished all iterations! Calculate throughput score
+        var elapsed = new Date().getTime() - startTime;
+
+        var score = Math.round((totalPrimitives / elapsed) * 1000);
+
+        removeClass('res-canvas', 'runnig');
+
+        var resText = elapsed + ' ms';
+        if (elapsed > 10) {
+          resText += ' | ' + (1000 * iteration / elapsed).toFixed(1) + ' fps, ' + formatSi(1000 * totalPrimitives / elapsed) + ' pps';
+        }
+        resLabel.textContent = resText;
+
+        // Final clear cleanup draw
+        ctx.fillStyle = '#111';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#0ff';
+        ctx.font = '14px monospace';
+        ctx.fillText('Test Complete.', 20, 20);
+        ctx.fillText('Elapsed time: ' + elapsed + " ms", 20, 60);
+        ctx.fillText('Performance:', 20, 100);
+
+        ctx.fillText(formatSi(score) + ' primitives/sec', 40, 120);
+        ctx.fillText((1000 * iteration / elapsed).toFixed(1) + ' frames/sec', 40, 140);
+
+        if (onComplete) { onComplete(); }
+      }
+    }
+
+    // Kick off the first canvas step
+    setTimeout(canvasStep, 0);
+
+    // Outer stepper must be avare that it needs to hook to onComplete to schedule the subsequent step
+    return asyncToken;
+  }
+
+        // 4. Web Audio Benchmark (ES5)
+        function runAudioBenchmark() {
+            logMessage('Starting Web Audio test...');
+            try {
+                var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) {
+                    document.getElementById('res-audio').innerHTML = 'Unsupported';
+                    logMessage('Web Audio API not present on this legacy device.');
+                    return;
+                }
+
+                var startTime = new Date().getTime();
+                var actx = new AudioContextClass();
+                
+                // Create a brief silent buffer or oscillator test
+                var osc = actx.createOscillator();
+                var gain = actx.createGain();
+                gain.gain.value = 0.01; // extremely quiet test tone
+                
+                osc.type = 0; // Sine wave in older WebKit specs
+                osc.frequency.value = 440;
+                osc.connect(gain);
+                gain.connect(actx.destination);
+                
+                if (osc.start) {
+                    osc.start(0);
+                    osc.stop(actx.currentTime + 0.05);
+                } else if (osc.noteOn) {
+                    // Very old WebKit prefix support
+                    osc.noteOn(0);
+                    osc.noteOff(actx.currentTime + 0.05);
+                }
+
+                var endTime = new Date().getTime();
+                var duration = endTime - startTime;
+                var resStr = 'OK (' + duration + 'ms init)';
+                
+                document.getElementById('res-audio').innerHTML = resStr;
+                logMessage('Web Audio test successful. State: ' + actx.state);
+            } catch (e) {
+                document.getElementById('res-audio').innerHTML = 'Failed';
+                logMessage('Web Audio error: ' + e.message);
+            }
+        }
+
+        // 5. WebGL Benchmark (ES5)
+        function runWebGLBenchmark() {
+            logMessage('Starting WebGL benchmark...');
+            try {
+                var canvas = document.createElement('canvas');
+                canvas.width = 128;
+                canvas.height = 128;
+                
+                var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (!gl) {
+                    document.getElementById('res-webgl').innerHTML = 'Unsupported';
+                    logMessage('WebGL context creation failed.');
+                    return;
+                }
+
+                var maxTexSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+                var vendor = gl.getParameter(gl.VENDOR);
+                var renderer = gl.getParameter(gl.RENDERER);
+
+                var resStr = 'Max Tex: ' + maxTexSize + 'px';
+                document.getElementById('res-webgl').innerHTML = resStr;
+                logMessage('WebGL Info -> Vendor: ' + vendor + ' | Renderer: ' + renderer + ' | Max Texture: ' + maxTexSize);
+            } catch (e) {
+                document.getElementById('res-webgl').innerHTML = 'Error';
+                logMessage('WebGL benchmark error: ' + e.message);
+            }
+        }
+
+        // 6. Network Ping Benchmark (ES5)
+        function runNetworkBenchmark() {
+            logMessage('Starting Network ping test...');
+            var startTime = new Date().getTime();
+            
+            // Fallback XHR for older Android 4 environments where fetch() is absent
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', window.location.href + '?ping=' + startTime, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    var endTime = new Date().getTime();
+                    var duration = endTime - startTime;
+                    document.getElementById('res-net').innerHTML = duration + ' ms';
+                    logMessage('Network ping complete in ' + duration + ' ms (Status: ' + xhr.status + ').');
+                }
+            };
+            xhr.onerror = function() {
+                document.getElementById('res-net').innerHTML = 'Offline / Local';
+                logMessage('Network ping request completed with local fallback.');
+            };
+            xhr.send();
+        }
+
+        // Run All sequence
+        function runAllBenchmarks(onComplete) {
+          steps = [
+            function() {
+              logMessage('--- Running Full Benchmark Suite ---');
+            },
+            function(c, r) {
+              return runMathBenchmark(c, 64);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 80) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 96) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 112) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 128) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 160) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 192) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 224) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 256) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 320) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 384) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 448) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 512) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 640) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 768) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 896) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 1024) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 1280) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 1536) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 1792) : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runMathBenchmark(c, 2048) : c(r);
+            },
+            function(c) {
+              return runDomBenchmark(c, 'xxs');
+            },
+            function(c, r) {
+              return r < 1500 ? runDomBenchmark(c, 'xs') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runDomBenchmark(c, 's') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runDomBenchmark(c, 'm') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runDomBenchmark(c, 'l') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runDomBenchmark(c, 'xl') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runDomBenchmark(c, 'xxl') : c(r);
+            },
+            function(c) {
+              return runCanvasBenchmark(c);
+            },
+            function() {
+              runAudioBenchmark();
+            },
+            function() {
+              runWebGLBenchmark();
+            },
+            function() {
+              logMessage('--- Finished Full Benchmark Suite ---');
+            }
+
+          ];
+          return stepper(steps, onComplete);
+
+
+
+
+
+            runNetworkBenchmark();
+        }
+
+        // this return value indicates an async step; onCompleted callback must be honored
+        var asyncToken = ';aolsdhcvf';
+
+        // micro-stepper to have some level of responsiveness
+        //
+        //  arguments:
+        //    steps: array of functions to run the steps; invoked with onComplete callback and previous steps results
+        //    onComplete:  optional onComplete callback; when specified invoked with last result or undefined
+        //
+        //  step-running functions can be sync or async
+        //   - async functions return the async token; next step is scheduled in the result callback which is mandatory
+        //   - all other functions are assumed to be sync and completed before return; their return value is the result
+        function stepper(steps, onComplete) {
+          var index = 0;
+          var lastResult = undefined;
+          var asyncRunnning = false;
+
+          function storeResult(r) {
+            lastResult = r;
+            if (asyncRunnning) {
+              setTimeout(nextStep, 50);
+            }
+          }
+
+          function nextStep() {
+            if (index < steps.length) {
+              var currentStep = steps[index++];
+              try {
+                asyncRunnning = false;
+                var x = currentStep(storeResult, lastResult);
+                asyncRunnning = (x == asyncToken);
+                if (!asyncRunnning) {
+                  lastResult = x;
+                  setTimeout(nextStep, 50);
+                }
+              } catch (err) {
+                logMessage('Got error: ' + err.message);
+                console.log(err)
+                lastResult = 1e6;
+              }
+            } else {
+              if (onComplete) {
+                onComplete(lastResult);
+              }
+            }
+          }
+          setTimeout(nextStep, 50);
+          return asyncToken;
+        }
+
+
+  </script>
+</body>
+</html>

@@ -113,6 +113,16 @@ export function initPage() {
         text : 'Player demo',
         onClick : () => window.location.href = '/vis/#playerdemo'
       })
+      .addButton({
+        faclass : 'fa-clock',
+        text : 'Browser benchmark',
+        onClick : () => window.location.href = '/bm'
+      })
+      .addButton({
+        faclass : 'fa-clock',
+        text : 'WebGL Mandelbrot',
+        onClick : () => window.location.href = '/bm/mb.html'
+      })
     )
     .layout();
 
