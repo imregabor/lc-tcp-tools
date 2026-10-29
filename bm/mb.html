@@ -107,6 +107,7 @@
         `;
 
         const fsSource = `
+            // updated based https://www.shadertoy.com/view/4df3Rn
             precision highp float;
             uniform vec2 u_resolution;
             uniform vec2 u_pan;
@@ -116,6 +117,20 @@
             void main() {
                 vec2 st = (gl_FragCoord.xy - u_resolution * 0.5) / min(u_resolution.x, u_resolution.y);
                 vec2 c = st * (3.0 / u_zoom) + u_pan;
+
+                // early exit opportunities
+                float c2 = dot(c, c);
+                // inside M1 - https://iquilezles.org/articles/mset1bulb
+                if (256.0*c2*c2 - 96.0*c2 + 32.0*c.x - 3.0 < 0.0) {
+                  gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                  return;
+                }
+                // inside M2 - https://iquilezles.org/articles/mset2bulb
+                if (16.0*(c2+2.0*c.x+1.0) - 1.0 < 0.0) {
+                  gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                  return;
+                }
+
                 vec2 z = vec2(0.0);
                 float n = 0.0;
                 
@@ -129,8 +144,17 @@
                 if (n >= float(u_maxIterations)) {
                     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
                 } else {
-                    float t = n / float(u_maxIterations);
-                    gl_FragColor = vec4(0.5 + 0.5 * sin(3.0 + t * 6.28 + vec3(0.0, 0.6, 1.0)), 1.0);
+
+
+                  // smooth interation count - https://iquilezles.org/articles/msetsmooth/
+                  // float sn = n - log(log(length(z))/log(B))/log(2.0);
+                  // equivalent simplified smooth interation count:
+                  float sn = n - log2(log2(dot(z,z))) + 4.0;
+
+                  //float t = n / float(u_maxIterations);
+                  float t = sn / float(u_maxIterations);
+
+                  gl_FragColor = vec4(0.5 + 0.5 * sin(3.0 + t * 6.28 + vec3(0.0, 0.6, 1.0)), 1.0);
                 }
             }
         `;
