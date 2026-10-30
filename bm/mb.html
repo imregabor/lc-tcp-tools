@@ -102,7 +102,7 @@
             alert('WebGL not supported on this device!');
         }
 
-        let maxIterations = 512;
+        let maxIterations = 64;
         let zoom = 1.1;
         let panX = -0.7;
         let panY = 0.0;
@@ -374,16 +374,18 @@
               updatePz();
 
               progressEl.style.width = Math.round(100 * remainingTime / transitionTime) + '%';
-            } else {
-                progressEl.style.width = '0%';  
             }
-        
-            if (now - lastTime >= 100) {
-                const fps = Math.round((frameCount * 1000) / (now - lastTime));
+
+            if (now - lastTime >= 500) {
+                const fps = (frameCount * 1000) / (now - lastTime);
                 const res = canvas.width * canvas.height / 1000000;
-                fpsEl.innerText = fps + ' FPS (' + (fps * res).toFixed(1) + 'Mpx/s)';
+                fpsEl.innerText = fps.toFixed(1) + ' FPS (' + (fps * res).toFixed(1) + 'Mpx/s)';
                 frameCount = 0;
                 lastTime = now;
+
+                if (!transitioning) {
+                  progressEl.style.width = '0';
+                }
             }
 
             prevTime = now;
