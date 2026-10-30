@@ -20,18 +20,27 @@
             height: 100%;
             display: block;
         }
+        #progress {
+            position: absolute;
+            left: 0px;
+            
+            bottom: 0px;
+            height: 5px;
+            width: 0%;
+            background-color: khaki;
+        }
         #ui {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.4);
             color: #00ffcc;
             padding: 12px;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 8px;
+            font-size: 12px;
             pointer-events: none;
             border: 1px solid rgba(0, 255, 204, 0.3);
-            line-height: 1.5;
+            line-height: 1.1;
         }
         #controls {
             position: absolute;
@@ -64,15 +73,24 @@
 <body>
 
     <div id="ui">
-        FPS: <span id="fps">--</span><br>
-        Iterations: <span id="iterVal">64</span><br>
-        Zoom: <span id="zoomVal">1.0x</span>
+        Rendering: <span id="fps">--</span><br>
+        Iterations: <span id="iterVal">---</span><br>
+        PanX: <span id="panXVal">---</span><br>
+        PanY: <span id="panYVal">---</span><br>
+        Zoom: <span id="zoomVal">---</span><br>
+        Resolution: <span id="resolutionVal">----</span><br>
+        Window: <span id="windowVal">----</span><br>
+        DPR: <span id="deviceVal">----</span>
     </div>
 
     <div id="controls">
         <button onclick="adjustIter(-16)">- Iter</button>
         <button onclick="adjustIter(16)">+ Iter</button>
         <button onclick="resetView()">Reset View</button>
+    </div>
+
+    <div id="progress"> 
+
     </div>
 
     <canvas id="glCanvas"></canvas>
@@ -84,18 +102,48 @@
             alert('WebGL not supported on this device!');
         }
 
-        let maxIterations = 64;
-        let zoom = 1.0;
+        let maxIterations = 512;
+        let zoom = 1.1;
         let panX = -0.7;
         let panY = 0.0;
 
+        const panXEl = document.getElementById('panXVal');
+        const panYEl = document.getElementById('panYVal');
+        const zoomEl = document.getElementById('zoomVal');
+        const iterEl = document.getElementById('iterVal');
+
+        function updatePz() {
+          panXEl.innerText = panX;
+          panYEl.innerText = panY;
+          zoomEl.innerText = zoom.toFixed(1) + 'x';
+          iterEl.innerText = maxIterations;
+        }
+
         function resize() {
             const dpr = window.devicePixelRatio || 1;
+
+            const resolutionEl = document.getElementById('resolutionVal');
+            const windowEl = document.getElementById('windowVal');
+            const deviceEl = document.getElementById('deviceVal');
+
+
+
+        
             canvas.width = window.innerWidth * dpr;
             canvas.height = window.innerHeight * dpr;
             gl.viewport(0, 0, canvas.width, canvas.height);
+
+
+            const res = canvas.width * canvas.height / 1000000;
+            resolutionEl.innerText = canvas.width + ' x ' + canvas.height + ' (' + res.toFixed(1) + 'Mpx)';
+
+
+            windowEl.innerText = window.innerWidth + ' x ' + window.innerHeight + (' (' + (window.innerWidth * window.innerHeight / 1000000).toFixed(1) + 'Mpx)');
+            deviceEl.innerText = dpr;
+
         }
         window.addEventListener('resize', resize);
+        updatePz();
         resize();
 
         // Shaders
@@ -118,7 +166,7 @@
                 vec2 st = (gl_FragCoord.xy - u_resolution * 0.5) / min(u_resolution.x, u_resolution.y);
                 vec2 c = st * (3.0 / u_zoom) + u_pan;
 
-                // early exit opportunities
+                // early exit opportunities - see https://www.shadertoy.com/view/4df3Rn
                 float c2 = dot(c, c);
                 // inside M1 - https://iquilezles.org/articles/mset1bulb
                 if (256.0*c2*c2 - 96.0*c2 + 32.0*c.x - 3.0 < 0.0) {
@@ -144,8 +192,6 @@
                 if (n >= float(u_maxIterations)) {
                     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
                 } else {
-
-
                   // smooth interation count - https://iquilezles.org/articles/msetsmooth/
                   // float sn = n - log(log(length(z))/log(B))/log(2.0);
                   // equivalent simplified smooth interation count:
@@ -188,7 +234,12 @@
         let initialZoom = 1.0;
 
         // Mouse Controls (Desktop)
-        window.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
+        window.addEventListener('mousedown', e => { 
+            isDragging = true; 
+            lastX = e.clientX; 
+            lastY = e.clientY; 
+            transitioning = false;
+        });
         window.addEventListener('mousemove', e => {
             if (!isDragging) return;
             let dx = e.clientX - lastX;
@@ -197,18 +248,21 @@
             const minDim = Math.min(window.innerWidth, window.innerHeight);
             panX -= (dx / minDim) * (3.0 / zoom);
             panY += (dy / minDim) * (3.0 / zoom);
+            updatePz();
         });
         window.addEventListener('mouseup', () => isDragging = false);
 
         window.addEventListener('wheel', e => {
             const zoomFactor = 1.1;
+            transitioning = false;
             if (e.deltaY < 0) zoom *= zoomFactor;
             else zoom /= zoomFactor;
-            document.getElementById('zoomVal').innerText = zoom.toFixed(1) + 'x';
+            updatePz();
         }, { passive: true });
 
         // Touch & Pinch Controls (Tablet / Mobile)
         window.addEventListener('touchstart', e => {
+            transitioning = false;
             if (e.touches.length === 1) {
                 isDragging = true;
                 initialPinchDistance = null;
@@ -240,8 +294,10 @@
                 );
                 const scale = currentDist / initialPinchDistance;
                 zoom = Math.max(0.1, initialZoom * scale);
-                document.getElementById('zoomVal').innerText = zoom.toFixed(1) + 'x';
+                
+                
             }
+            updatePz();
         }, { passive: false });
 
         window.addEventListener('touchend', e => {
@@ -251,29 +307,86 @@
 
         function adjustIter(amount) {
             maxIterations = Math.max(16, Math.min(512, maxIterations + amount));
-            document.getElementById('iterVal').innerText = maxIterations;
+            updatePz();
         }
 
         function resetView() {
-            zoom = 1.0;
-            panX = -0.7;
-            panY = 0.0;
-            maxIterations = 64;
+            // zoom = 1.0;
+            //panX = -0.7;
+            //panY = 0.0;
+            transitioning = true;
+            remainingTime = transitionTime;
+            transitionPanX = -0.7;
+            transitionPanY = 0.0;
+            transitionZoom = 1.1;
+            maxIterations = 512;
             document.getElementById('iterVal').innerText = maxIterations;
-            document.getElementById('zoomVal').innerText = '1.0x';
+            progressEl.style.width = '100%';
+            updatePz();
+            
         }
 
         let frameCount = 0;
         let lastTime = performance.now();
+        let prevTime = performance.now();
         const fpsEl = document.getElementById('fps');
+        const progressEl = document.getElementById('progress');
+
+        var transitioning = false;
+        var transitionTime = 2000;
+        var remainingTime = 0;
+        var transitionPanX = 0;
+        var transitionPanY = 0;
+        var transitionZoom = 0;
 
         function render(now) {
             frameCount++;
-            if (now - lastTime >= 1000) {
-                fpsEl.innerText = Math.round((frameCount * 1000) / (now - lastTime));
+            
+            if (transitioning) {
+              if (remainingTime <= 0) {
+                transitioning = false;
+                progressEl.style.width = '100%';
+                panX = transitionPanX;
+                panY = transitionPanY;
+                zoom = transitionZoom;
+              } else {
+                
+                const dt = now - prevTime;
+                if (dt > 0) {
+                    var f;
+                    if (dt >= remainingTime) {
+                        f = 1;
+                    } else {
+                        f = dt / remainingTime;
+                    }
+                    
+                    zoom = zoom + (transitionZoom - zoom) * f;
+                    f *= transitionZoom / zoom;
+
+                    panX = panX + (transitionPanX - panX) * f;
+                    panY = panY + (transitionPanY - panY) * f;
+                    remainingTime -= dt;
+                    if (remainingTime < 0) {
+                        remainingTime = 0;
+                    }
+                }
+              }
+              updatePz();
+
+              progressEl.style.width = Math.round(100 * remainingTime / transitionTime) + '%';
+            } else {
+                progressEl.style.width = '0%';  
+            }
+        
+            if (now - lastTime >= 100) {
+                const fps = Math.round((frameCount * 1000) / (now - lastTime));
+                const res = canvas.width * canvas.height / 1000000;
+                fpsEl.innerText = fps + ' FPS (' + (fps * res).toFixed(1) + 'Mpx/s)';
                 frameCount = 0;
                 lastTime = now;
             }
+
+            prevTime = now;
 
             gl.useProgram(program);
             gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -284,7 +397,7 @@
             gl.uniform2f(panLoc, panX, panY);
             gl.uniform1f(zoomLoc, zoom);
             gl.uniform1i(maxIterLoc, maxIterations);
-
+            
             gl.drawArrays(gl.TRIANGLES, 0, 6);
             requestAnimationFrame(render);
         }
