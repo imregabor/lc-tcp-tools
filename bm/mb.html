@@ -29,18 +29,50 @@
             width: 0%;
             background-color: khaki;
         }
-        #ui {
+        #ui-wrap {
+            --ui-tab-w: 28px;
             position: absolute;
             top: 10px;
             left: 10px;
+            display: flex;
+            align-items: flex-start;
+            z-index: 10;
+            transition: transform 0.35s ease;
+            pointer-events: auto;
+        }
+        #ui-wrap.collapsed {
+            transform: translateX(calc(-100% + var(--ui-tab-w) - 10px));
+        }
+        #ui {
             background: rgba(0, 0, 0, 0.4);
             color: #00ffcc;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 8px 0 0 8px;
             font-size: 12px;
-            pointer-events: none;
             border: 1px solid rgba(0, 255, 204, 0.3);
+            border-right: none;
             line-height: 1.1;
+            white-space: nowrap;
+        }
+        #ui-tab {
+            width: var(--ui-tab-w);
+            min-height: 36px;
+            padding: 0;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.55);
+            color: #00ffcc;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        #ui-tab:active {
+            background: #00ffcc;
+            color: #000;
         }
         #controls {
             position: absolute;
@@ -72,15 +104,19 @@
 </head>
 <body>
 
-    <div id="ui">
-        Rendering: <span id="fps">--</span><br>
-        Iterations: <span id="iterVal">---</span><br>
-        PanX: <span id="panXVal">---</span><br>
-        PanY: <span id="panYVal">---</span><br>
-        Zoom: <span id="zoomVal">---</span><br>
-        Resolution: <span id="resolutionVal">----</span><br>
-        Window: <span id="windowVal">----</span><br>
-        DPR: <span id="deviceVal">----</span>
+    <div id="ui-wrap">
+        <div id="ui">
+            Rendering: <span id="fps">--</span><br>
+            Iterations: <span id="iterVal">---</span><br>
+            PanX: <span id="panXVal">---</span><br>
+            PanY: <span id="panYVal">---</span><br>
+            Zoom: <span id="zoomVal">---</span><br>
+            Resolution: <span id="resolutionVal">----</span><br>
+            Render: <span id="renderVal">----</span><br>
+            Window: <span id="windowVal">----</span><br>
+            DPR: <span id="deviceVal">----</span>
+        </div>
+        <button id="ui-tab" type="button" aria-label="Hide info" aria-expanded="true" title="Hide info">‹</button>
     </div>
 
     <div id="controls">
@@ -96,13 +132,26 @@
     <canvas id="glCanvas"></canvas>
 
     <script>
+        const uiWrap = document.getElementById('ui-wrap');
+        const uiTab = document.getElementById('ui-tab');
+        uiWrap.addEventListener('mousedown', e => e.stopPropagation());
+        uiWrap.addEventListener('touchstart', e => e.stopPropagation());
+        uiTab.addEventListener('click', () => {
+            const collapsed = uiWrap.classList.toggle('collapsed');
+            uiTab.textContent = collapsed ? 'i' : '‹';
+            uiTab.setAttribute('aria-expanded', String(!collapsed));
+            uiTab.setAttribute('aria-label', collapsed ? 'Show info' : 'Hide info');
+            uiTab.title = collapsed ? 'Show info' : 'Hide info';
+        });
+
         const canvas = document.getElementById('glCanvas');
         const gl = canvas.getContext('webgl', { preserveDrawingBuffer: false, antialias: false });
         if (!gl) {
             alert('WebGL not supported on this device!');
         }
 
-        let maxIterations = 64;
+        const initialMaxIterations = 512;
+        let maxIterations = initialMaxIterations;
         let zoom = 1.1;
         let panX = -0.7;
         let panY = 0.0;
@@ -111,6 +160,16 @@
         const panYEl = document.getElementById('panYVal');
         const zoomEl = document.getElementById('zoomVal');
         const iterEl = document.getElementById('iterVal');
+        const renderEl = document.getElementById('renderVal');
+        const resolutionEl = document.getElementById('resolutionVal');
+        const windowEl = document.getElementById('windowVal');
+        const deviceEl = document.getElementById('deviceVal');
+
+        // Coarse while moving, then 1/8 → 1/4 → 1/2 → 1x when idle.
+        let renderDivisor = 8;
+        function renderCoarse() {
+            renderDivisor = 8;
+        }
 
         function updatePz() {
           panXEl.innerText = panX;
@@ -121,26 +180,15 @@
 
         function resize() {
             const dpr = window.devicePixelRatio || 1;
-
-            const resolutionEl = document.getElementById('resolutionVal');
-            const windowEl = document.getElementById('windowVal');
-            const deviceEl = document.getElementById('deviceVal');
-
-
-
-        
             canvas.width = window.innerWidth * dpr;
             canvas.height = window.innerHeight * dpr;
             gl.viewport(0, 0, canvas.width, canvas.height);
 
-
             const res = canvas.width * canvas.height / 1000000;
             resolutionEl.innerText = canvas.width + ' x ' + canvas.height + ' (' + res.toFixed(1) + 'Mpx)';
-
-
             windowEl.innerText = window.innerWidth + ' x ' + window.innerHeight + (' (' + (window.innerWidth * window.innerHeight / 1000000).toFixed(1) + 'Mpx)');
             deviceEl.innerText = dpr;
-
+            renderCoarse();
         }
         window.addEventListener('resize', resize);
         updatePz();
@@ -227,6 +275,65 @@
         const zoomLoc = gl.getUniformLocation(program, "u_zoom");
         const maxIterLoc = gl.getUniformLocation(program, "u_maxIterations");
 
+        const blitProgram = gl.createProgram();
+        gl.attachShader(blitProgram, createShader(gl, gl.VERTEX_SHADER, `
+            attribute vec2 a_position;
+            varying vec2 v_uv;
+            void main() {
+                v_uv = a_position * 0.5 + 0.5;
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+        `));
+        gl.attachShader(blitProgram, createShader(gl, gl.FRAGMENT_SHADER, `
+            precision mediump float;
+            uniform sampler2D u_tex;
+            varying vec2 v_uv;
+            void main() {
+                gl_FragColor = texture2D(u_tex, v_uv);
+            }
+        `));
+        gl.linkProgram(blitProgram);
+        const blitPosLoc = gl.getAttribLocation(blitProgram, "a_position");
+        const blitTexLoc = gl.getUniformLocation(blitProgram, "u_tex");
+
+        let fbo = gl.createFramebuffer();
+        let fboTex = gl.createTexture();
+        let fboW = 0;
+        let fboH = 0;
+
+        function ensureFbo(w, h) {
+            w = Math.max(1, w | 0);
+            h = Math.max(1, h | 0);
+            if (w === fboW && h === fboH) return;
+            fboW = w;
+            fboH = h;
+            gl.bindTexture(gl.TEXTURE_2D, fboTex);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fboTex, 0);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        }
+
+        function bindQuad(attrLoc) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(attrLoc);
+            gl.vertexAttribPointer(attrLoc, 2, gl.FLOAT, false, 0, 0);
+        }
+
+        function drawMandelbrot(w, h) {
+            gl.useProgram(program);
+            bindQuad(posAttrLoc);
+            gl.uniform2f(resLoc, w, h);
+            gl.uniform2f(panLoc, panX, panY);
+            gl.uniform1f(zoomLoc, zoom);
+            gl.uniform1i(maxIterLoc, maxIterations);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+
         // Interaction State variables
         let isDragging = false;
         let lastX = 0, lastY = 0;
@@ -248,6 +355,7 @@
             const minDim = Math.min(window.innerWidth, window.innerHeight);
             panX -= (dx / minDim) * (3.0 / zoom);
             panY += (dy / minDim) * (3.0 / zoom);
+            renderCoarse();
             updatePz();
         });
         window.addEventListener('mouseup', () => isDragging = false);
@@ -257,6 +365,7 @@
             transitioning = false;
             if (e.deltaY < 0) zoom *= zoomFactor;
             else zoom /= zoomFactor;
+            renderCoarse();
             updatePz();
         }, { passive: true });
 
@@ -297,6 +406,7 @@
                 
                 
             }
+            renderCoarse();
             updatePz();
         }, { passive: false });
 
@@ -307,6 +417,7 @@
 
         function adjustIter(amount) {
             maxIterations = Math.max(16, Math.min(512, maxIterations + amount));
+            renderCoarse();
             updatePz();
         }
 
@@ -319,7 +430,7 @@
             transitionPanX = -0.7;
             transitionPanY = 0.0;
             transitionZoom = 1.1;
-            maxIterations = 512;
+            maxIterations = initialMaxIterations;
             document.getElementById('iterVal').innerText = maxIterations;
             progressEl.style.width = '100%';
             updatePz();
@@ -327,6 +438,7 @@
         }
 
         let frameCount = 0;
+        let pixelsDrawn = 0;
         let lastTime = performance.now();
         let prevTime = performance.now();
         const fpsEl = document.getElementById('fps');
@@ -378,29 +490,50 @@
 
             if (now - lastTime >= 500) {
                 const fps = (frameCount * 1000) / (now - lastTime);
-                const res = canvas.width * canvas.height / 1000000;
-                fpsEl.innerText = fps.toFixed(1) + ' FPS (' + (fps * res).toFixed(1) + 'Mpx/s)';
+                const mpxs = (pixelsDrawn / 1000000) * 1000 / (now - lastTime);
+                fpsEl.innerText = fps.toFixed(1) + ' FPS (' + mpxs.toFixed(1) + 'Mpx/s)';
                 frameCount = 0;
+                pixelsDrawn = 0;
                 lastTime = now;
-
-                if (!transitioning) {
-                  progressEl.style.width = '0';
-                }
             }
 
             prevTime = now;
 
-            gl.useProgram(program);
-            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-            gl.enableVertexAttribArray(posAttrLoc);
-            gl.vertexAttribPointer(posAttrLoc, 2, gl.FLOAT, false, 0, 0);
+            const interacting = isDragging || initialPinchDistance !== null || transitioning;
+            if (interacting) renderDivisor = 8;
 
-            gl.uniform2f(resLoc, canvas.width, canvas.height);
-            gl.uniform2f(panLoc, panX, panY);
-            gl.uniform1f(zoomLoc, zoom);
-            gl.uniform1i(maxIterLoc, maxIterations);
-            
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            const rw = Math.max(1, Math.round(canvas.width / renderDivisor));
+            const rh = Math.max(1, Math.round(canvas.height / renderDivisor));
+
+            if (renderDivisor > 1) {
+                ensureFbo(rw, rh);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+                gl.viewport(0, 0, rw, rh);
+                drawMandelbrot(rw, rh);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                gl.useProgram(blitProgram);
+                bindQuad(blitPosLoc);
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, fboTex);
+                gl.uniform1i(blitTexLoc, 0);
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+            } else {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                drawMandelbrot(canvas.width, canvas.height);
+            }
+
+            pixelsDrawn += rw * rh;
+            renderEl.innerText = rw + ' x ' + rh + ' (1/' + renderDivisor + ')';
+
+            if (!transitioning) {
+                progressEl.style.width = renderDivisor === 1 ? '0' : Math.round(100 / renderDivisor) + '%';
+            }
+            if (!interacting && renderDivisor > 1) {
+                renderDivisor >>= 1;
+            }
+
             requestAnimationFrame(render);
         }
 
