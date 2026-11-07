@@ -175,7 +175,7 @@
       color: #666;
     }
 
-    .result-val.runnig {
+    .result-val.running {
       color: #ff0;
     }
 
@@ -709,7 +709,7 @@
         logMessage('Starting Linear Algebra benchmark (' + (useTyped ? 'Float32' : 'Array') + ') ' + size + ' x ' + size);
         document.getElementById('res-math-' + size).innerHTML = 'Running';
         removeClass('res-math-' + size, 'not-run');
-        addClass('res-math-' + size, 'runnig');
+        addClass('res-math-' + size, 'running');
       },
       function() {
         try {
@@ -756,7 +756,7 @@
             resStr += ' | ' + formatSi(1000 * size * size * size / mulDuration) + 'mul/s'
           }
           logMessage();
-          removeClass('res-math-' + size, 'runnig');
+          removeClass('res-math-' + size, 'running');
 
           document.getElementById('res-math-' + size).innerHTML = resStr;
           onComplete(rndDuration + mulDuration);
@@ -764,7 +764,7 @@
           document.getElementById('res-math-' + size).innerHTML = 'Error';
           logMessage('Math benchmark error: ' + e.message);
           logMessage();
-          removeClass('res-math-' + size, 'runnig');
+          removeClass('res-math-' + size, 'running');
           onComplete(1e6);
         }
       }
@@ -861,7 +861,7 @@
 
     resLabel.textContent = 'Running';
     removeClass('res-dom-' + sizeLabel, 'not-run');
-    addClass('res-dom-' + sizeLabel, 'runnig');
+    addClass('res-dom-' + sizeLabel, 'running');
 
 
     function domStep() {
@@ -880,7 +880,7 @@
         requestAnimationFrame(domStep)
       } else {
         vp.innerHTML = '';
-        removeClass('res-dom-' + sizeLabel, 'runnig');
+        removeClass('res-dom-' + sizeLabel, 'running');
         resLabel.textContent = duration + ' ms';
 
 
@@ -976,7 +976,7 @@
 
     resLabel.textContent = 'Start first iteration';
     removeClass('res-canvas-' + sizeLabel, 'not-run');
-    addClass('res-canvas-' + sizeLabel, 'runnig');
+    addClass('res-canvas-' + sizeLabel, 'running');
 
     canvasStatSizeLabel.textContent = sizeLabel + ' (' + maxIterations + ' x ' + shapesPerFrame + ')';
 
@@ -1028,6 +1028,7 @@
 
         resLabel.textContent = resText;
 
+
         // Yield to event loop so the DOM & canvas repaint before the next iteration
         requestAnimationFrame(function () {
           requestAnimationFrame(canvasStep);
@@ -1040,13 +1041,13 @@
 
         var score = Math.round((totalPrimitives / elapsed) * 1000);
 
-        removeClass('res-canvas', 'runnig');
 
         var resText = elapsed + ' ms';
         if (elapsed > 10) {
           resText += ' | ' + (1000 * iteration / elapsed).toFixed(1) + ' fps, ' + formatSi(1000 * totalPrimitives / elapsed) + ' pps';
         }
         resLabel.textContent = resText;
+        //removeClass('res-canvas-' + sizeLabel, 'running');
 
         // Final clear cleanup draw
         ctx.fillStyle = '#111';
