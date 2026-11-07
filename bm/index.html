@@ -323,31 +323,31 @@
       </div>
       <div class="card-desc">Batch element creation, style mutations, and removal reflow check.</div>
       <div class="card-footer">
-        <span class="result-val" id="res-dom-xxs">Not run</span>
+        <span class="result-val not-run" id="res-dom-xxs">Not run</span>
         <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'xxs'))">Run Test (xxs)</button>
       </div>
       <div class="card-footer">
-        <span class="result-val" id="res-dom-xs">Not run</span>
+        <span class="result-val not-run" id="res-dom-xs">Not run</span>
         <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'xs'))">Run Test (xs)</button>
       </div>
       <div class="card-footer">
-        <span class="result-val" id="res-dom-s">Not run</span>
+        <span class="result-val not-run" id="res-dom-s">Not run</span>
         <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 's'))">Run Test (s)</button>
       </div>
       <div class="card-footer">
-        <span class="result-val" id="res-dom-m">Not run</span>
+        <span class="result-val not-run" id="res-dom-m">Not run</span>
         <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'm'))">Run Test (m)</button>
       </div>
       <div class="card-footer">
-        <span class="result-val" id="res-dom-l">Not run</span>
+        <span class="result-val not-run" id="res-dom-l">Not run</span>
         <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'l'))">Run Test (l)</button>
       </div>
       <div class="card-footer">
-        <span class="result-val" id="res-dom-xl">Not run</span>
+        <span class="result-val not-run" id="res-dom-xl">Not run</span>
         <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'xl'))">Run Test (xl)</button>
       </div>
       <div class="card-footer">
-        <span class="result-val" id="res-dom-xxl">Not run</span>
+        <span class="result-val not-run" id="res-dom-xxl">Not run</span>
         <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runDomBenchmark, 'xxl'))">Run Test (xxl)</button>
       </div>
       <!-- Live Visual DOM Viewport Container -->
@@ -363,19 +363,49 @@
 
     <!-- 2D Canvas / D3 Rendering Card -->
     <div class="card" id="card-canvas">
-        <div class="card-header">
-            <span class="card-title">3. 2D Canvas / D3 Primitives</span>
-            <span class="badge" id="badge-canvas">PENDING</span>
-        </div>
-        <div class="card-desc">Renders path loops and primitive shapes to assess 2D context throughput.</div>
-        <div class="card-footer">
-            <span class="result-val not-run" id="res-canvas">Not run</span>
-            <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(runCanvasBenchmark)">Run Test</button>
-        </div>
-        <!-- Live Visual Canvas Viewport -->
-       <div class="canvas-container" style="text-align: center; margin: 10px 0;">
-             <canvas id="benchmarkCanvas" width="350" height="250" style="background: #111; border: 1px solid #444; border-radius: 4px;"></canvas>
-        </div>
+      <div class="card-header">
+        <span class="card-title">3. 2D Canvas / D3 Primitives</span>
+        <span class="badge" id="badge-canvas">PENDING</span>
+      </div>
+      <div class="card-desc">Renders path loops and primitive shapes to assess 2D context throughput.</div>
+      <div class="card-footer">
+        <span class="result-val not-run" id="res-canvas-xxs">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runCanvasBenchmark, 'xxs'))">Run Test (xxs)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val not-run" id="res-canvas-xs">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runCanvasBenchmark, 'xs'))">Run Test (xs)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val not-run" id="res-canvas-s">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runCanvasBenchmark, 's'))">Run Test (s)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val not-run" id="res-canvas-m">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runCanvasBenchmark, 'm'))">Run Test (m)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val not-run" id="res-canvas-l">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runCanvasBenchmark, 'l'))">Run Test (l)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val not-run" id="res-canvas-xl">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runCanvasBenchmark, 'xl'))">Run Test (xl)</button>
+      </div>
+      <div class="card-footer">
+        <span class="result-val not-run" id="res-canvas-xxl">Not run</span>
+        <button class="btn" style="padding:6px 12px; font-size:12px;" onclick="fire(currySecond(runCanvasBenchmark, 'xxl'))">Run Test (xxl)</button>
+      </div>
+      <!-- Live Visual Canvas Viewport -->
+      <div class="canvas-container" style="text-align: center; margin: 10px 0;">
+        <canvas id="benchmarkCanvas" width="350" height="250" style="background: #111; border: 1px solid #444; border-radius: 4px;"></canvas>
+      </div>
+      <div class="card-footer" style="font-size: 11px; color: #888;">
+        <span>Size: <span id="canvas-stat-size" style="color: #0ff;">-</span></span>
+        <span>Iteration: <span id="canvas-stat-iteration" style="color: #0ff;">-</span></span>
+        <span>Duration: <span id="canvas-stat-duration" style="color: #0ff;">-</span></span>
+      </div>
+
     </div>
 
     <!-- Audio Context Card -->
@@ -464,8 +494,9 @@
 
   var running = false;
 
-  // fire an action when not running
-  // action must honor stepper() step function contracts
+  // fire with disabled menus
+  //  - make sure not running
+  //  - action must honor stepper() step function contracts
   //  - return async token for async execution and honor onComplete callback
   function fire(action) {
     if (running) {
@@ -481,7 +512,6 @@
         running = false;
       }
     ];
-
     return stepper(steps)
   }
 
@@ -891,25 +921,65 @@
   }
 
   // 3. 2D Canvas Benchmark (ES5)
-  function runCanvasBenchmark(onComplete) {
+  function runCanvasBenchmark(onComplete, size) {
     var canvas = document.getElementById('benchmarkCanvas');
     if (!canvas || !canvas.getContext) {
       logMessage('No canvas / canvas.getContext');
       return;
     };
 
-    var ctx = canvas.getContext('2d');
-    var resLabel = document.getElementById('res-canvas');
-
-    resLabel.textContent = 'Start first iteration';
-    removeClass('res-canvas', 'not-run');
-    addClass('res-canvas', 'runnig');
 
     var totalPrimitives = 0;
     var startTime = new Date().getTime();
     var iteration = 0;
-    var maxIterations = 100;
-    var shapesPerFrame = 2500;
+    var maxIterations = 20;
+    var shapesPerFrame = 500;
+
+    var sizeLabel = 'xxs';
+
+    if (size === 'xxs') {
+      maxIterations = 20;
+      shapesPerFrame = 200;
+      sizeLabel = size;
+    } else if (size === 'xs') {
+      maxIterations = 20;
+      shapesPerFrame = 800;
+      sizeLabel = size;
+    } else if (size === 's') {
+      maxIterations = 20;
+      shapesPerFrame = 3500;
+      sizeLabel = size;
+    } else if (size === 'm') {
+      maxIterations = 20;
+      shapesPerFrame = 15000;
+      sizeLabel = size;
+    } else if (size === 'l') {
+      maxIterations = 20;
+      shapesPerFrame = 50000;
+      sizeLabel = size;
+    } else if (size === 'xl') {
+      maxIterations = 20;
+      shapesPerFrame = 150000;
+      sizeLabel = size;
+    } else if (size === 'xxl') {
+      maxIterations = 20;
+      shapesPerFrame = 400000;
+      sizeLabel = size;
+    }
+
+
+    var ctx = canvas.getContext('2d');
+    var resLabel = document.getElementById('res-canvas-' + sizeLabel);
+    var canvasStatSizeLabel = document.getElementById('canvas-stat-size');
+    var canvasStatIterationLabel = document.getElementById('canvas-stat-iteration');
+    var canvasStatDurationLabel = document.getElementById('canvas-stat-duration');
+
+    resLabel.textContent = 'Start first iteration';
+    removeClass('res-canvas-' + sizeLabel, 'not-run');
+    addClass('res-canvas-' + sizeLabel, 'runnig');
+
+    canvasStatSizeLabel.textContent = sizeLabel + ' (' + maxIterations + ' x ' + shapesPerFrame + ')';
+
 
     function canvasStep() {
       if (iteration < maxIterations) {
@@ -947,7 +1017,10 @@
         iteration++;
 
         var elapsed = new Date().getTime() - startTime;
-        var resText = 'Iteration ' + iteration + '/' + maxIterations + ' | ' + elapsed + ' ms';
+
+        canvasStatIterationLabel.textContent = iteration + ' of ' + maxIterations;
+        canvasStatDurationLabel.textContent = elapsed + ' ms';
+        var resText = 'Running';
 
         if (elapsed > 10) {
           resText += ' | ' + (1000 * iteration / elapsed).toFixed(1) + ' fps, ' + formatSi(1000 * totalPrimitives / elapsed) + ' pps';
@@ -987,7 +1060,7 @@
         ctx.fillText(formatSi(score) + ' primitives/sec', 40, 120);
         ctx.fillText((1000 * iteration / elapsed).toFixed(1) + ' frames/sec', 40, 140);
 
-        if (onComplete) { onComplete(); }
+        if (onComplete) { onComplete(elapsed); }
       }
     }
 
@@ -1188,8 +1261,27 @@
             },
             willScrollIntoView('card-canvas'),
             function(c) {
-              return runCanvasBenchmark(c);
+              return runCanvasBenchmark(c, 'xxs');
             },
+            function(c, r) {
+              return r < 1500 ? runCanvasBenchmark(c, 'xs') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runCanvasBenchmark(c, 's') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runCanvasBenchmark(c, 'm') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runCanvasBenchmark(c, 'l') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runCanvasBenchmark(c, 'xl') : c(r);
+            },
+            function(c, r) {
+              return r < 1500 ? runCanvasBenchmark(c, 'xxl') : c(r);
+            },
+
             function() {
               runAudioBenchmark();
             },
