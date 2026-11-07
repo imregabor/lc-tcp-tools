@@ -883,7 +883,9 @@
         if (onComplete) { onComplete(duration); }
       }
     }
-    requestAnimationFrame(domStep)
+    requestAnimationFrame(function() {
+      requestAnimationFrame(domStep);
+    })
     // setTimeout(domStep, 0);
     return asyncToken;
   }
@@ -954,7 +956,10 @@
         resLabel.textContent = resText;
 
         // Yield to event loop so the DOM & canvas repaint before the next iteration
-        setTimeout(canvasStep, 0);
+        requestAnimationFrame(function () {
+          requestAnimationFrame(canvasStep);
+        })
+        //setTimeout(canvasStep, 0);
 
       } else {
         // Finished all iterations! Calculate throughput score
@@ -1095,6 +1100,7 @@
             function() {
               logMessage('--- Running Full Benchmark Suite ---');
             },
+            willScrollIntoView('card-math'),
             function(c, r) {
               return runMathBenchmark(c, 64);
             },
@@ -1158,6 +1164,7 @@
             function(c, r) {
               return r < 1500 ? runMathBenchmark(c, 2048) : c(r);
             },
+            willScrollIntoView('card-dom'),
             function(c) {
               return runDomBenchmark(c, 'xxs');
             },
@@ -1179,6 +1186,7 @@
             function(c, r) {
               return r < 1500 ? runDomBenchmark(c, 'xxl') : c(r);
             },
+            willScrollIntoView('card-canvas'),
             function(c) {
               return runCanvasBenchmark(c);
             },
@@ -1201,6 +1209,17 @@
 
             runNetworkBenchmark();
         }
+
+
+        function willScrollIntoView(elementId) {
+          var element = document.getElementById(elementId);
+          return function(onComplete) {
+            element.scrollIntoView();
+            setTimeout(onComplete, 200);
+            return asyncToken;
+          }
+        }
+
 
         // this return value indicates an async step; onCompleted callback must be honored
         var asyncToken = ';aolsdhcvf';
