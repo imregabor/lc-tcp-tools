@@ -33,6 +33,8 @@ function open(opts) {
   var connected = false;
   var connectedTime;;
   var fwdClient;
+  var lastHb = undefined;
+  var hbCount = 0;
 
   function notifyStatusChange() {
     if (onStatusChange) {
@@ -60,6 +62,7 @@ function open(opts) {
     fwdClient.on('end', () => {
       log('End FWD connection to ' + conns);
       connected = false;
+      lastHb = undefined;
       if (!retrying) {
         retrying = true;
         log(`  Retry FWD conenction in ${retryTimeout} s`);
@@ -70,6 +73,7 @@ function open(opts) {
     fwdClient.on('error', () => {
       log('ERROR FWD connection to ' + conns);
       connected = false;
+      lastHb = undefined;
       if (!retrying) {
         retrying = true;
         log(`  Retry FWD conenction in ${retryTimeout} s`);
@@ -78,7 +82,36 @@ function open(opts) {
       }
     });
     fwdClient.on('data', d => {
-      log('DATA from FWD connection (dropped): ' + d.toString());
+      // Heartbeat example:
+      //
+      // HB utrun: 45 utrtr: 45 uttcp: 36 tcpr: 54 udpr: 20 pkgs: 1920 pqs: 30 dda: 1251
+      // 0  1      2  3      4  5      6  7     8  9     10 11    12   13   14 15   16
+      //
+      var hb = false;
+      var ds = d.toString();
+      if (ds.startsWith('HB')) {
+        var c = ds.split(' ');
+        if (c.length == 17) {
+          hbCount++;
+          hb = true;
+          lastHb = {
+            'uptime' : +c[2],
+            'uptime-hw' : +c[4],
+            'uptime-tcpsrv' : +c[6],
+            'tcp-rcv' : +c[8],
+            'udp-rcv' : +c[10],
+            'pkg-sent' : +c[12],
+            'pqg-qs' : +c[14],
+            'dda' : +c[16]
+          };
+        }
+
+      }
+
+      if (!hb) {
+        log('DATA from FWD connection (dropped): ' + d.toString());
+      }
+
     });
   }
   tryConnect();
@@ -109,7 +142,9 @@ function open(opts) {
         connected : connected,
         uptime : connected ? Date.now() - connectedTime : 0,
         readyState : fwdClient.readyState,
-        local: fwdClient.localAddress + ':' + fwdClient.localPort + ' (' + fwdClient.localFamily + ')'
+        local: fwdClient.localAddress + ':' + fwdClient.localPort + ' (' + fwdClient.localFamily + ')',
+        lastHb : lastHb,
+        hbCount : hbCount
       };
     },
     isConnected: () => connected,

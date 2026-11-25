@@ -37,10 +37,10 @@ export function initPage() {
   const srvFwdConnIcon = topNav.addStatusIcon({
     styles: topNav.statusIconStyles.plug,
     titles : {
-      unknown : 'Server forwarding connection is in unknown state',
-      warn : 'Server forwarding connection is in unknown state',
-      err : 'Server forwarding connection is not connected',
-      ok : 'Server forwarding connection is connected',
+      unknown : 'Legacy router connection is in unknown state',
+      warn : 'Legacy router connected but hardware is not present',
+      err : 'Legacy router connection is not connected',
+      ok : 'Legacy router is connected and up',
     }
   }).unknown();
   const wsStripConnIcon = topNav.addStatusIcon({
@@ -145,9 +145,11 @@ export function initPage() {
 
   // Periodic status info update
   var lastSent;
+  var lastFwdHbCount = 0;
   function updateStatusIconsSent() {
     lastSent = Date.now();
     restApiIcon.badge('fa-heart lightblue', 200);
+
   }
   function updateStatusIconsOk(statusInfo) {
     const dt = Date.now() - lastSent;
@@ -161,11 +163,22 @@ export function initPage() {
     restApiIcon
         .ok(`ping: ${dt} ms`)
         .badgeOff(500, 200);
+
     if (statusInfo.fwdConnStatus.connected) {
-      srvFwdConnIcon.ok();
+      if (statusInfo.fwdConnStatus.lastHb && statusInfo.fwdConnStatus.lastHb['uptime-hw'] > 0) {
+        srvFwdConnIcon.ok();
+      } else {
+        srvFwdConnIcon.warn();
+      }
     } else {
       srvFwdConnIcon.err();
     }
+    if (statusInfo.fwdConnStatus.hbCount != lastFwdHbCount) {
+      srvFwdConnIcon.badgeFlash('fa-heart ok', 200);
+    }
+    lastFwdHbCount = statusInfo.fwdConnStatus.hbCount;
+
+
     if (statusInfo.wsStripStatus.up) {
       wsStripConnIcon.ok();
     } else if (statusInfo.wsStripStatus.waiting) {
@@ -174,6 +187,8 @@ export function initPage() {
       wsStripConnIcon.err();
     }
   }
+
+
   function updateStatusIconsErr(statusInfo) {
     uptimeDiv.text('----');
     if (statusDetailsD3s) {
@@ -201,7 +216,7 @@ export function initPage() {
     statusInfoTimeout = setTimeout(() => {
       statusInfoTimeout = undefined;
       pollStatusInfo();
-    }, statusDetailsD3s ? 500 : 2000);
+    }, statusDetailsD3s ? 500 : 1000);
   }
   pollStatusInfo();
 

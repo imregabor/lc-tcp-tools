@@ -36,6 +36,11 @@ export function addStatusIcon(d3sel, opts) {
         .style('opacity', 1);
       return ret;
     },
+    badgeFlash : (faclass, transitionDuration) => {
+      ret.badge(faclass, transitionDuration);
+      ret.badgeOff(transitionDuration, transitionDuration);
+      return ret;
+    },
     unknown : () => {
       icon
           .classed(opts.styles.ok, false)
